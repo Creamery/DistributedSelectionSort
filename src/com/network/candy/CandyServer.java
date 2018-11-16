@@ -3,16 +3,21 @@ package com.network.candy;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 public class CandyServer extends Thread {
+
+	
 	   private ServerSocket serverSocket;
+	   private InetAddress address;
 	   
 	   public CandyServer(int port) throws IOException {
 	      serverSocket = new ServerSocket(port);
+	      
 	      // Set how long the server will wait for a connection
-	      serverSocket.setSoTimeout(10000);
+	      serverSocket.setSoTimeout(1000000000);
 	   }
 
 	   public void run() {
@@ -39,4 +44,12 @@ public class CandyServer extends Thread {
 	         }
 	      }
 	   }
+
+	public InetAddress getAddress() {
+		return address;
+	}
+
+	public void setAddress(InetAddress address) {
+		this.address = address;
+	}
 }
