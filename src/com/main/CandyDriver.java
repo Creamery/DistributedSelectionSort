@@ -2,22 +2,22 @@ package com.main;
 
 import java.io.IOException;
 
-import com.sample.SampleClient;
-import com.sample.SampleServer;
+import com.network.candy.CandyClient;
+import com.network.candy.CandyServer;
 
 public class CandyDriver {
 
 	public static void main(String[] args) {
 		System.out.println("[Starting] main (CandyDriver)");
 
-		int port = 6606;
+		int port = 80;
 		
 		try {
-			Thread server = new SampleServer(port);
+			Thread server = new CandyServer(port);
 			server.start();
 			
-			SampleClient client = new SampleClient();
-			client.start("localhost", String.valueOf(port));
+			CandyClient client = new CandyClient();
+			client.start("IPHost", "49.147.224.188", String.valueOf(port));
 			
 		} catch (IOException e) {
 			e.printStackTrace();

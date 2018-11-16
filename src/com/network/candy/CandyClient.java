@@ -5,26 +5,34 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetAddress;
 import java.net.Socket;
+import java.net.UnknownHostException;
 
 public class CandyClient extends Thread {
 	private String host;
-	private String port;
+	private int port;
+	private InetAddress address;
 	
-	public void start(String host, String port) {
+	public void start(String host, String address, String port) throws UnknownHostException {
 		this.setHost(host);
-		this.setPort(port);
+		this.setPort(Integer.parseInt(port));
+		this.setAddress(InetAddress.getByName(address));
+		
 		this.run();
 	}
 	
 	public void run() {
 		System.out.println("[CLIENT]: "+"Running CandyClient...");
+		
 		String serverName = this.getHost();
-		int port = Integer.parseInt(this.getPort());
+		InetAddress ip = this.getAddress();
+		int port = this.getPort();
+		
 		try {
 			System.out.println("[CLIENT]: "+"Connecting to " + serverName + " on port " + port);
-			Socket client = new Socket(serverName, port);
-	        
+			Socket client = new Socket(ip, port);
+	       
 	        System.out.println("[CLIENT]: "+"Just connected to " + client.getRemoteSocketAddress());
 	        OutputStream outToServer = client.getOutputStream();
 	        DataOutputStream out = new DataOutputStream(outToServer);
@@ -49,11 +57,19 @@ public class CandyClient extends Thread {
 		this.host = host;
 	}
 
-	public String getPort() {
+	public int getPort() {
 		return port;
 	}
 
-	public void setPort(String port) {
+	public void setPort(int port) {
 		this.port = port;
+	}
+
+	public InetAddress getAddress() {
+		return address;
+	}
+
+	public void setAddress(InetAddress address) {
+		this.address = address;
 	}
 }
