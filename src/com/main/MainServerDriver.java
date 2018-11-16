@@ -6,13 +6,12 @@ import com.network.MainServer;
 
 public class MainServerDriver {
 
-	public static int PORT = 80;
 
 	public static void main(String[] args) {
 		System.out.println("[Starting] main (MainServerDriver)");
 		
 		try {
-			Thread server = new MainServer(PORT);
+			Thread server = new MainServer(Info.PORT);
 			server.start();
 			
 		} catch (IOException e) {
