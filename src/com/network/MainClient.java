@@ -55,18 +55,6 @@ public class MainClient extends Thread {
 				e.printStackTrace();
 			}
 	        
-	        /*// Data I/O Stream
-	        OutputStream outToServer = client.getOutputStream();
-	        DataOutputStream out = new DataOutputStream(outToServer);
-	        
-	        out.writeUTF("[CLIENT]: "+"Hello from " + client.getLocalSocketAddress());
-	        InputStream inFromServer = client.getInputStream();
-	        DataInputStream in = new DataInputStream(inFromServer);
-	        
-	        System.out.println("[CLIENT]: "+"Server says " + in.readUTF());
-	        */
-	        
-	        
 	        client.close();
 	     }
 		catch (IOException e) {

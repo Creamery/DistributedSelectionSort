@@ -29,20 +29,7 @@ public class MainServer extends Thread {
 	               serverSocket.getLocalPort() + "...");
 				   Socket server = serverSocket.accept();
 				   
-				   
 				   System.out.println("[SERVER]: "+"Just connected to " + server.getRemoteSocketAddress());
-				   
-				   /*// Data I/O
-				   DataInputStream in = new DataInputStream(server.getInputStream());
-				   System.out.println(in.readUTF());
-
-				   DataOutputStream out = new DataOutputStream(server.getOutputStream());
-				   out.writeUTF("[SERVER]: "+"Thank you for connecting to " + server.getLocalSocketAddress()
-				   	+ "\nGoodbye!");
-				   	
-				   	objOut.writeUTF("[SERVER]: "+"Thank you for connecting to " + server.getLocalSocketAddress()
-				   	+ "\nGoodbye!");
-				   */
 				   
 				   // Object I/O
 				   ObjectInputStream objIn = new ObjectInputStream(server.getInputStream());
