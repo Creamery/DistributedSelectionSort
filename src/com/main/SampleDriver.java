@@ -10,14 +10,12 @@ public class SampleDriver {
 	public static void main(String[] args) {
 		System.out.println("[Starting] main (SampleDriver)");
 
-		int port = 6606;
-		
 		try {
-			Thread server = new SampleServer(port);
+			Thread server = new SampleServer(Info.PORT);
 			server.start();
 			
 			SampleClient client = new SampleClient();
-			client.start("localhost", String.valueOf(port));
+			client.start("localhost", String.valueOf(Info.PORT));
 			
 		} catch (IOException e) {
 			e.printStackTrace();

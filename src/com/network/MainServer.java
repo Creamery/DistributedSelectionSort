@@ -1,4 +1,4 @@
-package com.network.candy;
+package com.network;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -7,12 +7,13 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
-public class CandyServer extends Thread {
+public class MainServer extends Thread {
 
+	
 	   private ServerSocket serverSocket;
 	   private InetAddress address;
 	   
-	   public CandyServer(int port) throws IOException {
+	   public MainServer(int port) throws IOException {
 	      serverSocket = new ServerSocket(port);
 	      
 	      // Set how long the server will wait for a connection
