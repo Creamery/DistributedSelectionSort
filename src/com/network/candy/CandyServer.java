@@ -7,6 +7,8 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+
+import com.main.Info;
 public class CandyServer extends Thread {
 
 	   private ServerSocket serverSocket;
@@ -17,7 +19,7 @@ public class CandyServer extends Thread {
 	      
 	      System.out.println("Server Timeout is "+serverSocket.getSoTimeout());
 	      // Set how long the server will wait for a connection
-//	      serverSocket.setSoTimeout(1000000000);
+	      serverSocket.setSoTimeout(Info.SERVER_TIMEOUT);
 	   }
 
 	   public void run() {

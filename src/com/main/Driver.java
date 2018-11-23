@@ -19,5 +19,6 @@ public class Driver {
 				MainClientDriver.main(args);
 			}
 		}
+		scanner.close();
 	}
 }

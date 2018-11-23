@@ -7,4 +7,6 @@ public class Info {
 	public static String ETHER_NET = "169.254.233.8";
 	
 	public static String NETWORK = ETHER_NET;
+	
+	public static int SERVER_TIMEOUT = 0;
 }
