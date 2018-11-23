@@ -34,9 +34,7 @@ public class ViewManager extends Thread {
 	}
 	
 	public void startScanner() {
-		Print.system("Please wait...");
 		this.setScanner(new Scanner(System.in));
-		Print.system("Scanner started.");
 	}
 	
 	/**

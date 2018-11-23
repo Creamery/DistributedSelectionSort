@@ -5,6 +5,7 @@ import java.util.Random;
 import com.view.Mode;
 
 public class Print {
+	
 	private static String SYSTEM = "> ";
 
 	public static void message(String message) {
@@ -16,7 +17,21 @@ public class Print {
 	}
 
 	public static void mode(Mode mode) {
-		System.out.println("\t\t\t | "+mode+" |");
+		System.err.println();
+		System.err.println("[@' ▽  '@]: Welcome to "+mode+" mode. Here are the available commands: ");
+		commands(mode);
+	}
+	
+	public static void commands(Mode mode) {
+		switch(mode) {
+			case MAIN:
+				System.err.println("\t\t⦿ SERVER ");
+				System.err.println("\t\t⦿ CLIENT ");
+				System.err.println("\t\t⦿ EXIT ");
+			break;
+			default:
+				break;
+		}
 	}
 	
 	public static void invalid(String message) {
@@ -40,11 +55,11 @@ public class Print {
 				System.err.println(message+" is an invalid command.");
 				break;
 		}
-
 	}
 	
 	
 	public static void waiting() {
+		System.err.println();
 		System.out.println();
 		System.out.print("[@' w '@]: ");
 	}
