@@ -21,7 +21,6 @@ public class ViewManager extends Thread {
 		
 		while(this.getMode() != Mode.END) {
 
-			this.consumeCommand();
 			// Block until has next input
 			while(!this.getScanner().hasNext()) { ; }
 			
@@ -63,6 +62,7 @@ public class ViewManager extends Thread {
 	
 	public void consumeCommand() {
 		this.setCommand("");
+		this.getScanner().reset();
 	}
 	
 	public void mainCommand(String command) {
@@ -70,9 +70,9 @@ public class ViewManager extends Thread {
 			ControllerManager.Instance().getServer().start();
 			this.setMode(Mode.SERVER);
 		}
-		if(isStartClient(command)) {
+		else if(isStartClient(command)) {
 			ControllerManager.Instance().getClient().start();
-			this.setMode(Mode.SERVER);
+			this.setMode(Mode.CLIENT);
 		}
 		else if(isExit(command)) {
 			Print.response("Goodbye!");
@@ -82,6 +82,7 @@ public class ViewManager extends Thread {
 			Print.invalid(command);
 			Print.waiting();
 		}
+		this.consumeCommand();
 	}
 	
 	public void serverCommand(String command) {
@@ -92,6 +93,7 @@ public class ViewManager extends Thread {
 			Print.invalid(command);
 			Print.waiting();
 		}
+		this.consumeCommand();
 	}
 	
 	public void clientCommand(String command) {
@@ -102,6 +104,7 @@ public class ViewManager extends Thread {
 			Print.invalid(command);
 			Print.waiting();
 		}
+		this.consumeCommand();
 	}
 	public boolean isStartServer(String command) {
 		if(command.toLowerCase().contains("server")) {
