@@ -19,7 +19,8 @@ public class ViewManager extends Thread {
 		this.startScanner();
 		
 		while(this.getMode() != Mode.END) {
-			
+
+			this.consumeCommand();
 			// Block until has next input
 			while(!this.getScanner().hasNext()) { ; }
 			
@@ -29,14 +30,13 @@ public class ViewManager extends Thread {
 			// Execute command
 			this.listen(this.getCommand());
 		}
+		this.getScanner().close();
 	}
 	
 	public void startScanner() {
 		Print.system("Please wait...");
 		this.setScanner(new Scanner(System.in));
 		Print.system("Scanner started.");
-		
-		this.consumeCommand();
 	}
 	
 	/**
@@ -60,14 +60,13 @@ public class ViewManager extends Thread {
 			default:
 				break;
 		}
-		// Consume the command
-		this.consumeCommand();
 	}
 	
 	public void consumeCommand() {
 		this.setCommand("");
 		Print.waiting();
 	}
+	
 	public void mainCommand(String command) {
 		if(isStartServer(command)) {
 			Print.system("Starting server.");
