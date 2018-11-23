@@ -15,8 +15,9 @@ public class CandyServer extends Thread {
 	   public CandyServer(int port) throws IOException {
 	      serverSocket = new ServerSocket(port);
 	      
+	      System.out.println("Server Timeout is "+serverSocket.getSoTimeout());
 	      // Set how long the server will wait for a connection
-	      serverSocket.setSoTimeout(1000000000);
+//	      serverSocket.setSoTimeout(1000000000);
 	   }
 
 	   public void run() {

@@ -11,7 +11,7 @@ public class CandyClientDriver {
 		
 		try {
 			CandyClient client = new CandyClient();
-			client.start("IPHost", Info.PUBLIC_NET, String.valueOf(Info.PORT));
+			client.start("IPHost", Info.NETWORK, String.valueOf(Info.PORT));
 			
 		} catch (IOException e) {
 			e.printStackTrace();
