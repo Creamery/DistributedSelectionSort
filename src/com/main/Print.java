@@ -17,21 +17,31 @@ public class Print {
 	}
 
 	public static void mode(Mode mode) {
-		System.err.println();
-		System.err.println("[@' ▽  '@]: Welcome to "+mode+" mode. Here are the available commands: ");
-		commands(mode);
+		if(mode != Mode.END) {
+			switch(mode) {
+				case MAIN:
+					System.err.println("\n\n[@' ▽  '@]: Welcome to "+mode+" mode. Here are the available commands: " +
+					"\n\t\t⦿ SERVER " +
+					"\n\t\t⦿ CLIENT " +
+					"\n\t\t⦿ EXIT ");
+					break;
+				case SERVER:
+					System.err.println("\n\n[@' ▽  '@]: Welcome to "+mode+" mode. Here are the available commands: " +
+							"\n\t\t⦿ EXIT ");
+					break;
+				case CLIENT:
+					System.err.println("\n\n[@' ▽  '@]: Welcome to "+mode+" mode. Here are the available commands: " +
+							"\n\t\t⦿ EXIT ");
+					break;
+				default:
+					break;
+			}
+			Print.waiting();
+		}
 	}
 	
-	public static void commands(Mode mode) {
-		switch(mode) {
-			case MAIN:
-				System.err.println("\t\t⦿ SERVER ");
-				System.err.println("\t\t⦿ CLIENT ");
-				System.err.println("\t\t⦿ EXIT ");
-			break;
-			default:
-				break;
-		}
+	public static void response(String message) {
+		System.out.println("[☆＾ ▽  ＾☆]: "+message);
 	}
 	
 	public static void invalid(String message) {

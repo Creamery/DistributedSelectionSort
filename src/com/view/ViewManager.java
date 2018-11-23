@@ -2,6 +2,7 @@ package com.view;
 
 import java.util.Scanner;
 
+import com.controller.ControllerManager;
 import com.main.Print;
 
 
@@ -62,28 +63,70 @@ public class ViewManager extends Thread {
 	
 	public void consumeCommand() {
 		this.setCommand("");
-		Print.waiting();
 	}
 	
 	public void mainCommand(String command) {
 		if(isStartServer(command)) {
-			Print.system("Starting server.");
+			ControllerManager.Instance().getServer().start();
+			this.setMode(Mode.SERVER);
+		}
+		if(isStartClient(command)) {
+			ControllerManager.Instance().getClient().start();
+			this.setMode(Mode.SERVER);
+		}
+		else if(isExit(command)) {
+			Print.response("Goodbye!");
+			this.setMode(Mode.END);
 		}
 		else {
 			Print.invalid(command);
+			Print.waiting();
 		}
 	}
 	
 	public void serverCommand(String command) {
-		
+		if(isExit(command)) {
+			this.setMode(Mode.MAIN);
+		}
+		else {
+			Print.invalid(command);
+			Print.waiting();
+		}
 	}
 	
 	public void clientCommand(String command) {
-		
+		if(isExit(command)) {
+			this.setMode(Mode.MAIN);
+		}
+		else {
+			Print.invalid(command);
+			Print.waiting();
+		}
 	}
 	public boolean isStartServer(String command) {
+		if(command.toLowerCase().contains("server")) {
+			return true;
+		}
 		
-		if(command.contains("server")) {
+		else {
+			return false;
+		}
+	}
+	public boolean isStartClient(String command) {
+		if(command.toLowerCase().contains("client")) {
+			return true;
+		}
+		
+		else {
+			return false;
+		}
+	}
+	public boolean isExit(String command) {
+		String lowCommand = command.toLowerCase();
+		if(	lowCommand.contains("exit") ||
+			lowCommand.contains("end") ||
+			lowCommand.contains("bye") ||
+			lowCommand.contains("close")) {
 			return true;
 		}
 		
