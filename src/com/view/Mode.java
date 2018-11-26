@@ -5,5 +5,7 @@ public enum Mode {
 	MAIN,
 	SERVER,
 	CLIENT,
-	END
+	END,
+	VIEW_CLIENT,
+	VIEW_SERVER
 }

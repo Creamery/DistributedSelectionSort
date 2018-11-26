@@ -26,7 +26,7 @@ public class ViewManager extends Thread {
 			
 			// Store command
 			this.setCommand(this.getScanner().nextLine());
-			
+			this.getScanner().reset();
 			// Execute command
 			this.listen(this.getCommand());
 		}
@@ -68,7 +68,7 @@ public class ViewManager extends Thread {
 	public void mainCommand(String command) {
 		if(isStartServer(command)) {
 			ControllerManager.Instance().getServer().start();
-			this.setMode(Mode.SERVER);
+			this.setMode(Mode.SERVER);	
 		}
 		else if(isStartClient(command)) {
 			ControllerManager.Instance().getClient().start();
@@ -82,13 +82,24 @@ public class ViewManager extends Thread {
 			Print.invalid(command);
 			Print.waiting();
 		}
-		this.consumeCommand();
 	}
 	
 	public void serverCommand(String command) {
 		if(isExit(command)) {
 			this.setMode(Mode.MAIN);
 		}
+		else if(isStart(command) || isSort(command)) {
+			// Start sorting
+		}
+		else if(isStop(command)) {
+			// Stop sorting
+		}
+		else if(isView(command)) {
+			// View clients
+		}
+		else if(isBroadcast(command)) {
+			// Broadcast
+		}
 		else {
 			Print.invalid(command);
 			Print.waiting();
@@ -96,9 +107,19 @@ public class ViewManager extends Thread {
 		this.consumeCommand();
 	}
 	
+	
 	public void clientCommand(String command) {
 		if(isExit(command)) {
 			this.setMode(Mode.MAIN);
+		}
+		else if(isStart(command)) {
+			// Start server
+		}
+		else if(isView(command)) {
+			// View server
+		}
+		else if(isStop(command)) {
+			// Stop server
 		}
 		else {
 			Print.invalid(command);
@@ -106,11 +127,60 @@ public class ViewManager extends Thread {
 		}
 		this.consumeCommand();
 	}
+	
+	public boolean isStart(String command) {
+		String lowCommand = command.toLowerCase();
+		if( lowCommand.contains("start") ||
+			lowCommand.contains("begin") ||
+			lowCommand.contains("go")) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	
+	public boolean isView(String command) {
+		String lowCommand = command.toLowerCase();
+		if(lowCommand.contains("view")) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	public boolean isSort(String command) {
+		String lowCommand = command.toLowerCase();
+		if(lowCommand.contains("sort")) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	public boolean isBroadcast(String command) {
+		String lowCommand = command.toLowerCase();
+		if(lowCommand.contains("broadcast")) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	public boolean isStop(String command) {
+		String lowCommand = command.toLowerCase();
+		if( lowCommand.contains("stop") ||
+			lowCommand.contains("wait")) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
 	public boolean isStartServer(String command) {
 		if(command.toLowerCase().contains("server")) {
 			return true;
 		}
-		
 		else {
 			return false;
 		}

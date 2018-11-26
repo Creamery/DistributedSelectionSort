@@ -1,5 +1,7 @@
 package com.main;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 public class Info {
 	public static int PORT = 80;
@@ -11,7 +13,15 @@ public class Info {
 	public static String LOCAL_NET = "192.168.96.105";
 	public static String ETHER_NET = "169.254.233.8";
 	
-	public static String NETWORK = ETHER_NET;
-	
+	public static String NETWORK = GetSelfAddress();
 	public static int SERVER_TIMEOUT = 0;
+	
+	public static String GetSelfAddress() {
+		try {
+			return InetAddress.getLocalHost().toString();
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		}
+		return "";
+	}
 }
