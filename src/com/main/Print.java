@@ -1,6 +1,5 @@
 package com.main;
 
-import java.util.ArrayList;
 import java.util.Random;
 
 import com.controller.ClientController;
@@ -18,23 +17,31 @@ public class Print {
 	public static void system(String message) {
 		System.err.println(SYSTEM+message);
 	}
-
+	
+	public static void clientConnected(String message) {
+		System.err.println("Client connected to "+message);
+	}
+	
 	public static void clients(ServerController server) {
 		String strList = "";
+
+		/*
 		ClientController client;
-		
-		ArrayList<ClientController> listClients = server.getListClients();
+		ArrayList<InetAddress> listClients = server.getListClients();
 		for(int i = 0; i < listClients.size(); i++) {
 			client = listClients.get(i);
 			strList += "\\n\\t\\t⦿ " + client.getAddress();
 		}
+		*/
 		System.err.println("\n\n[@' ▽  '@]: You have the following connected clients: " + strList);
 	}
 
 	public static void server(ClientController client) {
-		System.err.println("\n\n[@' ▽  '@]: You are connected to the "+client.getServer().getAddress()+" server.");
+		System.err.println("\n\n[@' ▽  '@]: You are connected to the "+client.getServerIP()+" server.");
 	}
-	
+	public static void serverBroadcast() {
+		System.err.println("\n\n[@' ▽  '@]: Broadcast sent. Waiting for a reply...");
+	}
 	public static void mode(Mode mode) {
 		if(mode != Mode.END) {
 			switch(mode) {

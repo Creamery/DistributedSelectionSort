@@ -15,6 +15,7 @@ public class Info {
 	
 	public static String NETWORK = GetSelfAddress();
 	public static int SERVER_TIMEOUT = 0;
+	public static int BUFFER_SIZE = 256;
 	
 	public static String GetSelfAddress() {
 		try {
@@ -23,5 +24,13 @@ public class Info {
 			e.printStackTrace();
 		}
 		return "";
+	}
+
+	public static int getBUFFER_SIZE() {
+		return BUFFER_SIZE;
+	}
+
+	public static void setBUFFER_SIZE(int bUFFER_SIZE) {
+		BUFFER_SIZE = bUFFER_SIZE;
 	}
 }

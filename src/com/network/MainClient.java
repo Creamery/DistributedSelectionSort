@@ -1,21 +1,83 @@
 package com.network;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.Socket;
 import java.net.UnknownHostException;
 
-import com.message.MainMessage;
+import com.main.Info;
+import com.main.Print;
 
 public class MainClient extends Thread {
-	private String host;
-	private int port;
-	private InetAddress address;
+	private ClientProcessor processor;
 	
+	private InetAddress address;
+    private InetAddress serverIP;
+    
+	private DatagramSocket udpSocket;
+	private DatagramPacket packet;
+    private byte[] buffer = new byte[Info.BUFFER_SIZE];
+
+	private boolean isListening;
+	
+	// Initialize processor then run it
+	public void process() {
+		if(this.getProcessor() == null) {
+			this.setProcessor(new ClientProcessor());
+		}
+		this.getProcessor().process();
+	}
+	
+	// Send a disconnect message to the server
+	public void disconnect() {
+		
+	}
+	
+	// Listen for any server broadcast to connect
+	public void listen() {
+        this.setListening(true);
+        
+    	// To listen, first create a new UDP socket on an arbitrary BROADCAST_PORT and set its Broadcast to true
+        try {
+            this.setUdpSocket(new DatagramSocket(Info.BROADCAST_PORT));
+            this.getUdpSocket().setBroadcast(true);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        
+        // Run the listening loop
+        this.run();
+	}
+	
+	public void stopListening() {
+		this.setListening(false);
+	}
+	public void run() {
+        while(this.isListening()){
+            this.setPacket(new DatagramPacket(this.getBuffer() ,this.getBuffer().length));
+            try {
+            	this.getUdpSocket().receive(this.getPacket());
+            } catch(IOException e){
+                e.printStackTrace();
+            }
+            // Message contains server IP
+            String message = new String(this.getPacket().getData()).trim();
+            if(message != ""){
+            	try {
+					this.setServerIP(InetAddress.getByName(message));
+				} catch (UnknownHostException e) {
+					e.printStackTrace();
+				}
+            	// Stop listening
+            	this.setListening(false);
+            	Print.clientConnected(message);
+            }
+        }
+        this.getUdpSocket().close();
+	}
+	// Start sorting
+	/*
 	public void start(String host, String address, String port) throws UnknownHostException {
 		this.setHost(host);
 		this.setPort(Integer.parseInt(port));
@@ -23,7 +85,8 @@ public class MainClient extends Thread {
 		
 		this.run();
 	}
-	
+	*/
+	/*
 	public void run() {
 		System.out.println("[CLIENT]: "+"Running MainClient...");
 		
@@ -61,22 +124,7 @@ public class MainClient extends Thread {
 			e.printStackTrace();
 		}
 	}
-
-	public String getHost() {
-		return host;
-	}
-
-	public void setHost(String host) {
-		this.host = host;
-	}
-
-	public int getPort() {
-		return port;
-	}
-
-	public void setPort(int port) {
-		this.port = port;
-	}
+	*/
 
 	public InetAddress getAddress() {
 		return address;
@@ -84,5 +132,51 @@ public class MainClient extends Thread {
 
 	public void setAddress(InetAddress address) {
 		this.address = address;
+	}
+
+	public DatagramSocket getUdpSocket() {
+		return udpSocket;
+	}
+
+	public void setUdpSocket(DatagramSocket udpSocket) {
+		this.udpSocket = udpSocket;
+	}
+	public boolean isListening() {
+		return isListening;
+	}
+	public void setListening(boolean isListening) {
+		this.isListening = isListening;
+	}
+
+	public byte[] getBuffer() {
+		return buffer;
+	}
+
+	public void setBuffer(byte[] buffer) {
+		this.buffer = buffer;
+	}
+
+	public DatagramPacket getPacket() {
+		return packet;
+	}
+
+	public void setPacket(DatagramPacket packet) {
+		this.packet = packet;
+	}
+
+	public InetAddress getServerIP() {
+		return serverIP;
+	}
+
+	public void setServerIP(InetAddress serverIP) {
+		this.serverIP = serverIP;
+	}
+
+	public ClientProcessor getProcessor() {
+		return processor;
+	}
+
+	public void setProcessor(ClientProcessor processor) {
+		this.processor = processor;
 	}
 }

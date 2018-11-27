@@ -1,79 +1,186 @@
 package com.network;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.ServerSocket;
-import java.net.Socket;
 import java.net.SocketException;
-import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 
 import com.main.Info;
-import com.message.MainMessage;
+import com.main.Print;
+
 public class MainServer extends Thread {
-
+	private ServerProcessor processor;
+	private ServerSocket serverSocket;
+	private InetAddress address;
+	private boolean isListening;
 	
-   private ServerSocket serverSocket;
-   private InetAddress address;
-   private boolean isRunning;
+	private DatagramSocket udpSocket;
+	private DatagramPacket packet;
 	
-   private DatagramSocket udpSocket;
-   private DatagramPacket packet;
-   public DatagramPacket getPacket() {
-	   return packet;
-   }
+	private ObjectOutputStream objectOutputStream;
+	
+    private byte[] buffer = new byte[Info.BUFFER_SIZE];
+    
 
-   public void setPacket(DatagramPacket packet) {
-	   this.packet = packet;
-   }
+	private ArrayList<InetAddress> listClients;
+	
+	public MainServer(int port) throws IOException {
+		serverSocket = new ServerSocket(port);
+		// Set how long the server will wait for a connection
+		serverSocket.setSoTimeout(0);
+	}
+	
+	public void listen() {
+		this.setListening(true);
+		this.run();
+	}
+	public void stopListening() {
+		// Stop thread
+		this.setListening(false);
+	}
+	
+	// Initialize processor then run it
+	public void process() {
+		if(this.getProcessor() == null) {
+			this.setProcessor(new ServerProcessor());
+		}
+		this.getProcessor().process();
+	}
+	
+	// Announce the server IP so that listening clients can connect
+	public void broadcast() {
+		// Prepare to listen to replies
+		this.listen();
+		
+		// Initialize sockets
+		try {
+			this.setUdpSocket(new DatagramSocket(Info.BROADCAST_PORT));
+			this.getUdpSocket().setBroadcast(true);
+		} catch (SocketException e) {
+			e.printStackTrace();
+		}
 
-   public MainServer(int port) throws IOException {
-	   serverSocket = new ServerSocket(port);
-	   // Set how long the server will wait for a connection
-	   serverSocket.setSoTimeout(0);
-   }
-   
-   public void end() {
-	   // Stop thread
-	   this.setRunning(false);
-   }
-   
-   public void broadcast() {
-	   try {
-           this.setUdpSocket(new DatagramSocket(Info.BROADCAST_PORT));
-           this.getUdpSocket().setBroadcast(true);
-       } catch (SocketException e) {
-           e.printStackTrace();
-       }
-	   
-	   // Get value server IP
-       byte[] buffer = Info.NETWORK.getBytes();
-       
-       DatagramPacket packet = null;
-       
-       try {
-    	   packet = new DatagramPacket(buffer, buffer.length, InetAddress.getByName("255.255.255.255"), Info.BROADCAST_PORT);
-       } catch (UnknownHostException e1) {
-    	   e1.printStackTrace();
-       }
-       
-       try {
-           this.getUdpSocket().send(packet);
-           System.out.println("Sent message");
-       } catch(IOException e){
-           e.printStackTrace();
-       }
-      this.getUdpSocket().close();
-   }
-   
-   public void run() {
-	   this.setRunning(true);
-	   while(this.isRunning()) {
-		   try {
+		// Get value server IP
+		byte[] buffer = Info.NETWORK.getBytes();
+		DatagramPacket packet = null;
+		
+		// Prepare the broadcast
+		try {
+			packet = new DatagramPacket(buffer, buffer.length, InetAddress.getByName("255.255.255.255"), Info.BROADCAST_PORT);
+		} catch (UnknownHostException e1) {
+			e1.printStackTrace();
+		}
+		try {
+			// Send IP
+			this.getUdpSocket().send(packet);
+			Print.serverBroadcast();
+		} catch(IOException e){
+			e.printStackTrace();
+		}
+		
+		// Close the socket
+		this.getUdpSocket().close();
+	}
+	
+	public InetAddress getAddress() {
+		return address;
+	}
+
+	public void setAddress(InetAddress address) {
+		this.address = address;
+	}
+	 
+	public DatagramSocket getUdpSocket() {
+		return udpSocket;
+	}
+	
+	public void setUdpSocket(DatagramSocket udpSocket) {
+		this.udpSocket = udpSocket;
+	}
+
+	public ServerProcessor getProcessor() {
+		return processor;
+	}
+
+	public void setProcessor(ServerProcessor processor) {
+		this.processor = processor;
+	}
+	public boolean isListening() {
+		return isListening;
+	}
+	public void setListening(boolean isListening) {
+		this.isListening = isListening;
+	}
+	public void run() {
+		
+		while(this.isListening()) {
+			// Initialize a new packet per iteration
+			this.setPacket(new DatagramPacket(this.getBuffer(), this.getBuffer().length));
+			
+			// Allow socket to receive packets
+			try {
+				this.getUdpSocket().receive(packet);
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+			
+			// Decode packet message
+			String message = new String(packet.getData()).trim();
+			
+			// If message is not empty, add the client IP to the list of clients
+			if(message != ""){
+				try {
+					this.getListClients().add(InetAddress.getByName(message));
+				} catch (UnknownHostException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	public DatagramPacket getPacket() {
+		return packet;
+	}
+	public void setPacket(DatagramPacket packet) {
+		this.packet = packet;
+	}
+
+	public byte[] getBuffer() {
+		return buffer;
+	}
+
+	public void setBuffer(byte[] buffer) {
+		this.buffer = buffer;
+	}
+
+	public ArrayList<InetAddress> getListClients() {
+		if(this.listClients == null) {
+			this.listClients = new ArrayList<InetAddress>();
+		}
+		return listClients;
+	}
+
+	public void setListClients(ArrayList<InetAddress> listClients) {
+		this.listClients = listClients;
+	}
+
+	public ObjectOutputStream getObjectOutputStream() {
+		return objectOutputStream;
+	}
+
+	public void setObjectOutputStream(ObjectOutputStream objectOutputStream) {
+		this.objectOutputStream = objectOutputStream;
+	}
+	
+	/*
+	public void run() {
+		this.setRunning(true);
+		while(this.isRunning()) {
+			try {
 			   System.out.println("[SERVER]: "+"Waiting for client on port " +
 					   serverSocket.getLocalPort() + "...");
 			   Socket server = serverSocket.accept();
@@ -104,29 +211,5 @@ public class MainServer extends Thread {
 		 }
 	   }
 	}
-
-	public InetAddress getAddress() {
-		return address;
-	}
-
-	public void setAddress(InetAddress address) {
-		this.address = address;
-	}
-	   
-	public boolean isRunning() {
-		return isRunning;
-	}
-
-	public void setRunning(boolean isRunning) {
-		this.isRunning = isRunning;
-	}
-	   
-	   public DatagramSocket getUdpSocket() {
-		return udpSocket;
-	   }
-
-	   public void setUdpSocket(DatagramSocket udpSocket) {
-		this.udpSocket = udpSocket;
-	   }
-
+	*/
 }

@@ -67,10 +67,12 @@ public class ViewManager extends Thread {
 	
 	public void mainCommand(String command) {
 		if(isStartServer(command)) {
+			// Create a server
 			ControllerManager.Instance().getServer().start();
 			this.setMode(Mode.SERVER);	
 		}
 		else if(isStartClient(command)) {
+			// Create a client and start listening
 			ControllerManager.Instance().getClient().start();
 			this.setMode(Mode.CLIENT);
 		}
@@ -99,6 +101,7 @@ public class ViewManager extends Thread {
 		}
 		else if(isBroadcast(command)) {
 			// Broadcast
+			ControllerManager.Instance().getServer().broadcast();
 		}
 		else {
 			Print.invalid(command);

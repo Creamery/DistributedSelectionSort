@@ -2,7 +2,6 @@ package com.controller;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.util.ArrayList;
 
 import com.main.Info;
 import com.network.MainServer;
@@ -11,7 +10,6 @@ public class ServerController {
 	private MainServer mainServer;
 	private InetAddress address;
 	
-	private ArrayList<ClientController> listClients;
 	
 	// Add functionality to start as a server
 	public void start() {
@@ -20,24 +18,15 @@ public class ServerController {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		// Start thread
-		this.getMainServer().run();
+	}
+	// Broadcast server IP and listen for replies
+	public void broadcast() {
+		this.getMainServer().broadcast();
 	}
 	
-	public void broadcast() {
-		
-	}
-	public void stop() {
-		// End the thread
-		this.getMainServer().end();
-	}
-
-	public ArrayList<ClientController> getListClients() {
-		return listClients;
-	}
-
-	public void setListClients(ArrayList<ClientController> listClients) {
-		this.listClients = listClients;
+	// Start processing
+	public void process() {
+		this.getMainServer().process();
 	}
 
 	public InetAddress getAddress() {
