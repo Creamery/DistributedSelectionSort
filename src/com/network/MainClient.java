@@ -28,7 +28,7 @@ public class MainClient extends Thread implements UDPUnpacker {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		this.setUdpListener(new UDPListener(this.getUdpSocket()));
+		this.setUdpListener(new UDPListener(this));
 	}
 	
 	// Initialize processor then run it
@@ -134,6 +134,7 @@ public class MainClient extends Thread implements UDPUnpacker {
 		this.address = address;
 	}
 
+	@Override
 	public DatagramSocket getUdpSocket() {
 		if(this.udpSocket == null) {
 			try {

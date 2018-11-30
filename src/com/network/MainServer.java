@@ -37,7 +37,7 @@ public class MainServer extends Thread implements UDPUnpacker {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		this.setUdpListener(new UDPListener(this.getUdpSocket()));
+		this.setUdpListener(new UDPListener(this));
 		serverSocket = new ServerSocket(Info.BROADCAST_PORT);
 		// Set how long the server will wait for a connection
 		serverSocket.setSoTimeout(0);
@@ -102,7 +102,8 @@ public class MainServer extends Thread implements UDPUnpacker {
 	public void setAddress(InetAddress address) {
 		this.address = address;
 	}
-	 
+	
+	@Override
 	public DatagramSocket getUdpSocket() {
 		if(this.udpSocket == null) {
 			try {
