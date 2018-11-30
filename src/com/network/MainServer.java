@@ -170,7 +170,7 @@ public class MainServer extends Thread implements UDPUnpacker {
 
 	@Override
 	public void unpack(String message) {
-		String ip = message.substring(message.indexOf("/"));
+		String ip = message.substring(message.indexOf("/")+1);
 		System.out.println("Unpacked message: "+message+"\n Trimmed: "+ip);
 		
 		try {
