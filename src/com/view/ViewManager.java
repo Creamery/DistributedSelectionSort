@@ -120,14 +120,15 @@ public class ViewManager extends Thread {
 			ControllerManager.Instance().getClient().start();
 		}
 		else if(isSend(command)) {
-
 			ControllerManager.Instance().getClient().send(1, 2);
 		}
 		else if(isView(command)) {
 			// View server
+			Print.clientConnected(ControllerManager.Instance().getClient().getServerIP().toString());
 		}
 		else if(isStop(command)) {
 			// Stop client
+			System.out.println("Stop called but did nothing.");
 		}
 		else {
 			Print.invalid(command);
