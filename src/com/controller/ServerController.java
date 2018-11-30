@@ -2,8 +2,6 @@ package com.controller;
 
 import java.io.IOException;
 import java.net.InetAddress;
-
-import com.main.Info;
 import com.network.MainServer;
 
 public class ServerController {
@@ -14,7 +12,7 @@ public class ServerController {
 	// Add functionality to start as a server
 	public void start() {
 		try {
-			this.setMainServer(new MainServer(Info.PORT));
+			this.setMainServer(new MainServer());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

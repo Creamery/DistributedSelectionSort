@@ -1,36 +1,26 @@
 package com.network;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 
 import com.main.Info;
-import com.main.Print;
-<<<<<<< HEAD
-<<<<<<< HEAD
-import com.network.tcp.TCPTwoWay;
-=======
 import com.network.protocols.TCPTwoWay;
->>>>>>> parent of 93a3cba... UDP client listener fix.
-=======
-import com.network.protocols.TCPTwoWay;
->>>>>>> parent of 93a3cba... UDP client listener fix.
+import com.network.protocols.UDPListener;
+import com.network.protocols.UDPUnpacker;
 
-public class MainClient extends Thread {
+public class MainClient extends Thread implements UDPUnpacker {
 	private TCPTwoWay tcpStream;
-	
+	private UDPListener udpListener;
 	private ClientProcessor processor;
 	
 	private InetAddress address;
     private InetAddress serverIP;
     
 	private DatagramSocket udpSocket;
-	private DatagramPacket packet;
-    private byte[] buffer = new byte[Info.BUFFER_SIZE];
 
-	private boolean isListening;
 	
 	public MainClient() {
 		try {
@@ -38,6 +28,7 @@ public class MainClient extends Thread {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		this.setUdpListener(new UDPListener(this.getUdpSocket()));
 	}
 	
 	// Initialize processor then run it
@@ -59,47 +50,22 @@ public class MainClient extends Thread {
 	
 	// Listen for any server broadcast to connect
 	public void listen() {
-        this.setListening(true);
-        
-    	// To listen, first create a new UDP socket on an arbitrary BROADCAST_PORT and set its Broadcast to true
-        try {
-            this.setUdpSocket(new DatagramSocket(Info.BROADCAST_PORT));
-            this.getUdpSocket().setBroadcast(true);
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-        
-        // Run the listening loop
-        this.run();
-	}
-	
-	public void stopListening() {
-		this.setListening(false);
+		this.getUdpListener().run();
 	}
 	
 	// Listen to a server broadcast
 	public void run() {
-        while(this.isListening()){
-            this.setPacket(new DatagramPacket(this.getBuffer() ,this.getBuffer().length));
-            try {
-            	this.getUdpSocket().receive(this.getPacket());
-            } catch(IOException e){
-                e.printStackTrace();
-            }
-            // Message contains server IP
-            String message = new String(this.getPacket().getData()).trim();
-            if(message != ""){
-            	try {
-					this.setServerIP(InetAddress.getByName(message));
-				} catch (UnknownHostException e) {
-					e.printStackTrace();
-				}
-            	// Stop listening
-            	this.setListening(false);
-            	Print.clientConnected(message);
-            }
-        }
-        this.getUdpSocket().close();
+
+	}
+
+
+	@Override
+	public void unpack(String message) {
+		try {
+			this.setServerIP(InetAddress.getByName(message));
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		}
         this.setupTCPStream();
 	}
 	
@@ -168,33 +134,21 @@ public class MainClient extends Thread {
 	}
 
 	public DatagramSocket getUdpSocket() {
+		if(this.udpSocket == null) {
+			try {
+				this.setUdpSocket(new DatagramSocket(Info.BROADCAST_PORT));
+			} catch (SocketException e) {
+				e.printStackTrace();
+			}
+		}
 		return udpSocket;
 	}
 
+	public void stopListening() {
+		this.getUdpListener().stopListening();
+	}
 	public void setUdpSocket(DatagramSocket udpSocket) {
 		this.udpSocket = udpSocket;
-	}
-	public boolean isListening() {
-		return isListening;
-	}
-	public void setListening(boolean isListening) {
-		this.isListening = isListening;
-	}
-
-	public byte[] getBuffer() {
-		return buffer;
-	}
-
-	public void setBuffer(byte[] buffer) {
-		this.buffer = buffer;
-	}
-
-	public DatagramPacket getPacket() {
-		return packet;
-	}
-
-	public void setPacket(DatagramPacket packet) {
-		this.packet = packet;
 	}
 
 	public InetAddress getServerIP() {
@@ -219,5 +173,13 @@ public class MainClient extends Thread {
 
 	public void setTcpStream(TCPTwoWay tcpStream) {
 		this.tcpStream = tcpStream;
+	}
+
+	public UDPListener getUdpListener() {
+		return udpListener;
+	}
+
+	public void setUdpListener(UDPListener udpListener) {
+		this.udpListener = udpListener;
 	}
 }
