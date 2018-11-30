@@ -5,7 +5,6 @@ import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.ServerSocket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -21,7 +20,7 @@ public class MainServer extends Thread implements UDPUnpacker {
 	private UDPListener udpListener;
 	private ServerProcessor processor;
 	
-	private ServerSocket serverSocket;
+//	private ServerSocket serverSocket;
 	private InetAddress address;
 	
 	private DatagramSocket udpSocket;
@@ -29,19 +28,21 @@ public class MainServer extends Thread implements UDPUnpacker {
 	
 
 	private ArrayList<InetAddress> listClients;
-	private int port;
+	private int UDPPort;
+	private int TCPPort;
 	
 	public MainServer() throws IOException {
-		this.setPort(Info.BROADCAST_PORT);
+		this.setUDPPort(Info.BROADCAST_PORT);
+		this.setTCPPort(Info.PORT);
 		try {
-			this.setTcpStream(new TCPTwoWay("Server"));
+			this.setTcpStream(new TCPTwoWay("Server", this.getTCPPort()));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		this.setUdpListener(new UDPListener(this));
-		serverSocket = new ServerSocket(this.getPort());
+//		serverSocket = new ServerSocket(this.getTCPPort());
 		// Set how long the server will wait for a connection
-		serverSocket.setSoTimeout(0);
+//		serverSocket.setSoTimeout(0);
 	}
 	
 	
@@ -185,15 +186,25 @@ public class MainServer extends Thread implements UDPUnpacker {
 	}
 
 
-	public int getPort() {
-		return port;
+	public int getUDPPort() {
+		return UDPPort;
 	}
 
 
-	public void setPort(int port) {
-		this.port = port;
+	public void setUDPPort(int uDPPort) {
+		UDPPort = uDPPort;
 	}
-	
+
+
+	public int getTCPPort() {
+		return TCPPort;
+	}
+
+
+	public void setTCPPort(int tCPPort) {
+		TCPPort = tCPPort;
+	}
+
 	/*
 	public void run() {
 		this.setRunning(true);

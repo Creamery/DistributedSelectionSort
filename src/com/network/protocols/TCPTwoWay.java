@@ -46,12 +46,12 @@ public class TCPTwoWay extends Thread {
 	}
 
 	// SERVER 
-	public TCPTwoWay(String name) throws IOException {
+	public TCPTwoWay(String name, int port) throws IOException {
 		this.setHostName(name);
 		this.setTcpMessage(new TCPMessage());
 		
 		// Initialize server socket
-		this.setServerSocket(new ServerSocket(Info.PORT));
+		this.setServerSocket(new ServerSocket(port));
 		this.getServerSocket().setSoTimeout(Info.SERVER_TIMEOUT);
 		this.setPort(Info.PORT);
 		
@@ -72,10 +72,11 @@ public class TCPTwoWay extends Thread {
 		this.setObjectOutputStream(new ObjectOutputStream(this.getTcpServerSocket().getOutputStream()));
 	}
 	
-	public void initializeClientSocket(InetAddress serverIP, int port) {
+	public void initializeClientSocket(InetAddress serverIP) {
 		this.setServerIP(serverIP);
 		try {
-			this.setTcpClientSocket(new Socket(this.getServerIP(), port));
+			System.out.println("Socket sent");
+			this.setTcpClientSocket(new Socket(this.getServerIP(), this.getPort()));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
