@@ -91,14 +91,18 @@ public class TCPTwoWay extends Thread {
 			this.setInFromServer(this.getTcpClientSocket().getInputStream());
 			this.setDataInFromServer(new DataInputStream(inFromServer));
 
-//			try {
-//				System.out.println("Client object streams");
+			try {
 //				this.initializeObjectStreams(
 //						new ObjectInputStream(this.getTcpClientSocket().getInputStream()),
 //						new ObjectOutputStream(this.getTcpClientSocket().getOutputStream()));
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//			}
+				this.initializeObjectStreams(
+						new ObjectInputStream(this.getInFromServer()),
+						new ObjectOutputStream(this.outToServer));
+
+				System.out.println("Client object streams");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 			
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -180,6 +184,7 @@ public class TCPTwoWay extends Thread {
 		this.getTcpMessage().setMessage("Sent index: "+index+" "+value+"value");
 		
 		try {
+			
 			this.getObjectOutputStream().writeObject(this.getTcpMessage());
 		} catch (IOException e) {
 			e.printStackTrace();
