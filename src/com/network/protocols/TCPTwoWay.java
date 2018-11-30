@@ -91,18 +91,15 @@ public class TCPTwoWay extends Thread {
 			this.setInFromServer(this.getTcpClientSocket().getInputStream());
 			this.setDataInFromServer(new DataInputStream(inFromServer));
 
-			try {
+//			try {
 //				this.initializeObjectStreams(
 //						new ObjectInputStream(this.getTcpClientSocket().getInputStream()),
 //						new ObjectOutputStream(this.getTcpClientSocket().getOutputStream()));
-				this.initializeObjectStreams(
-						new ObjectInputStream(this.getInFromServer()),
-						new ObjectOutputStream(this.outToServer));
-
-				System.out.println("Client object streams");
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+//
+//				System.out.println("Client object streams");
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
 			
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -114,15 +111,16 @@ public class TCPTwoWay extends Thread {
 		System.out.println("TCP listener run");
 		try {
 			// Wait for TCP connection from CLIENT
-			this.setTcpServerSocket(this.getServerSocket().accept());
+			Socket client = this.getServerSocket().accept();
+			this.setTcpServerSocket(client);
 			
 			// Prompt successful connection
 			System.out.println("[SERVER]: "+"Just TCP connected to " + this.getTcpServerSocket().getRemoteSocketAddress());
-
+			
 			System.out.println("Server object streams");
 			this.initializeObjectStreams(
 					new ObjectInputStream(this.getTcpServerSocket().getInputStream()),
-					new ObjectOutputStream(this.getTcpServerSocket().getOutputStream()));
+					new ObjectOutputStream(client.getOutputStream()));
 			
 		} catch (IOException e1) {
 			e1.printStackTrace();
