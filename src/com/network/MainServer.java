@@ -12,10 +12,19 @@ import java.util.ArrayList;
 
 import com.main.Info;
 import com.main.Print;
+<<<<<<< HEAD
 import com.network.tcp.TCPTwoWay;
 
 public class MainServer extends Thread {
 	private TCPTwoWay tcpStream;
+=======
+import com.network.protocols.TCPTwoWay;
+import com.network.protocols.UDPListener;
+
+public class MainServer extends Thread {
+	private TCPTwoWay tcpStream;
+	private UDPListener udpListener;
+>>>>>>> parent of 93a3cba... UDP client listener fix.
 	
 	private ServerProcessor processor;
 	private ServerSocket serverSocket;
@@ -38,10 +47,15 @@ public class MainServer extends Thread {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+<<<<<<< HEAD
 	}
 	
 	public MainServer(int port) throws IOException {
 		serverSocket = new ServerSocket(port);
+=======
+		this.setUdpListener(new UDPListener(this.getUdpSocket(), this.getListClients()));
+		serverSocket = new ServerSocket(Info.BROADCAST_PORT);
+>>>>>>> parent of 93a3cba... UDP client listener fix.
 		// Set how long the server will wait for a connection
 		serverSocket.setSoTimeout(0);
 	}
@@ -200,6 +214,17 @@ public class MainServer extends Thread {
 	public void setTcpStream(TCPTwoWay tcpStream) {
 		this.tcpStream = tcpStream;
 	}
+<<<<<<< HEAD
+=======
+
+	public UDPListener getUdpListener() {
+		return udpListener;
+	}
+
+	public void setUdpListener(UDPListener udpListener) {
+		this.udpListener = udpListener;
+	}
+>>>>>>> parent of 93a3cba... UDP client listener fix.
 	
 	/*
 	public void run() {
