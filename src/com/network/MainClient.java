@@ -84,13 +84,6 @@ public class MainClient extends Thread implements UDPUnpacker {
 		this.getTcpStream().setClientIP(this.getAddress());
 		
 		this.getTcpStream().initializeClientSocket(this.getServerIP());
-		try {
-			this.getTcpStream().initializeObjectStreams(
-					new ObjectInputStream(this.getTcpStream().getTcpClientSocket().getInputStream()),
-					new ObjectOutputStream(this.getTcpStream().getTcpClientSocket().getOutputStream()));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 	
 	// Start sorting

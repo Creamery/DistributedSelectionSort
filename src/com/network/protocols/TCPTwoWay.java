@@ -88,6 +88,16 @@ public class TCPTwoWay extends Thread {
 			this.setDataOutToServer(new DataOutputStream(outToServer));
 			this.setInFromServer(this.getTcpClientSocket().getInputStream());
 			this.setDataInFromServer(new DataInputStream(inFromServer));
+
+			try {
+				System.out.println("Client object streams");
+				this.initializeObjectStreams(
+						new ObjectInputStream(this.getTcpClientSocket().getInputStream()),
+						new ObjectOutputStream(this.getTcpClientSocket().getOutputStream()));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -102,7 +112,8 @@ public class TCPTwoWay extends Thread {
 			
 			// Prompt successful connection
 			System.out.println("[SERVER]: "+"Just TCP connected to " + this.getTcpServerSocket().getRemoteSocketAddress());
-			
+
+			System.out.println("Server object streams");
 			this.initializeObjectStreams(
 					new ObjectInputStream(this.getTcpServerSocket().getInputStream()),
 					new ObjectOutputStream(this.getTcpServerSocket().getOutputStream()));
