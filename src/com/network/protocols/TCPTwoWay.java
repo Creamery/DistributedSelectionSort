@@ -66,10 +66,13 @@ public class TCPTwoWay extends Thread {
 	}
 	
 	// To be called after a successful accept.
-	public void initializeObjectStreams() throws IOException {
+	public void initializeObjectStreams(ObjectInputStream inputStream, ObjectOutputStream outputStream) throws IOException {
 		// Prepare object I/O
-		this.setObjectInputStream(new ObjectInputStream(this.getTcpServerSocket().getInputStream()));
-		this.setObjectOutputStream(new ObjectOutputStream(this.getTcpServerSocket().getOutputStream()));
+		this.setObjectInputStream(inputStream);
+		this.setObjectOutputStream(outputStream);
+
+//		this.setObjectInputStream(new ObjectInputStream(this.getTcpServerSocket().getInputStream()));
+//		this.setObjectOutputStream(new ObjectOutputStream(this.getTcpServerSocket().getOutputStream()));
 	}
 	
 	public void initializeClientSocket(InetAddress serverIP) {
@@ -92,7 +95,9 @@ public class TCPTwoWay extends Thread {
 			// Prompt successful connection
 			System.out.println("[SERVER]: "+"Just TCP connected to " + this.getTcpServerSocket().getRemoteSocketAddress());
 			
-			this.initializeObjectStreams();
+			this.initializeObjectStreams(
+					new ObjectInputStream(this.getTcpServerSocket().getInputStream()),
+					new ObjectOutputStream(this.getTcpServerSocket().getOutputStream()));
 			
 		} catch (IOException e1) {
 			e1.printStackTrace();
@@ -111,8 +116,7 @@ public class TCPTwoWay extends Thread {
 //				
 //				// Prepare object I/O
 //				this.setObjectInputStream(new ObjectInputStream(this.getTcpServerSocket().getInputStream()));
-			
-				
+
 				// RECEIVING a message				
 				try {
 					// Receive a TCPMessage object from input stream
