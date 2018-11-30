@@ -91,17 +91,26 @@ public class TCPTwoWay extends Thread {
 			this.setInFromServer(this.getTcpClientSocket().getInputStream());
 			this.setDataInFromServer(new DataInputStream(inFromServer));
 
-//			try {
-//				this.initializeObjectStreams(
-//						new ObjectInputStream(this.getTcpClientSocket().getInputStream()),
-//						new ObjectOutputStream(this.getTcpClientSocket().getOutputStream()));
-//
-//				System.out.println("Client object streams");
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//			}
+			
+			
+//	        OutputStream outToServer = client.getOutputStream();
+//	        ObjectOutputStream out = new ObjectOutputStream(outToServer);
+////	        out.writeUTF("[CLIENT]: "+"Hello from " + client.getLocalSocketAddress());
+//	        MainMessage sentMessage = new MainMessage();
+//	        sentMessage.setMessage("[CLIENT]: "+"Hello from " + client.getLocalSocketAddress());
+//	        out.writeObject(sentMessage);
+//	        InputStream inFromServer = client.getInputStream();
+//	        ObjectInputStream in = new ObjectInputStream(inFromServer);
+	        
+	        
+	        this.initializeObjectStreams(
+					new ObjectInputStream(this.getTcpClientSocket().getInputStream()),
+					new ObjectOutputStream(this.getTcpClientSocket().getOutputStream()));
+
+			System.out.println("Client object streams");
 			
 		} catch (IOException e) {
+			System.out.println("Exception object streams");
 			e.printStackTrace();
 		}
 	}
