@@ -5,8 +5,6 @@ import com.main.Info;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketException;
 
 public class BroadcastClient extends Thread {
     public static int NumberOfClientsActive = 0;

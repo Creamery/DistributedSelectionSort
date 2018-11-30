@@ -36,7 +36,7 @@ public class BroadcastServer {
         List<InetAddress> broadcastList = new ArrayList<>();
         Enumeration<NetworkInterface> interfaces
                 = NetworkInterface.getNetworkInterfaces();
-        while (((Enumeration) interfaces).hasMoreElements()) {
+        while (((Enumeration<NetworkInterface>) interfaces).hasMoreElements()) {
             NetworkInterface networkInterface = interfaces.nextElement();
 
             if (networkInterface.isLoopback() || !networkInterface.isUp()) {

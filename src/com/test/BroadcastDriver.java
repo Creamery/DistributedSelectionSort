@@ -1,10 +1,6 @@
 package com.test;
 
-import com.main.Info;
-
 import java.io.IOException;
-import java.net.InetAddress;
-import java.util.Scanner;
 
 public class BroadcastDriver {
 
