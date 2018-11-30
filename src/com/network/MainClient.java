@@ -8,8 +8,11 @@ import java.net.UnknownHostException;
 
 import com.main.Info;
 import com.main.Print;
+import com.network.tcp.TCPTwoWay;
 
 public class MainClient extends Thread {
+	private TCPTwoWay tcpStream;
+	
 	private ClientProcessor processor;
 	
 	private InetAddress address;
@@ -20,6 +23,14 @@ public class MainClient extends Thread {
     private byte[] buffer = new byte[Info.BUFFER_SIZE];
 
 	private boolean isListening;
+	
+	public MainClient() {
+		try {
+			this.setTcpStream(new TCPTwoWay("Client "));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 	
 	// Initialize processor then run it
 	public void process() {
@@ -32,6 +43,10 @@ public class MainClient extends Thread {
 	// Send a disconnect message to the server
 	public void disconnect() {
 		
+	}
+	
+	public void send(int index, int value) {
+		this.getTcpStream().send(index, value);
 	}
 	
 	// Listen for any server broadcast to connect
@@ -53,6 +68,8 @@ public class MainClient extends Thread {
 	public void stopListening() {
 		this.setListening(false);
 	}
+	
+	// Listen to a server broadcast
 	public void run() {
         while(this.isListening()){
             this.setPacket(new DatagramPacket(this.getBuffer() ,this.getBuffer().length));
@@ -75,7 +92,15 @@ public class MainClient extends Thread {
             }
         }
         this.getUdpSocket().close();
+        this.setupTCPStream();
 	}
+	
+	// Set the server and client addresses of the TCP connection
+	public void setupTCPStream() {
+		this.getTcpStream().setServerIP(this.getServerIP());
+		this.getTcpStream().setClientIP(this.getAddress());
+	}
+	
 	// Start sorting
 	/*
 	public void start(String host, String address, String port) throws UnknownHostException {
@@ -178,5 +203,13 @@ public class MainClient extends Thread {
 
 	public void setProcessor(ClientProcessor processor) {
 		this.processor = processor;
+	}
+
+	public TCPTwoWay getTcpStream() {
+		return tcpStream;
+	}
+
+	public void setTcpStream(TCPTwoWay tcpStream) {
+		this.tcpStream = tcpStream;
 	}
 }

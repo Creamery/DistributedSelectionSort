@@ -116,19 +116,34 @@ public class ViewManager extends Thread {
 			this.setMode(Mode.MAIN);
 		}
 		else if(isStart(command)) {
-			// Start server
+			// Start client
+			ControllerManager.Instance().getClient().start();
+		}
+		else if(isSend(command)) {
+
+			ControllerManager.Instance().getClient().send(1, 2);
 		}
 		else if(isView(command)) {
 			// View server
 		}
 		else if(isStop(command)) {
-			// Stop server
+			// Stop client
 		}
 		else {
 			Print.invalid(command);
 			Print.waiting();
 		}
 		this.consumeCommand();
+	}
+	
+	public boolean isSend(String command) {
+		String lowCommand = command.toLowerCase();
+		if( lowCommand.contains("send")) {
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 	
 	public boolean isStart(String command) {

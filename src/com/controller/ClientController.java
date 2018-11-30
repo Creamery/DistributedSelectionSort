@@ -27,6 +27,10 @@ public class ClientController {
 		this.getClient().listen();
 	}
 	
+	public void send(int index, int value) {
+		this.getClient().send(index, value);
+	}
+	
 	public void stopListening() {
 		this.getClient().stopListening();
 	}

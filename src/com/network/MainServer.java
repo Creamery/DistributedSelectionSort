@@ -12,8 +12,11 @@ import java.util.ArrayList;
 
 import com.main.Info;
 import com.main.Print;
+import com.network.tcp.TCPTwoWay;
 
 public class MainServer extends Thread {
+	private TCPTwoWay tcpStream;
+	
 	private ServerProcessor processor;
 	private ServerSocket serverSocket;
 	private InetAddress address;
@@ -28,6 +31,14 @@ public class MainServer extends Thread {
     
 
 	private ArrayList<InetAddress> listClients;
+	
+	public MainServer() {
+		try {
+			this.setTcpStream(new TCPTwoWay("Server"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 	
 	public MainServer(int port) throws IOException {
 		serverSocket = new ServerSocket(port);
@@ -65,7 +76,7 @@ public class MainServer extends Thread {
 			e.printStackTrace();
 		}
 
-		// Get value server IP
+		// Get value server IP  (this device)
 		byte[] buffer = Info.NETWORK.getBytes();
 		DatagramPacket packet = null;
 		
@@ -174,6 +185,14 @@ public class MainServer extends Thread {
 
 	public void setObjectOutputStream(ObjectOutputStream objectOutputStream) {
 		this.objectOutputStream = objectOutputStream;
+	}
+
+	public TCPTwoWay getTcpStream() {
+		return tcpStream;
+	}
+
+	public void setTcpStream(TCPTwoWay tcpStream) {
+		this.tcpStream = tcpStream;
 	}
 	
 	/*

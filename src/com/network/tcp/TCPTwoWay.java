@@ -11,12 +11,12 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
-import java.net.UnknownHostException;
 
 import com.main.Info;
 import com.message.TCPMessage;
 
 public class TCPTwoWay extends Thread {
+	private String hostName;
 	
 	private boolean isReceiving;
 	private TCPMessage tcpMessage;
@@ -46,8 +46,8 @@ public class TCPTwoWay extends Thread {
 	}
 
 	// SERVER 
-	public TCPTwoWay() throws IOException {
-
+	public TCPTwoWay(String name) throws IOException {
+		this.setHostName(name);
 		this.setTcpMessage(new TCPMessage());
 		
 		// Initialize server socket
@@ -60,16 +60,16 @@ public class TCPTwoWay extends Thread {
 		this.setClientIP(InetAddress.getLocalHost());
 	}
 	
-	public void receive() {
+	public void start() {
 		this.setReceiving(true);
+		this.run();
 	}
 	
 	// To be called after a successful accept.
-	public void InitializeReceiver() throws IOException {
+	public void initializeObjectStreams() throws IOException {
 		// Prepare object I/O
 		this.setObjectInputStream(new ObjectInputStream(this.getTcpServerSocket().getInputStream()));
 		this.setObjectOutputStream(new ObjectOutputStream(this.getTcpServerSocket().getOutputStream()));
-		
 	}
 	
 	// Run listener
@@ -81,7 +81,7 @@ public class TCPTwoWay extends Thread {
 			// Prompt successful connection
 			System.out.println("[SERVER]: "+"Just connected to " + this.getTcpServerSocket().getRemoteSocketAddress());
 			
-			this.InitializeReceiver();
+			this.initializeObjectStreams();
 			
 		} catch (IOException e1) {
 			e1.printStackTrace();
@@ -106,7 +106,7 @@ public class TCPTwoWay extends Thread {
 				try {
 					// Receive a TCPMessage object from input stream
 					TCPMessage receivedMessage = (TCPMessage) this.getObjectInputStream().readObject();
-					System.out.println(receivedMessage.getMessage());
+					System.out.println(this.getHostName()+" received "+receivedMessage.getMessage());
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
 				}
@@ -138,9 +138,18 @@ public class TCPTwoWay extends Thread {
 		}
 	}
 	
+	public void send(int index, int value) {
+		this.getTcpMessage().setMessage("Sent index: "+index+" "+value+"value");
+		try {
+			this.getObjectOutputStream().writeObject(this.getTcpMessage());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 	
 	// CLIENT
 	
+	/*
 	public void initializeSender(InetAddress serverIP) {
 		this.setServerIP(serverIP);
 		
@@ -169,7 +178,7 @@ public class TCPTwoWay extends Thread {
 		}
 	}
 	
-	/*
+	
 	// Send a message to serverIP. Call initializeSender first.
 	public void send(int index, int value) {
 		System.out.println("[CLIENT]: "+"Running CandyClient...");
@@ -192,9 +201,7 @@ public class TCPTwoWay extends Thread {
 		}
 	}
 	*/
-	public void send(int index, int value) {
-		
-	}
+
 
 	public boolean isReceiving() {
 		return isReceiving;
@@ -298,6 +305,14 @@ public class TCPTwoWay extends Thread {
 
 	public void setDataInFromServer(DataInputStream dataInFromServer) {
 		this.dataInFromServer = dataInFromServer;
+	}
+
+	public String getHostName() {
+		return hostName;
+	}
+
+	public void setHostName(String hostName) {
+		this.hostName = hostName;
 	}
 	
 }
