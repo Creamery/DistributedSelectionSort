@@ -12,48 +12,36 @@ import java.util.ArrayList;
 
 import com.main.Info;
 import com.main.Print;
-import com.network.tcp.TCPTwoWay;
+import com.network.protocols.TCPTwoWay;
+import com.network.protocols.UDPListener;
 
 public class MainServer extends Thread {
 	private TCPTwoWay tcpStream;
+	private UDPListener udpListener;
 	
 	private ServerProcessor processor;
 	private ServerSocket serverSocket;
 	private InetAddress address;
-	private boolean isListening;
 	
 	private DatagramSocket udpSocket;
-	private DatagramPacket packet;
-	
 	private ObjectOutputStream objectOutputStream;
 	
-    private byte[] buffer = new byte[Info.BUFFER_SIZE];
-    
 
 	private ArrayList<InetAddress> listClients;
 	
-	public MainServer() {
+	public MainServer() throws IOException {
+
 		try {
 			this.setTcpStream(new TCPTwoWay("Server"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
-	
-	public MainServer(int port) throws IOException {
-		serverSocket = new ServerSocket(port);
+		this.setUdpListener(new UDPListener(this.getUdpSocket(), this.getListClients()));
+		serverSocket = new ServerSocket(Info.BROADCAST_PORT);
 		// Set how long the server will wait for a connection
 		serverSocket.setSoTimeout(0);
 	}
 	
-	public void listen() {
-		this.setListening(true);
-		this.run();
-	}
-	public void stopListening() {
-		// Stop thread
-		this.setListening(false);
-	}
 	
 	// Initialize processor then run it
 	public void process() {
@@ -63,10 +51,14 @@ public class MainServer extends Thread {
 		this.getProcessor().process();
 	}
 	
+	public void listen() {
+		this.getUdpListener().run();
+	}
 	// Announce the server IP so that listening clients can connect
 	public void broadcast() {
 		// Prepare to listen to replies
 		this.listen();
+		
 		
 		// Initialize sockets
 		try {
@@ -127,51 +119,10 @@ public class MainServer extends Thread {
 	public void setProcessor(ServerProcessor processor) {
 		this.processor = processor;
 	}
-	public boolean isListening() {
-		return isListening;
-	}
-	public void setListening(boolean isListening) {
-		this.isListening = isListening;
-	}
+
 	public void run() {
 		
-		while(this.isListening()) {
-			// Initialize a new packet per iteration
-			this.setPacket(new DatagramPacket(this.getBuffer(), this.getBuffer().length));
-			
-			// Allow socket to receive packets
-			try {
-				this.getUdpSocket().receive(packet);
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
-			
-			// Decode packet message
-			String message = new String(packet.getData()).trim();
-			
-			// If message is not empty, add the client IP to the list of clients
-			if(message != ""){
-				try {
-					this.getListClients().add(InetAddress.getByName(message));
-				} catch (UnknownHostException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-	}
-	public DatagramPacket getPacket() {
-		return packet;
-	}
-	public void setPacket(DatagramPacket packet) {
-		this.packet = packet;
-	}
-
-	public byte[] getBuffer() {
-		return buffer;
-	}
-
-	public void setBuffer(byte[] buffer) {
-		this.buffer = buffer;
+		
 	}
 
 	public ArrayList<InetAddress> getListClients() {
@@ -199,6 +150,14 @@ public class MainServer extends Thread {
 
 	public void setTcpStream(TCPTwoWay tcpStream) {
 		this.tcpStream = tcpStream;
+	}
+
+	public UDPListener getUdpListener() {
+		return udpListener;
+	}
+
+	public void setUdpListener(UDPListener udpListener) {
+		this.udpListener = udpListener;
 	}
 	
 	/*

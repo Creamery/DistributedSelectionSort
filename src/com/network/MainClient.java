@@ -8,7 +8,7 @@ import java.net.UnknownHostException;
 
 import com.main.Info;
 import com.main.Print;
-import com.network.tcp.TCPTwoWay;
+import com.network.protocols.TCPTwoWay;
 
 public class MainClient extends Thread {
 	private TCPTwoWay tcpStream;
