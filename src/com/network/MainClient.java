@@ -50,7 +50,7 @@ public class MainClient extends Thread implements UDPUnpacker {
 	
 	// Listen for any server broadcast to connect
 	public void listen() {
-		this.getUdpListener().run();
+		this.getUdpListener().listen();
 	}
 	
 	// Listen to a server broadcast
@@ -61,6 +61,7 @@ public class MainClient extends Thread implements UDPUnpacker {
 
 	@Override
 	public void unpack(String message) {
+		System.out.println("Unpacked message: "+message);
 		try {
 			this.setServerIP(InetAddress.getByName(message));
 		} catch (UnknownHostException e) {
