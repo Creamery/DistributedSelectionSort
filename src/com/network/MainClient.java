@@ -76,6 +76,7 @@ public class MainClient extends Thread implements UDPUnpacker {
 			e.printStackTrace();
 		}
         this.setupTCPStream();
+		System.out.println("TCP Setup done");
 	}
 	
 	// Set the server and client addresses of the TCP connection
