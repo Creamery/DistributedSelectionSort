@@ -63,7 +63,7 @@ public class MainServer extends Thread implements UDPUnpacker {
 	
 	// Announce the server IP so that listening clients can connect
 	public void broadcast() {
-//		this.stopListening();
+		this.stopListening();
 		
 		// Initialize sockets
 		try {
@@ -94,7 +94,7 @@ public class MainServer extends Thread implements UDPUnpacker {
 		// this.getUdpSocket().close();
 
 
-		this.getTcpStream().start();
+//		this.getTcpStream().start();
 		// Prepare to listen to replies
 		this.listen();
 	}
@@ -183,6 +183,8 @@ public class MainServer extends Thread implements UDPUnpacker {
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
+
+		this.getTcpStream().start();
 	}
 
 
