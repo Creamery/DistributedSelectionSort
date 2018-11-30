@@ -70,7 +70,6 @@ public class MainServer extends Thread {
 		
 		// Initialize sockets
 		try {
-			this.setUdpSocket(new DatagramSocket(Info.BROADCAST_PORT));
 			this.getUdpSocket().setBroadcast(true);
 		} catch (SocketException e) {
 			e.printStackTrace();
@@ -107,6 +106,13 @@ public class MainServer extends Thread {
 	}
 	 
 	public DatagramSocket getUdpSocket() {
+		if(this.udpSocket == null) {
+			try {
+				this.setUdpSocket(new DatagramSocket(Info.BROADCAST_PORT));
+			} catch (SocketException e) {
+				e.printStackTrace();
+			}
+		}
 		return udpSocket;
 	}
 	
