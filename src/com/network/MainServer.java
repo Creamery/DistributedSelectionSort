@@ -63,7 +63,7 @@ public class MainServer extends Thread implements UDPUnpacker {
 	
 	// Announce the server IP so that listening clients can connect
 	public void broadcast() {
-		this.stopListening();
+//		this.stopListening();
 		
 		// Initialize sockets
 		try {
