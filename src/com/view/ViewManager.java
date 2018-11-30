@@ -112,10 +112,7 @@ public class ViewManager extends Thread {
 	
 	
 	public void clientCommand(String command) {
-		if(isExit(command)) {
-			this.setMode(Mode.MAIN);
-		}
-		else if(isStart(command)) {
+		if(isStart(command)) {
 			// Start client
 			ControllerManager.Instance().getClient().start();
 		}
@@ -129,6 +126,9 @@ public class ViewManager extends Thread {
 		else if(isStop(command)) {
 			// Stop client
 			System.out.println("Stop called but did nothing.");
+		}
+		else if(isExit(command)) {
+			this.setMode(Mode.MAIN);
 		}
 		else {
 			Print.invalid(command);
