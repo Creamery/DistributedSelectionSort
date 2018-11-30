@@ -14,13 +14,12 @@ import com.main.Info;
 import com.main.Print;
 import com.network.protocols.TCPTwoWay;
 import com.network.protocols.UDPListener;
-import com.network.protocols.UDPUnpacker;
 
-public class MainServer extends Thread implements UDPUnpacker {
+public class MainServer extends Thread {
 	private TCPTwoWay tcpStream;
 	private UDPListener udpListener;
-	private ServerProcessor processor;
 	
+	private ServerProcessor processor;
 	private ServerSocket serverSocket;
 	private InetAddress address;
 	
@@ -37,7 +36,7 @@ public class MainServer extends Thread implements UDPUnpacker {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		this.setUdpListener(new UDPListener(this.getUdpSocket()));
+		this.setUdpListener(new UDPListener(this.getUdpSocket(), this.getListClients()));
 		serverSocket = new ServerSocket(Info.BROADCAST_PORT);
 		// Set how long the server will wait for a connection
 		serverSocket.setSoTimeout(0);
@@ -86,8 +85,8 @@ public class MainServer extends Thread implements UDPUnpacker {
 			e.printStackTrace();
 		}
 		
-		// Close the socket NOTE: Same socket used by udpListener
-		// this.getUdpSocket().close();
+		// Close the socket
+		this.getUdpSocket().close();
 	}
 	
 	public InetAddress getAddress() {
@@ -159,16 +158,6 @@ public class MainServer extends Thread implements UDPUnpacker {
 
 	public void setUdpListener(UDPListener udpListener) {
 		this.udpListener = udpListener;
-	}
-
-
-	@Override
-	public void unpack(String message) {
-		try {
-			this.getListClients().add(InetAddress.getByName(message));
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		}
 	}
 	
 	/*
