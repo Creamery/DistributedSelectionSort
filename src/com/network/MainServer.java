@@ -55,11 +55,13 @@ public class MainServer extends Thread implements UDPUnpacker {
 	public void listen() {
 		this.getUdpListener().listen();
 	}
+	public void stopListening() {
+		this.getUdpListener().stopListening();
+	}
+	
 	// Announce the server IP so that listening clients can connect
 	public void broadcast() {
-		// Prepare to listen to replies
-		this.listen();
-		
+		this.stopListening();
 		
 		// Initialize sockets
 		try {
@@ -88,6 +90,9 @@ public class MainServer extends Thread implements UDPUnpacker {
 		
 		// Close the socket NOTE: Same socket used by udpListener
 		// this.getUdpSocket().close();
+
+		// Prepare to listen to replies
+		this.listen();
 	}
 	
 	public InetAddress getAddress() {

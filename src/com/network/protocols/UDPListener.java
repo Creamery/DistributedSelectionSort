@@ -16,8 +16,8 @@ public class UDPListener extends Thread {
 
     private byte[] buffer = new byte[Info.BUFFER_SIZE];
     
-    public UDPListener(DatagramSocket udpSocket) {
-    	this.setUdpSocket(udpSocket);
+    public UDPListener(DatagramSocket socket) {
+    	this.setUdpSocket(socket);
     }
 
 	public void listen() {
