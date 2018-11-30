@@ -61,9 +61,11 @@ public class MainClient extends Thread implements UDPUnpacker {
 
 	@Override
 	public void unpack(String message) {
-		System.out.println("Unpacked message: "+message);
+
+		String ip = message.substring(message.indexOf("/"));
+		System.out.println("Unpacked message: "+message+"\n Trimmed: "+ip);
 		try {
-			this.setServerIP(InetAddress.getByName(message));
+			this.setServerIP(InetAddress.getByName(ip));
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
