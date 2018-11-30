@@ -63,7 +63,7 @@ public class MainClient extends Thread implements UDPUnpacker {
 
 	@Override
 	public void unpack(String message) {
-
+		this.stopListening();
 		String ip = message.substring(message.indexOf("/")+1);
 		System.out.println("Unpacked message: "+message+"\nTrimmed: "+ip);
 		try {

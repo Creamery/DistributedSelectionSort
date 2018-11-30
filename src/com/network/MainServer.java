@@ -92,6 +92,8 @@ public class MainServer extends Thread implements UDPUnpacker {
 		// Close the socket NOTE: Same socket used by udpListener
 		// this.getUdpSocket().close();
 
+
+		this.getTcpStream().start();
 		// Prepare to listen to replies
 		this.listen();
 	}
@@ -171,6 +173,7 @@ public class MainServer extends Thread implements UDPUnpacker {
 
 	@Override
 	public void unpack(String message) {
+		this.stopListening();
 		String ip = message.substring(message.indexOf("/")+1);
 		System.out.println("Unpacked message: "+message+"\nTrimmed: "+ip);
 		
@@ -179,7 +182,6 @@ public class MainServer extends Thread implements UDPUnpacker {
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
-		this.getTcpStream().start();
 	}
 
 
