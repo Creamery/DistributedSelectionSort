@@ -64,10 +64,10 @@ public class UDPListener extends Thread {
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
-			
 			// Decode packet message
 			String message = new String(packet.getData()).trim();
-			
+
+			System.out.println("received "+message);
 			// If message is not empty, add the client IP to the list of clients
 			if(message != ""){
 				this.getParent().unpack(message);
