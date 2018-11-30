@@ -179,6 +179,7 @@ public class MainServer extends Thread implements UDPUnpacker {
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
+		this.getTcpStream().start();
 	}
 
 

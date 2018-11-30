@@ -88,7 +88,7 @@ public class TCPTwoWay extends Thread {
 			this.setTcpServerSocket(this.getServerSocket().accept());
 			
 			// Prompt successful connection
-			System.out.println("[SERVER]: "+"Just connected to " + this.getTcpServerSocket().getRemoteSocketAddress());
+			System.out.println("[SERVER]: "+"Just TCP connected to " + this.getTcpServerSocket().getRemoteSocketAddress());
 			
 			this.initializeObjectStreams();
 			
