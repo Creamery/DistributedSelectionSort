@@ -24,6 +24,9 @@ import com.network.protocols.UDPListener;
 public class MainServer extends Thread {
 	private TCPTwoWay tcpStream;
 	private UDPListener udpListener;
+<<<<<<< HEAD
+>>>>>>> parent of 93a3cba... UDP client listener fix.
+=======
 >>>>>>> parent of 93a3cba... UDP client listener fix.
 	
 	private ServerProcessor processor;
@@ -48,11 +51,14 @@ public class MainServer extends Thread {
 			e.printStackTrace();
 		}
 <<<<<<< HEAD
+<<<<<<< HEAD
 	}
 	
 	public MainServer(int port) throws IOException {
 		serverSocket = new ServerSocket(port);
 =======
+=======
+>>>>>>> parent of 93a3cba... UDP client listener fix.
 		this.setUdpListener(new UDPListener(this.getUdpSocket(), this.getListClients()));
 		serverSocket = new ServerSocket(Info.BROADCAST_PORT);
 >>>>>>> parent of 93a3cba... UDP client listener fix.
@@ -224,6 +230,9 @@ public class MainServer extends Thread {
 	public void setUdpListener(UDPListener udpListener) {
 		this.udpListener = udpListener;
 	}
+<<<<<<< HEAD
+>>>>>>> parent of 93a3cba... UDP client listener fix.
+=======
 >>>>>>> parent of 93a3cba... UDP client listener fix.
 	
 	/*
