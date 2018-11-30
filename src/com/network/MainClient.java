@@ -1,6 +1,8 @@
 package com.network;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
@@ -48,6 +50,7 @@ public class MainClient extends Thread implements UDPUnpacker {
 	}
 	
 	public void send(int index, int value) {
+		System.out.println("Sending "+index+" "+value);
 		this.getTcpStream().send(index, value);
 	}
 	
@@ -81,6 +84,13 @@ public class MainClient extends Thread implements UDPUnpacker {
 		this.getTcpStream().setClientIP(this.getAddress());
 		
 		this.getTcpStream().initializeClientSocket(this.getServerIP());
+		try {
+			this.getTcpStream().initializeObjectStreams(
+					new ObjectInputStream(this.getTcpStream().getTcpClientSocket().getInputStream()),
+					new ObjectOutputStream(this.getTcpStream().getTcpClientSocket().getOutputStream()));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	// Start sorting
