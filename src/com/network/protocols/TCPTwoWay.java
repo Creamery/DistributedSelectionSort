@@ -120,15 +120,17 @@ public class TCPTwoWay extends Thread {
 		System.out.println("TCP listener run");
 		try {
 			// Wait for TCP connection from CLIENT
-			Socket client = this.getServerSocket().accept();
-			this.setTcpServerSocket(client);
+//			Socket client = this.getServerSocket().accept();
+//			this.setTcpServerSocket(client);
+			
+			this.setTcpServerSocket(this.getServerSocket().accept());
 			
 			// Prompt successful connection
 			System.out.println("[SERVER]: "+"Just TCP connected to " + this.getTcpServerSocket().getRemoteSocketAddress());
 			
 			System.out.println("Server object streams");
 			this.initializeObjectStreams(
-					new ObjectOutputStream(client.getOutputStream()),
+					new ObjectOutputStream(this.getTcpServerSocket().getOutputStream()),
 					new ObjectInputStream(this.getTcpServerSocket().getInputStream()));
 					
 			
