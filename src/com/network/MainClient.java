@@ -21,8 +21,10 @@ public class MainClient extends Thread implements UDPUnpacker {
     
 	private DatagramSocket udpSocket;
 
-	
+	private int port;
 	public MainClient() {
+		this.setPort(Info.BROADCAST_PORT);
+		
 		try {
 			this.setTcpStream(new TCPTwoWay("Client "));
 		} catch (IOException e) {
@@ -76,6 +78,8 @@ public class MainClient extends Thread implements UDPUnpacker {
 	public void setupTCPStream() {
 		this.getTcpStream().setServerIP(this.getServerIP());
 		this.getTcpStream().setClientIP(this.getAddress());
+		
+		this.getTcpStream().initializeClientSocket(this.getServerIP(), this.getPort());
 	}
 	
 	// Start sorting
@@ -140,7 +144,7 @@ public class MainClient extends Thread implements UDPUnpacker {
 	public DatagramSocket getUdpSocket() {
 		if(this.udpSocket == null) {
 			try {
-				this.setUdpSocket(new DatagramSocket(Info.BROADCAST_PORT));
+				this.setUdpSocket(new DatagramSocket(this.getPort()));
 			} catch (SocketException e) {
 				e.printStackTrace();
 			}
@@ -185,5 +189,13 @@ public class MainClient extends Thread implements UDPUnpacker {
 
 	public void setUdpListener(UDPListener udpListener) {
 		this.udpListener = udpListener;
+	}
+
+	public int getPort() {
+		return port;
+	}
+
+	public void setPort(int port) {
+		this.port = port;
 	}
 }

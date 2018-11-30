@@ -29,16 +29,17 @@ public class MainServer extends Thread implements UDPUnpacker {
 	
 
 	private ArrayList<InetAddress> listClients;
+	private int port;
 	
 	public MainServer() throws IOException {
-
+		this.setPort(Info.BROADCAST_PORT);
 		try {
 			this.setTcpStream(new TCPTwoWay("Server"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		this.setUdpListener(new UDPListener(this));
-		serverSocket = new ServerSocket(Info.BROADCAST_PORT);
+		serverSocket = new ServerSocket(this.getPort());
 		// Set how long the server will wait for a connection
 		serverSocket.setSoTimeout(0);
 	}
@@ -178,6 +179,16 @@ public class MainServer extends Thread implements UDPUnpacker {
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
+	}
+
+
+	public int getPort() {
+		return port;
+	}
+
+
+	public void setPort(int port) {
+		this.port = port;
 	}
 	
 	/*

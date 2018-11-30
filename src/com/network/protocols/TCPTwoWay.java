@@ -72,6 +72,15 @@ public class TCPTwoWay extends Thread {
 		this.setObjectOutputStream(new ObjectOutputStream(this.getTcpServerSocket().getOutputStream()));
 	}
 	
+	public void initializeClientSocket(InetAddress serverIP, int port) {
+		this.setServerIP(serverIP);
+		try {
+			this.setTcpClientSocket(new Socket(this.getServerIP(), port));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	// Run listener
 	public void run() {
 		try {
