@@ -84,6 +84,8 @@ public class TCPTwoWay extends Thread {
 			e.printStackTrace();
 		}
 		try {
+			System.out.println("[CLIENT]: "+"Just connected to " + this.getTcpClientSocket().getRemoteSocketAddress());
+			
 			this.setOutToServer(this.getTcpClientSocket().getOutputStream());
 			this.setDataOutToServer(new DataOutputStream(outToServer));
 			this.setInFromServer(this.getTcpClientSocket().getInputStream());
@@ -125,6 +127,8 @@ public class TCPTwoWay extends Thread {
 		// Wait for message to receive
 		while(isReceiving()) {
 			try {
+
+				System.out.println("isReceiving");
 
 //				System.out.println("[SERVER]: "+"Waiting for client on port " +
 //						serverSocket.getLocalPort() + "...");
