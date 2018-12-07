@@ -1,6 +1,7 @@
 package com.network;
 
 import java.io.IOException;
+import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
@@ -49,6 +50,7 @@ public class MainClient extends Thread implements UDPUnpacker {
 	}
 	
 	public void send(int index, int value) {
+
 		System.out.println("Sending "+index+" "+value);
 		this.getTcpStream().send(index, value);
 	}

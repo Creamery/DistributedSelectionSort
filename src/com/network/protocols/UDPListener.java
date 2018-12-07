@@ -53,7 +53,9 @@ public class UDPListener extends Thread {
 	public void setPacket(DatagramPacket packet) {
 		this.packet = packet;
 	}
-	
+	public void send() {
+		this.setPacket(new DatagramPacket(this.getBuffer(), this.getBuffer().length));
+	}
 	public void run() {
 		System.out.println("Listening...");
 		while(this.isListening()) {
@@ -61,7 +63,7 @@ public class UDPListener extends Thread {
 
 			System.out.println("Sending (1)");
 			// Initialize a new packet per iteration
-			this.setPacket(new DatagramPacket(this.getBuffer(), this.getBuffer().length));
+			this.send();
 			
 			
 			// Allow socket to receive packets
@@ -81,7 +83,6 @@ public class UDPListener extends Thread {
 
 				System.out.println("Unpacking...");
 				this.getParent().unpack(message);
-				this.setPacket(new DatagramPacket(this.getBuffer(), this.getBuffer().length));
 			}
 			else {
 
