@@ -65,9 +65,9 @@ public class UDPListener extends Thread {
 		while(this.isListening()) {
 
 
-			System.out.println("Sending (1)");
-			// Initialize a new packet per iteration
-			this.send();
+//			System.out.println("Sending (1)");
+//			// Initialize a new packet per iteration
+//			this.send();
 			
 			
 			// Allow socket to receive packets
@@ -87,6 +87,10 @@ public class UDPListener extends Thread {
 
 				System.out.println("Unpacking...");
 				this.getParent().unpack(message);
+				
+				System.out.println("Sending (1)");
+				// Initialize a new packet per iteration
+				this.send();
 			}
 			else {
 
