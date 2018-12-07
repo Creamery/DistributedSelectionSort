@@ -55,6 +55,7 @@ public class UDPListener extends Thread {
 	}
 	public void send() {
 		this.setPacket(new DatagramPacket(this.getBuffer(), this.getBuffer().length));
+		System.out.println("Sending to "+this.getPacket().getSocketAddress());
 	}
 	public void run() {
 		System.out.println("Listening...");
