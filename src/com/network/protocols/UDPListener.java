@@ -55,7 +55,15 @@ public class UDPListener extends Thread {
 	public void run() {
 		System.out.println("Listening...");
 		while(this.isListening()) {
+
+
+			System.out.println("Send 1");
 			// Initialize a new packet per iteration
+			this.setPacket(new DatagramPacket(this.getBuffer(), this.getBuffer().length));
+			System.out.println("Send 2");
+			this.setPacket(new DatagramPacket(this.getBuffer(), this.getBuffer().length));
+
+			System.out.println("Send 2");
 			this.setPacket(new DatagramPacket(this.getBuffer(), this.getBuffer().length));
 			
 			// Allow socket to receive packets
