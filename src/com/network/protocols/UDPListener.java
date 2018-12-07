@@ -57,7 +57,7 @@ public class UDPListener extends Thread {
 		this.setPacket(new DatagramPacket(this.getBuffer(), this.getBuffer().length));
 
 		System.out.println("Sent from "+this.getPacket().getAddress());
-		System.out.println("Sending to "+this.getPacket().getSocketAddress());
+//		System.out.println("Sending to "+this.getPacket().getSocketAddress());
 	}
 	
 	public void run() {
@@ -66,8 +66,8 @@ public class UDPListener extends Thread {
 
 
 //			System.out.println("Sending (1)");
-//			// Initialize a new packet per iteration
-//			this.send();
+			// Initialize a new packet per iteration
+			this.send();
 			
 			
 			// Allow socket to receive packets
