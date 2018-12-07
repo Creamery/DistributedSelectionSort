@@ -22,6 +22,7 @@ public class UDPListener extends Thread {
     }
 
 	public void listen() {
+		System.out.println("LISTENING (UDPListener)");
 		this.setListening(true);
 		this.run();
 	}
@@ -57,17 +58,15 @@ public class UDPListener extends Thread {
 		while(this.isListening()) {
 
 
-			System.out.println("Send 1");
+			System.out.println("Sending (1)");
 			// Initialize a new packet per iteration
 			this.setPacket(new DatagramPacket(this.getBuffer(), this.getBuffer().length));
-			System.out.println("Send 2");
-			this.setPacket(new DatagramPacket(this.getBuffer(), this.getBuffer().length));
-
-			System.out.println("Send 2");
-			this.setPacket(new DatagramPacket(this.getBuffer(), this.getBuffer().length));
+			
 			
 			// Allow socket to receive packets
 			try {
+
+				System.out.println("Waiting for UDP socket wait");
 				this.getUdpSocket().receive(packet);
 			} catch (IOException e1) {
 				e1.printStackTrace();
@@ -75,10 +74,16 @@ public class UDPListener extends Thread {
 			// Decode packet message
 			String message = new String(packet.getData()).trim();
 
-			System.out.println("received "+message);
+			System.out.println("Received "+message);
 			// If message is not empty, add the client IP to the list of clients
 			if(message != ""){
+
+				System.out.println("Unpacking...");
 				this.getParent().unpack(message);
+			}
+			else {
+
+				System.out.println("Message is empty...");
 			}
 		}
 	}

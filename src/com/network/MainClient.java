@@ -23,6 +23,7 @@ public class MainClient extends Thread implements UDPUnpacker {
 
 	private int UDPPort;
 	private int TCPPort;
+	
 	public MainClient() {
 		this.setUDPPort(Info.BROADCAST_PORT);
 		this.setTCPPort(Info.PORT);
