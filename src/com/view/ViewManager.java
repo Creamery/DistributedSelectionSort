@@ -72,9 +72,10 @@ public class ViewManager extends Thread {
 			this.setMode(Mode.SERVER);	
 		}
 		else if(isStartClient(command)) {
+
+			this.setMode(Mode.CLIENT);
 			// Create a client and start listening
 			ControllerManager.Instance().getClient().start();
-			this.setMode(Mode.CLIENT);
 		}
 		else if(isExit(command)) {
 			Print.response("Goodbye!");
