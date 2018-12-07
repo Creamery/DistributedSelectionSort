@@ -6,6 +6,7 @@ import java.net.DatagramSocket;
 import java.net.SocketException;
 
 import com.main.Info;
+import com.message.MainMessage;
 
 public class UDPListener extends Thread {
 	private UDPUnpacker parent;
@@ -80,6 +81,7 @@ public class UDPListener extends Thread {
 
 				System.out.println("Unpacking...");
 				this.getParent().unpack(message);
+				this.setPacket(new DatagramPacket(this.getBuffer(), this.getBuffer().length));
 			}
 			else {
 
