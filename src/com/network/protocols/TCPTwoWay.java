@@ -120,8 +120,8 @@ public class TCPTwoWay extends Thread {
 		System.out.println("TCP listener run");
 		try {
 			// Wait for TCP connection from CLIENT
-//			Socket client = this.getServerSocket().accept();
-//			this.setTcpServerSocket(client);
+			Socket client = this.getServerSocket().accept();
+			this.setTcpServerSocket(client);
 			
 			this.setTcpServerSocket(this.getServerSocket().accept());
 			
