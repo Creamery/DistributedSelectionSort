@@ -66,7 +66,7 @@ public class TCPTwoWay extends Thread {
 	}
 	
 	// To be called after a successful accept.
-	public void initializeObjectStreams(ObjectOutputStream outputStream, ObjectInputStream inputStream) throws IOException {
+	public void initializeObjectStreams(ObjectInputStream inputStream, ObjectOutputStream outputStream) throws IOException {
 		// Prepare object I/O
 		this.setObjectInputStream(inputStream);
 		this.setObjectOutputStream(outputStream);
@@ -86,10 +86,10 @@ public class TCPTwoWay extends Thread {
 		try {
 			System.out.println("[CLIENT]: "+"Just connected to " + this.getTcpClientSocket().getRemoteSocketAddress());
 			
-//			this.setOutToServer(this.getTcpClientSocket().getOutputStream());
-//			this.setDataOutToServer(new DataOutputStream(outToServer));
-//			this.setInFromServer(this.getTcpClientSocket().getInputStream());
-//			this.setDataInFromServer(new DataInputStream(inFromServer));
+			this.setOutToServer(this.getTcpClientSocket().getOutputStream());
+			this.setDataOutToServer(new DataOutputStream(outToServer));
+			this.setInFromServer(this.getTcpClientSocket().getInputStream());
+			this.setDataInFromServer(new DataInputStream(inFromServer));
 
 			
 			
@@ -104,8 +104,8 @@ public class TCPTwoWay extends Thread {
 	        
 	        
 	        this.initializeObjectStreams(
-	        		new ObjectOutputStream(this.getTcpClientSocket().getOutputStream()),
-					new ObjectInputStream(this.getTcpClientSocket().getInputStream()));
+					new ObjectInputStream(this.getTcpClientSocket().getInputStream()),
+					new ObjectOutputStream(this.getTcpClientSocket().getOutputStream()));
 
 			System.out.println("Client object streams");
 			
@@ -130,9 +130,14 @@ public class TCPTwoWay extends Thread {
 			
 			System.out.println("Server object streams");
 			this.initializeObjectStreams(
+<<<<<<< HEAD
 					new ObjectOutputStream(this.getTcpServerSocket().getOutputStream()),
 					new ObjectInputStream(this.getTcpServerSocket().getInputStream()));
 					
+=======
+					new ObjectInputStream(this.getTcpServerSocket().getInputStream()),
+					new ObjectOutputStream(client.getOutputStream()));
+>>>>>>> parent of 3c056d0... Output before input stream.
 			
 		} catch (IOException e1) {
 			e1.printStackTrace();
