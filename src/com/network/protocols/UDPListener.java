@@ -53,12 +53,6 @@ public class UDPListener extends Thread {
 	public void setPacket(DatagramPacket packet) {
 		this.packet = packet;
 	}
-	public void send() {
-		this.setPacket(new DatagramPacket(this.getBuffer(), this.getBuffer().length));
-
-		System.out.println("Sent from "+this.getPacket().getAddress());
-//		System.out.println("Sending to "+this.getPacket().getSocketAddress());
-	}
 	
 	public void run() {
 		System.out.println("Listening...");
@@ -67,7 +61,7 @@ public class UDPListener extends Thread {
 
 //			System.out.println("Sending (1)");
 			// Initialize a new packet per iteration
-			this.send();
+			this.setPacket(new DatagramPacket(this.getBuffer(), this.getBuffer().length));
 			
 			
 			// Allow socket to receive packets
@@ -84,13 +78,10 @@ public class UDPListener extends Thread {
 			System.out.println("Received "+message);
 			// If message is not empty, add the client IP to the list of clients
 			if(message != ""){
-
+				this.setListening(false);
 				System.out.println("Unpacking...");
 				this.getParent().unpack(message);
 				
-				System.out.println("Sending (1)");
-				// Initialize a new packet per iteration
-				this.send();
 			}
 			else {
 

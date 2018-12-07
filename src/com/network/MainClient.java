@@ -58,6 +58,7 @@ public class MainClient extends Thread implements UDPUnpacker {
 	// Listen for any server broadcast to connect
 	public void listen() {
 		this.getUdpListener().listen();
+		this.getUdpListener().stopListening();
 	}
 	
 	// Listen to a server broadcast
