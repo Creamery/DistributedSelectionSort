@@ -175,8 +175,7 @@ public class MainServer extends Thread implements UDPUnpacker {
 	@Override
 	public void unpack(String message) {
 		this.stopListening();
-		System.out.println("SEND");
-		this.getUdpListener().send();
+		
 		
 		String ip = message.substring(message.indexOf("/")+1);
 		System.out.println("Unpacked message: "+message+"\nTrimmed: "+ip);
