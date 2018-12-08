@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 public class MainMessage implements Serializable {
 	private static final long serialVersionUID = 1L;
+	private String header = "";
 	private String message;
 	private ArrayList<Integer> sortList;
 	private int startIndex;
@@ -76,6 +77,14 @@ public class MainMessage implements Serializable {
 
 	public void setMinValue(int minValue) {
 		this.minValue = minValue;
+	}
+
+	public String getHeader() {
+		return header;
+	}
+
+	public void setHeader(String header) {
+		this.header = header;
 	}
 	
 }

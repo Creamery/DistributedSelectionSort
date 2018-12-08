@@ -58,8 +58,8 @@ public class MainServer extends Thread implements UDPUnpacker {
 		this.getProcessor().process();
 	}
 	
-	public void listen() {
-		this.getUdpListener().listen();
+	public void listen(String newHeader) {
+		this.getUdpListener().listen(newHeader);
 	}
 	public void stopListening() {
 		this.getUdpListener().stopListening();
@@ -77,7 +77,7 @@ public class MainServer extends Thread implements UDPUnpacker {
 		}
 
 		// Get value server IP  (this device)
-		byte[] buffer = Info.NETWORK.getBytes();
+		byte[] buffer = (Info.HDR_SERVER+Info.HDR_SPLIT+Info.NETWORK).getBytes();
 		DatagramPacket packet = null;
 		
 		// Prepare the broadcast
@@ -102,7 +102,7 @@ public class MainServer extends Thread implements UDPUnpacker {
 
 //		this.getTcpStream().start();
 		// Prepare to listen to replies
-		this.listen();
+		this.listen(Info.HDR_SERVER);
 
 
 		// Start TCP Connection
@@ -190,7 +190,9 @@ public class MainServer extends Thread implements UDPUnpacker {
 			System.out.println("Unpacked message: "+message+"\nTrimmed: "+ip);
 	
 			InetAddress address = InetAddress.getByName(ip);
+			
 			System.out.println("this address is "+this.getAddress());
+			
 			if(this.getAddress().toString().substring(1).equals(ip)) {
 				System.out.println("Received own address");
 			}

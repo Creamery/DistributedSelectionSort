@@ -64,8 +64,8 @@ public class MainClient extends Thread implements UDPUnpacker {
 	
 
 	// Listen for any server broadcast to connect
-	public void listen() {
-		this.getUdpListener().listen();
+	public void listen(String newHeader) {
+		this.getUdpListener().listen(newHeader);
 	}
 	
 	// Listen to a server broadcast
@@ -75,7 +75,7 @@ public class MainClient extends Thread implements UDPUnpacker {
 	// Send IP as a reply
 	public void send() {
 		System.out.println("Sending IP...");
-		byte[] buffer = Info.NETWORK.getBytes();
+		byte[] buffer = (Info.HDR_CLIENT+Info.HDR_SPLIT+Info.NETWORK).getBytes();
 		DatagramPacket packet = null;
 		
 		// Prepare to send

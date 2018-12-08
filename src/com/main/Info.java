@@ -21,10 +21,14 @@ public class Info {
 	public static int SERVER_TIMEOUT = 0;
 	public static int BUFFER_SIZE = 256;
 	
-	public static String MSG_CLIENT_RECEIVED = "received";
-	public static String MSG_SERVER_ARRAY = "array";
-	public static String MSG_CLIENT_END = "clientEnd";
+	public static String MSG_CLIENT_RECEIVED = "msgClientReceived";
+	public static String MSG_SERVER_ARRAY = "msgServerArray";
+	public static String MSG_CLIENT_END = "msgClientEnd";
 
+	public static String HDR_SPLIT = "_";
+	public static String HDR_SERVER = "hdrServer";
+	public static String HDR_CLIENT = "hdrClient";
+	
 	public static int CLIENT_SIZE = 1;
 	
 	public static String GetSelfAddress() {
