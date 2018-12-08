@@ -3,6 +3,7 @@ package com.controller;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+import com.main.Info;
 import com.message.MainMessage;
 import com.network.MainClient;
 
@@ -17,7 +18,7 @@ public class ClientController {
 		}
 		if(this.getClient().getServerIP() == null) {
 			System.out.println("Server is null, listening");
-			this.getClient().listen();
+			this.getClient().listen(Info.HDR_CLIENT);
 		}
 		else {
 			System.out.println("Server exists, TCP connect");
