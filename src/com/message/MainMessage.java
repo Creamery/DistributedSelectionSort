@@ -10,6 +10,9 @@ public class MainMessage implements Serializable {
 	private int startIndex;
 	private int endIndex;
 	
+	private int minIndex;
+	private int minValue;
+	
 	// Call this if you want to reuse the MainMessage
 	public void reset() {
 		this.message = "";
@@ -18,6 +21,15 @@ public class MainMessage implements Serializable {
 		this.endIndex = -1;
 	}
 	
+	public void setMinimumValues(int index, int value) {
+		this.setMinIndex(index);
+		this.setMinValue(value);
+	}
+	
+	public void setIndices(int start, int end) {
+		this.setStartIndex(start);
+		this.setEndIndex(end);
+	}
 	public int getStartIndex() {
 		return startIndex;
 	}
@@ -48,6 +60,22 @@ public class MainMessage implements Serializable {
 
 	public void setSortList(ArrayList<Integer> sortList) {
 		this.sortList = sortList;
+	}
+
+	public int getMinIndex() {
+		return minIndex;
+	}
+
+	public void setMinIndex(int minIndex) {
+		this.minIndex = minIndex;
+	}
+
+	public int getMinValue() {
+		return minValue;
+	}
+
+	public void setMinValue(int minValue) {
+		this.minValue = minValue;
 	}
 	
 }

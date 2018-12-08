@@ -23,7 +23,9 @@ public class Info {
 	
 	public static String MSG_CLIENT_RECEIVED = "received";
 	public static String MSG_SERVER_ARRAY = "array";
-	
+	public static String MSG_CLIENT_END = "clientEnd";
+
+	public static int CLIENT_SIZE = 1;
 	
 	public static String GetSelfAddress() {
 		try {

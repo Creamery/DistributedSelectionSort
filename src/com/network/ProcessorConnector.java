@@ -2,18 +2,29 @@ package com.network;
 
 import java.util.ArrayList;
 
+import com.message.MainMessage;
+
 public abstract class ProcessorConnector extends Thread{
 	protected volatile boolean isRunning;
 	protected volatile ArrayList<Integer> sortList;
 	protected volatile int startIndex;
 	protected volatile int endIndex;
 	
-	public void start(ArrayList<Integer> list, int start, int end) {
-		this.setSortList(list);
-		this.setStartIndex(start);
-		this.setEndIndex(end);
+	protected volatile int minimumValue = -1;
+	protected volatile int minimumIndex = -1;
+	
+
+	public abstract void process();
+
+	public void resetMinimum() {
+		this.setMinimumIndex(-1);
+		this.setMinimumValue(-1);
 	}
 	
+	public void setIndices(MainMessage message) {
+		this.setStartIndex(message.getStartIndex());
+		this.setEndIndex(message.getEndIndex());
+	}
 	
 	public void setSortList(ArrayList<Integer> list) {
 		this.sortList = list;
@@ -38,5 +49,25 @@ public abstract class ProcessorConnector extends Thread{
 	}
 	public void setEndIndex(int end) {
 		this.endIndex = end;
+	}
+
+
+	public int getMinimumValue() {
+		return minimumValue;
+	}
+
+
+	public void setMinimumValue(int minimumValue) {
+		this.minimumValue = minimumValue;
+	}
+
+
+	public int getMinimumIndex() {
+		return minimumIndex;
+	}
+
+
+	public void setMinimumIndex(int minimumIndex) {
+		this.minimumIndex = minimumIndex;
 	}
 }

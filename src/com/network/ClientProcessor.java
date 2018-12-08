@@ -1,25 +1,27 @@
 package com.network;
 
-import java.util.ArrayList;
-
 public class ClientProcessor extends ProcessorConnector {
 
-
 	@ Override
-	public void start(ArrayList<Integer> list, int start, int end) {
-		super.start(list, start, end);
-		// TODO: process
-	}
-	
-	// Initialize before running
 	public void process() {
+		this.resetMinimum();
 		this.setRunning(true);
+		
 		this.run();
 	}
 	
 	public void run() {
+		System.out.println("SORTING");
+		
+		// TODO Remove
+		this.setRunning(false);
+		this.setMinimumIndex(1);
+		this.setMinimumValue(7);
+		
+		
 		while(this.isRunning()) {
 			// Add sorting here
+			
 		}
 	}
 }

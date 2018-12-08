@@ -6,12 +6,15 @@ import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 
 import com.controller.ControllerManager;
 import com.main.Info;
 import com.message.MainMessage;
 import com.message.TCPMessage;
 import com.network.ProcessorConnector;
+import com.network.ProcessorIndices;
+import com.network.ServerProcessor;
 
 public class TCPTwoWay extends Thread {
 	private boolean isServer;
@@ -134,6 +137,12 @@ public class TCPTwoWay extends Thread {
 		System.out.println("TCP listener run");
 		if(isServer()) {
 			System.out.println("As Server");
+			ServerProcessor serverProcessor = (ServerProcessor) this.getProcessor();
+			ArrayList<ProcessorIndices> indices = null;
+			ProcessorIndices processorIndex = null;
+			int minValue = 99999999;
+			int minIndex = -1;
+			
 			try {
 				Socket server = this.getServerSocket().accept();
 				
@@ -168,18 +177,35 @@ public class TCPTwoWay extends Thread {
 				
 				while (this.isReceiving()) {
 					try {
-						System.out.println("Waiting for message...");
-						// WAIT for message
-						message = (MainMessage) ois.readObject();
+						// SEND indices
+						message.reset();
+						indices = serverProcessor.computeIndices(Info.CLIENT_SIZE);
 						
-						if(message != null) {
-							System.out.println("Received "+message.getMessage());
-							message = new MainMessage();
-							message.setMessage("server got it");
-							
-							// SEND message
+						// For each CLIENT
+						for(int i = 0; i < indices.size(); i++) {
+							processorIndex = indices.get(i);
+							message.reset();
+							message.setIndices(processorIndex.getStartIndex(), processorIndex.getEndIndex());
 							oos.writeObject(message);
-							message = null;;
+						}
+						
+						System.out.println("Waiting for Minimum Value...");
+						// WAIT for message (each CLIENT)
+						for(int i = 0; i < Info.CLIENT_SIZE; i++) {
+							message = (MainMessage) ois.readObject();
+							if(message.getMinValue() < minValue) {
+								minValue = message.getMinValue();
+								minIndex = message.getMinIndex();
+							}
+						}
+						
+						// SWAP
+						System.out.println("minIndex "+minIndex);
+						serverProcessor.swap(serverProcessor.getCurrentIndex(), minIndex);
+						serverProcessor.next(); // Move current index
+						
+						if(serverProcessor.isDone()) {
+							this.setReceiving(false);
 						}
 					} catch (ClassNotFoundException e) {
 						e.printStackTrace();
@@ -220,36 +246,33 @@ public class TCPTwoWay extends Thread {
 			    
 			    while (this.isSending()) {
 			    	try {
+			    		// WAIT for indices
 			    		System.out.println("Waiting for indices (message != null)");
-			    		this.setMainMessage(null);
-			    		Info.CLIENT_LOCK = true;
-			    		while(Info.CLIENT_LOCK) {
-			    			this.mainMessage = ControllerManager.Instance().getClientMessage();
-			    			if(this.mainMessage != null) {
-				    			Info.CLIENT_LOCK = false;
-			    			}
-			    		};
-			    		
-			    		
-//			    		this.setMainMessage(new MainMessage());
-//			    		this.getMainMessage().setMessage("wan");
-			    		// SEND message
-		    			oos.writeObject(this.getMainMessage());
-		    			this.setMainMessage(null);
-			    		
-		    			// WAIT message
-			    		System.out.println("Waiting for message...");
 						message = (MainMessage) ois.readObject();
-
-				    	if(message != null) {
-				    		System.out.println("Client received "+message.getMessage());
-				    		this.setMainMessage(new MainMessage());
-				    		this.getMainMessage().setMessage("yowz?");
-				    		oos.writeObject(this.getMainMessage());
+						
+						// END
+						if(message.getMessage().contains(Info.MSG_CLIENT_END)) {
+							this.setSending(false);
+						}
+						
+						// PROCESS
+						else {
+							this.getProcessor().setIndices(message);
+							System.out.println("Received indices "+this.getProcessor().getStartIndex()+" "+this.getProcessor().getEndIndex());
+							this.getProcessor().process();
+							// Block while is processing
+							while(this.getProcessor().getMinimumIndex() == -1) {};
+							
+							
+				    		message.reset();
+				    		message.setMinimumValues(this.getProcessor().getMinimumIndex(), this.getProcessor().getMinimumValue());
 				    		
-				    		message = null;
-				    	}
-				    	
+				    		// SEND message
+				    		System.out.println("Sent min value");
+			    			oos.writeObject(message);
+			    			message.reset();
+				    		
+						}
 					} catch (ClassNotFoundException e) {
 						e.printStackTrace();
 					}
