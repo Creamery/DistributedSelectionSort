@@ -156,6 +156,7 @@ public class TCPTwoWay extends Thread {
 
 							System.out.println("Sending indices: "+processorIndex.getStartIndex()+" "+processorIndex.getEndIndex());
 							this.getListClientOutputStreams().get(i).writeObject(message);
+							this.getListClientOutputStreams().get(i).flush();
 							//oos.writeObject(message);
 						}
 						
@@ -274,6 +275,7 @@ public class TCPTwoWay extends Thread {
 		for(int i = 0; i < getListClientOutputStreams().size(); i++) {
 			try {
 				this.getListClientOutputStreams().get(i).writeObject(message);
+				this.getListClientOutputStreams().get(i).flush();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
