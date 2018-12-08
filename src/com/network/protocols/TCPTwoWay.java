@@ -166,6 +166,7 @@ public class TCPTwoWay extends Thread {
 				oos.writeObject(message);
 				
 				System.out.println("Waiting for reply...");
+				message.setMessage("");
 				// WAIT for message
 				try {
 					do {
