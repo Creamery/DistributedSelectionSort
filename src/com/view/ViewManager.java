@@ -114,6 +114,7 @@ public class ViewManager extends Thread {
 	
 	
 	public void clientCommand(String command) {
+		System.out.println("Client Command");
 		if(isStart(command)) {
 			// Start client
 			ControllerManager.Instance().getClient().start();
