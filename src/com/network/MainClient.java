@@ -8,6 +8,7 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 
 import com.main.Info;
+import com.message.MainMessage;
 import com.network.protocols.TCPTwoWay;
 import com.network.protocols.UDPListener;
 import com.network.protocols.UDPUnpacker;
@@ -51,7 +52,10 @@ public class MainClient extends Thread implements UDPUnpacker {
 	
 	public void send(String message) {
 		System.out.println("Sending "+message);
-		this.getTcpStream().sendAsClient(message);
+		MainMessage mainMessage = new MainMessage();
+		mainMessage.setMessage(message);
+		this.getTcpStream().setMainMessage(mainMessage);
+//		this.getTcpStream().sendAsClient(message);
 	}
 	
 	public void send(int index, int value) {

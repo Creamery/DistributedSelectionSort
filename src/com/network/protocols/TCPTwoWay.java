@@ -135,10 +135,10 @@ public class TCPTwoWay extends Thread {
 			
 	}
 
-	public void sendAsClient(String message) {
-		this.setMainMessage(new MainMessage());
-		this.getMainMessage().setMessage(message);
-	}
+//	public void sendAsClient(String message) {
+//		this.setMainMessage(new MainMessage());
+//		this.getMainMessage().setMessage(message);
+//	}
 	
 	// Run listener
 	public void run() {
@@ -156,6 +156,7 @@ public class TCPTwoWay extends Thread {
 				
 				while (this.isReceiving()) {
 					try {
+						System.out.println("Waiting for message...");
 						// WAIT for message
 						message = (MainMessage) ois.readObject();
 						if(message != null) {
