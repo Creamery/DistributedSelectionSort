@@ -81,7 +81,7 @@ public class UDPListener extends Thread {
 				this.setListening(false);
 
 				System.out.println("Unpacking...");
-				this.reply(packt);
+				this.reply(packet);
 				this.getParent().unpack(message);
 
 				// Send back a new packet
