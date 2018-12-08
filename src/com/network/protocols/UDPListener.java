@@ -59,7 +59,9 @@ public class UDPListener extends Thread {
 	public void run() {
 		System.out.println("Listening...");
 		while(this.isListening()) {
-
+			// Initialize packet
+			this.setPacket(new DatagramPacket(this.getBuffer(), this.getBuffer().length, this.getSendAddress(), this.getUdpSocket().getPort()));
+			
 			// Allow socket to receive packets
 			try {
 				System.out.println("Waiting for UDP socket wait");
