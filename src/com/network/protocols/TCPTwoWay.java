@@ -67,6 +67,8 @@ public class TCPTwoWay extends Thread {
 		
 		// Set clientIP to self IP
 		this.setClientIP(InetAddress.getLocalHost());
+		
+		this.setMainMessage(null);
 	}
 	
 //	public void start() {
@@ -209,6 +211,7 @@ public class TCPTwoWay extends Thread {
 
 			    while (this.isSending()) {
 			    	try {
+			    		System.out.println("Waiting for message != null");
 			    		while(this.getMainMessage() != null) {
 						    // SEND message
 			    			oos.writeObject(this.getMainMessage());
