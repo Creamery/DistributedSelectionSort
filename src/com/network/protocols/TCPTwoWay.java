@@ -164,9 +164,11 @@ public class TCPTwoWay extends Thread {
 						for(int i = 0; i < Info.CLIENT_SIZE; i++) {
 							message = (MainMessage) this.getListClientInputStreams().get(i).readObject();
 
-							System.out.println("Client "+i+"responded");
+							System.out.println("Client "+i+" responded");
 							//message = (MainMessage) ois.readObject();
-							
+							if(minIndex == -1) {
+								minValue = message.getMinValue()+1;
+							}
 							if(message.getMinValue() < minValue) {
 								minValue = message.getMinValue();
 								minIndex = message.getMinIndex();
