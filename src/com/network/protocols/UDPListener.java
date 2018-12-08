@@ -12,7 +12,7 @@ import com.main.Info;
 public class UDPListener extends Thread {
 	private UDPUnpacker parent;
 	
-	private boolean isListening;
+	private boolean isListening = false;
 	private DatagramPacket packet;
 	private DatagramSocket udpSocket;
 	private InetAddress sendAddress;
@@ -25,9 +25,11 @@ public class UDPListener extends Thread {
     }
 
 	public void listen() {
-		System.out.println("LISTENING (UDPListener)");
-		this.setListening(true);
-		this.run();
+		if(!this.isListening()) {
+			System.out.println("LISTENING (UDPListener)");
+			this.setListening(true);
+			this.run();
+		}
 	}
 	
 	public void stopListening() {
@@ -57,7 +59,7 @@ public class UDPListener extends Thread {
 	}
 	
 	public void run() {
-		System.out.println("Listening...");
+		System.out.println("UDP Listening...");
 		
 		while(this.isListening()) {
 			// Initialize packet
@@ -72,7 +74,6 @@ public class UDPListener extends Thread {
 			}
 			// Decode packet message
 			String message = new String(packet.getData()).trim();
-
 			System.out.println("Received "+message);
 			
 			// If message is not empty, add the client IP to the list of clients
@@ -80,7 +81,7 @@ public class UDPListener extends Thread {
 				this.setListening(false);
 
 				System.out.println("Unpacking...");
-				this.unpack(message);
+				this.reply(packt);
 				this.getParent().unpack(message);
 
 				// Send back a new packet
@@ -94,7 +95,10 @@ public class UDPListener extends Thread {
 			}
 		}
 	}
-    public void unpack(String message) {
+	
+    public void reply(DatagramPacket packet) {
+    	String message = new String(packet.getData()).trim();
+		
     	String ip = message.substring(message.indexOf("/")+1);
 		System.out.println("Unpacked message: "+message+"\nTrimmed: "+ip);
 
@@ -103,7 +107,18 @@ public class UDPListener extends Thread {
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
+
+		DatagramPacket reply = new DatagramPacket(buffer, buffer.length, this.getSendAddress(), this.getUdpSocket().getLocalPort());
+
+		try {
+			this.getUdpSocket().send(reply);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		System.out.println("Sent reply");
     }
+    
     public DatagramSocket getUdpSocket() {
 		if(this.udpSocket == null) {
 			try {

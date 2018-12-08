@@ -83,9 +83,14 @@ public class MainServer extends Thread implements UDPUnpacker {
 			e1.printStackTrace();
 		}
 		try {
+
+			System.out.println("Preparing to listen");
+			// Prepare to listen to replies
+			this.listen();
+			System.out.println("Sending packet");
 			// Send IP
 			this.getUdpSocket().send(packet);
-			System.out.println("Sending packet to port "+this.getUdpSocket().getPort());
+			// System.out.println("Sending packet to port "+this.getUdpSocket().getPort());
 			Print.serverBroadcast();
 		} catch(IOException e){
 			e.printStackTrace();
@@ -97,7 +102,6 @@ public class MainServer extends Thread implements UDPUnpacker {
 
 //		this.getTcpStream().start();
 		// Prepare to listen to replies
-//		this.listen();
 	}
 	
 	public InetAddress getAddress() {
@@ -186,10 +190,15 @@ public class MainServer extends Thread implements UDPUnpacker {
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
-
-		this.getTcpStream().start();
+		System.out.println("TCP Connection will start");
+		// Start TCP Connection
+		// this.startTCPConnection();
 	}
 
+	public void startTCPConnection() {
+		// TCP Start
+		 this.getTcpStream().start();
+	}
 
 	public int getUDPPort() {
 		return UDPPort;
