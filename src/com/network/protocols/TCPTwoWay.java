@@ -237,14 +237,18 @@ public class TCPTwoWay extends Thread {
 			    
 			    try {
 				    // WAIT message
-		    		System.out.println("Waiting for array...");
-					message = (MainMessage) ois.readObject();
+					do {
+
+			    		System.out.println("Waiting for array...");
+						message = (MainMessage) ois.readObject();
+						if(message.getMessage().contains("server")) {
+				    		System.out.println("GOT ARRAY");
+							this.setMainMessage(new MainMessage());
+				    		this.getMainMessage().setMessage("got array");
+				    		oos.writeObject(this.getMainMessage());
+						}
+					}while(!message.getMessage().contains("server"));
 					
-					if(message.getMessage().contains("server")) {
-						this.setMainMessage(new MainMessage());
-			    		this.getMainMessage().setMessage("got array");
-			    		oos.writeObject(this.getMainMessage());
-					}
 			    } catch (ClassNotFoundException e) {
 					e.printStackTrace();
 				}
