@@ -205,7 +205,7 @@ public class MainServer extends Thread implements UDPUnpacker {
 
 	public void startTCPConnection() {
 		// TCP Start
-		 this.getTcpStream().start();
+		 this.getTcpStream().startAsServer();
 	}
 
 	public int getUDPPort() {

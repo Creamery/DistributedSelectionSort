@@ -1,15 +1,13 @@
 package com.network.protocols;
 
-import java.io.BufferedReader;
+import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -65,11 +63,11 @@ public class TCPTwoWay extends Thread {
 		this.setClientIP(InetAddress.getLocalHost());
 	}
 	
-	public void start() {
-		this.setReceiving(true);
-		this.setSending(true);
-		this.run();
-	}
+//	public void start() {
+//		this.setReceiving(true);
+//		this.setSending(true);
+//		this.run();
+//	}
 
 	
 	// To be called after a successful accept.
@@ -140,26 +138,44 @@ public class TCPTwoWay extends Thread {
 				Socket server = this.getServerSocket().accept();
 				
 				System.out.println("Just connected to " + server.getRemoteSocketAddress()); 
-
 				
-				PrintWriter toClient = new PrintWriter(server.getOutputStream(),true);
-				BufferedReader fromClient = new BufferedReader(new InputStreamReader(server.getInputStream()));
-				String line = fromClient.readLine();
-				System.out.println("Server received: " + line); 
-				toClient.println("Thank you for connecting to " + server.getLocalSocketAddress()); 
 
+				DataInputStream fromServer = new DataInputStream(new BufferedInputStream(server.getInputStream()));
 				while(isReceiving()) {
-					line = fromClient.readLine();
-					System.out.println("Server received: " + line); 
-					toClient.println("Server received " + line); 
-					if(line.equals("end")) {
+
+					System.out.println("Receiving...");
+					String line = fromServer.readUTF();
+					System.out.println(line);
+					if(line.trim().equals("end")) {
+						System.out.println("Ending server");
 						this.setReceiving(false);
 					}
 				}
-
+				
 				// Close socket when done receiving.
 				System.out.println("CLOSE");
-					this.getTcpServerSocket().close();
+				this.getTcpServerSocket().close();
+				
+				
+				
+//				PrintWriter toClient = new PrintWriter(server.getOutputStream(),true);
+//				BufferedReader fromClient = new BufferedReader(new InputStreamReader(server.getInputStream()));
+//				String line = fromClient.readLine();
+//				System.out.println("Server received: " + line); 
+//				toClient.println("Thank you for connecting to " + server.getLocalSocketAddress()); 
+//
+//				while(isReceiving()) {
+//					line = fromClient.readLine();
+//					System.out.println("Server received: " + line); 
+//					toClient.println("Server received " + line); 
+//					if(line.equals("end")) {
+//						this.setReceiving(false);
+//					}
+//				}
+
+//				// Close socket when done receiving.
+//				System.out.println("CLOSE");
+//				this.getTcpServerSocket().close();
 				
 				
 			} catch (IOException e) {
@@ -171,17 +187,36 @@ public class TCPTwoWay extends Thread {
 			try {
 				this.setTcpClientSocket(new Socket(this.getServerIP(), this.getPort()));
 				
+				
+				DataInputStream fromServer = null;
+				DataOutputStream toServer = null;
+				
+				fromServer = new DataInputStream(System.in);
+				toServer = new DataOutputStream(this.getTcpClientSocket().getOutputStream());
+				
+				String line = "";
+				while (!line.equals("end")) {
+					try {
+						line = fromServer.readLine();
+						toServer.writeUTF(line);
+						toServer.flush();
+					} catch(IOException ioe) {
+						System.out.println("Sending error: " + ioe.getMessage());
+					}
+				}
+				/*
 				PrintWriter toServer = new PrintWriter(this.getTcpClientSocket().getOutputStream(),true);
 				BufferedReader fromServer = new BufferedReader(new InputStreamReader(this.getTcpClientSocket().getInputStream()));
 				toServer.println("Hello from " + this.getTcpClientSocket().getLocalSocketAddress()); 
 				String line = fromServer.readLine();
 				System.out.println("Client received: " + line + " from Server");
 				
-				while(isSending()) {
-					line = fromServer.readLine();
-					System.out.println("Client received: " + line + " from Server");				
-				}
+//				while(isSending()) {
+//					line = fromServer.readLine();
+//					System.out.println("Client received: " + line + " from Server");				
+//				}
 				
+				*/
 				System.out.println("Client object streams END");
 				
 			} catch (IOException e) {
@@ -189,8 +224,7 @@ public class TCPTwoWay extends Thread {
 				e.printStackTrace();
 			}
 		}
-		
-		
+
 		// Wait for message to receive
 //		while(isReceiving()) {
 //			try {
@@ -237,6 +271,39 @@ public class TCPTwoWay extends Thread {
 //		}
 
 	}
+	
+//	public void sendAsClient(String message) {
+//		System.out.println("Sending as client");
+//		try {
+//			this.setTcpClientSocket(new Socket(this.getServerIP(), this.getPort()));
+//			
+////			PrintWriter toServer = new PrintWriter(this.getTcpClientSocket().getOutputStream(),true);
+////			BufferedReader fromServer = new BufferedReader(new InputStreamReader(this.getTcpClientSocket().getInputStream()));
+//		
+//			DataInputStream fromServer = new DataInputStream(new BufferedInputStream(this.getTcpClientSocket().getInputStream()));;
+//			
+////			toServer.println("Hello from " + this.getTcpClientSocket().getLocalSocketAddress()); 
+////			String line = fromServer.readLine();
+////			System.out.println("Client received: " + line + " from Server");
+//			
+//			while(isSending()) {
+//				String line = fromServer.readUTF();
+//				System.out.println(line);
+//				if(line.trim().equals("end")) {
+//					System.out.println("Ending client");
+//					this.setSending(false);
+//				}
+////				line = fromServer.readLine();
+////				System.out.println("Client received: " + line + " from Server");	
+//			}
+//			
+//			System.out.println("Client object streams END");
+//			
+//		} catch (IOException e) {
+//			System.out.println("Exception object streams");
+//			e.printStackTrace();
+//		}
+//	}
 	public void sendToServer(String message) {
 		
 	}
