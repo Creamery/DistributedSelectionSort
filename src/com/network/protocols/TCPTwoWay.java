@@ -13,15 +13,17 @@ import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketTimeoutException;
 
 import com.main.Info;
 import com.message.TCPMessage;
 
 public class TCPTwoWay extends Thread {
+	private boolean isServer;
+	
 	private String hostName;
 	
 	private boolean isReceiving;
+	private boolean isSending;
 	private TCPMessage tcpMessage;
 	private int port;
 	
@@ -65,8 +67,10 @@ public class TCPTwoWay extends Thread {
 	
 	public void start() {
 		this.setReceiving(true);
+		this.setSending(true);
 		this.run();
 	}
+
 	
 	// To be called after a successful accept.
 	public void initializeObjectStreams(ObjectOutputStream outputStream, ObjectInputStream inputStream) throws IOException {
@@ -78,17 +82,19 @@ public class TCPTwoWay extends Thread {
 //		this.setObjectOutputStream(new ObjectOutputStream(this.getTcpServerSocket().getOutputStream()));
 	}
 	
+	public void startAsServer() {
+		this.setServer(true);
+		this.setReceiving(true);
+		this.run();
+	}
+	public void startAsClient() {
+		this.setServer(false);
+		this.setSending(true);
+		this.run();
+	}
 	public void initializeClientSocket(InetAddress serverIP) {
 		this.setServerIP(serverIP);
-		try {
-			this.setTcpClientSocket(new Socket(this.getServerIP(), this.getPort()));
-			
-			PrintWriter toServer = new PrintWriter(this.getTcpClientSocket().getOutputStream(),true);
-			BufferedReader fromServer = new BufferedReader(new InputStreamReader(this.getTcpClientSocket().getInputStream()));
-			toServer.println("Hello from " + this.getTcpClientSocket().getLocalSocketAddress()); 
-			String line = fromServer.readLine();
-			System.out.println("Client received: " + line + " from Server");
-
+		
 			/*
 			System.out.println("Socket sent");
 			this.setTcpClientSocket(new Socket(this.getServerIP(), this.getPort()));
@@ -121,54 +127,75 @@ public class TCPTwoWay extends Thread {
 //	        		new ObjectInputStream(this.getTcpClientSocket().getInputStream()));
 
 	        
-			System.out.println("Client object streams END");
 			
-		} catch (IOException e) {
-			System.out.println("Exception object streams");
-			e.printStackTrace();
-		}
 	}
 	
 	// Run listener
 	public void run() {
 		System.out.println("TCP listener run");
-		try {
-			// Wait for TCP connection from CLIENT
-			Socket server = this.getServerSocket().accept();
-			
-			System.out.println("Just connected to " + server.getRemoteSocketAddress()); 
+		if(isServer()) {
+			System.out.println("As Server");
+			try {
+				// Wait for TCP connection from CLIENT
+				Socket server = this.getServerSocket().accept();
+				
+				System.out.println("Just connected to " + server.getRemoteSocketAddress()); 
 
-			
-			PrintWriter toClient = new PrintWriter(server.getOutputStream(),true);
-			BufferedReader fromClient = new BufferedReader(new InputStreamReader(server.getInputStream()));
-			String line = fromClient.readLine();
-			System.out.println("Server received: " + line); 
-			toClient.println("Thank you for connecting to " + server.getLocalSocketAddress() + "\nGoodbye!"); 
+				
+				PrintWriter toClient = new PrintWriter(server.getOutputStream(),true);
+				BufferedReader fromClient = new BufferedReader(new InputStreamReader(server.getInputStream()));
+				String line = fromClient.readLine();
+				System.out.println("Server received: " + line); 
+				toClient.println("Thank you for connecting to " + server.getLocalSocketAddress()); 
 
+				while(isReceiving()) {
+					line = fromClient.readLine();
+					System.out.println("Server received: " + line); 
+					toClient.println("Server received " + line); 
+					if(line.equals("end")) {
+						this.setReceiving(false);
+					}
+				}
 
-			/*
-			Socket client = this.getServerSocket().accept();
-			this.setTcpServerSocket(client);
-			
-			this.setTcpServerSocket(this.getServerSocket().accept());
-			
-			// Prompt successful connection
-			System.out.println("[SERVER]: "+"Just TCP connected to " + this.getTcpServerSocket().getRemoteSocketAddress());
-			
-			System.out.println("Server object streams");
-			this.initializeObjectStreams(
-					new ObjectOutputStream(this.getTcpServerSocket().getOutputStream()),
-					new ObjectInputStream(this.getTcpServerSocket().getInputStream()));
-			*/
-		} catch (IOException e1) {
-			e1.printStackTrace();
+				// Close socket when done receiving.
+				System.out.println("CLOSE");
+					this.getTcpServerSocket().close();
+				
+				
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		else {
+			System.out.println("As Client");
+			try {
+				this.setTcpClientSocket(new Socket(this.getServerIP(), this.getPort()));
+				
+				PrintWriter toServer = new PrintWriter(this.getTcpClientSocket().getOutputStream(),true);
+				BufferedReader fromServer = new BufferedReader(new InputStreamReader(this.getTcpClientSocket().getInputStream()));
+				toServer.println("Hello from " + this.getTcpClientSocket().getLocalSocketAddress()); 
+				String line = fromServer.readLine();
+				System.out.println("Client received: " + line + " from Server");
+				
+				while(isSending()) {
+					line = fromServer.readLine();
+					System.out.println("Client received: " + line + " from Server");				
+				}
+				
+				System.out.println("Client object streams END");
+				
+			} catch (IOException e) {
+				System.out.println("Exception object streams");
+				e.printStackTrace();
+			}
 		}
 		
+		
 		// Wait for message to receive
-		while(isReceiving()) {
-			try {
+//		while(isReceiving()) {
+//			try {
 
-				System.out.println("isReceiving");
+//				System.out.println("isReceiving");
 
 //				System.out.println("[SERVER]: "+"Waiting for client on port " +
 //						serverSocket.getLocalPort() + "...");
@@ -181,6 +208,7 @@ public class TCPTwoWay extends Thread {
 //				this.setObjectInputStream(new ObjectInputStream(this.getTcpServerSocket().getInputStream()));
 
 				// RECEIVING a message				
+				/*
 				try {
 					// Receive a TCPMessage object from input stream
 					TCPMessage receivedMessage = (TCPMessage) this.getObjectInputStream().readObject();
@@ -188,7 +216,7 @@ public class TCPTwoWay extends Thread {
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
 				}
-				
+				*/
 				// SENDING a message
 //				this.setObjectOutputStream(new ObjectOutputStream(this.getTcpServerSocket().getOutputStream()));
 				
@@ -199,21 +227,18 @@ public class TCPTwoWay extends Thread {
 //					+ "\nGoodbye!");
 				
 			
-			} catch (SocketTimeoutException s) {
-				 System.out.println("[SERVER]: "+"Socket timed out!");
-				 break;
-			 } catch (IOException e) {
-				 e.printStackTrace();
-				 break;
-			 }
-		}
+//			} catch (SocketTimeoutException s) {
+//				 System.out.println("[SERVER]: "+"Socket timed out!");
+//				 break;
+//			 } catch (IOException e) {
+//				 e.printStackTrace();
+//				 break;
+//			 }
+//		}
 
-		// Close socket when done receiving
-		try {
-			this.getTcpServerSocket().close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	}
+	public void sendToServer(String message) {
+		
 	}
 	
 	public void send(int index, int value) {
@@ -289,6 +314,14 @@ public class TCPTwoWay extends Thread {
 
 	public void setReceiving(boolean isReceiving) {
 		this.isReceiving = isReceiving;
+	}
+
+	public boolean isSending() {
+		return isSending;
+	}
+
+	public void setSending(boolean isSending) {
+		this.isSending = isSending;
 	}
 
 	public Socket getTcpServerSocket() {
@@ -393,6 +426,14 @@ public class TCPTwoWay extends Thread {
 
 	public void setHostName(String hostName) {
 		this.hostName = hostName;
+	}
+
+	public boolean isServer() {
+		return isServer;
+	}
+
+	public void setServer(boolean isServer) {
+		this.isServer = isServer;
 	}
 	
 }

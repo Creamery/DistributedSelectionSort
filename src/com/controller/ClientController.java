@@ -45,8 +45,8 @@ public class ClientController {
 		this.getClient().setupTCPStream();
 	}
 	
-	public void send(int index, int value) {
-		this.getClient().send();
+	public void send(String message) {
+		this.getClient().send(message);
 	}
 	
 	public void stopListening() {

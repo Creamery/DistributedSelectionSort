@@ -8,7 +8,6 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 
 import com.main.Info;
-import com.main.Print;
 import com.network.protocols.TCPTwoWay;
 import com.network.protocols.UDPListener;
 import com.network.protocols.UDPUnpacker;
@@ -48,6 +47,11 @@ public class MainClient extends Thread implements UDPUnpacker {
 	// Send a disconnect message to the server
 	public void disconnect() {
 		
+	}
+	
+	public void send(String message) {
+		System.out.println("Sending "+message);
+		this.getTcpStream().sendToServer(message);
 	}
 	
 	public void send(int index, int value) {
@@ -97,7 +101,8 @@ public class MainClient extends Thread implements UDPUnpacker {
 		}
 		System.out.println("TODO TCP setup");
         // this.setupTCPStream();
-		System.out.println("TCP Setup done");
+		System.out.println("UDP reply send");
+		this.send();
 	}
 	
 	// Set the server and client addresses of the TCP connection
@@ -107,6 +112,7 @@ public class MainClient extends Thread implements UDPUnpacker {
 		this.getTcpStream().setClientIP(this.getAddress());
 		
 		this.getTcpStream().initializeClientSocket(this.getServerIP());
+		this.getTcpStream().startAsClient();
 	}
 	
 	// Start sorting
