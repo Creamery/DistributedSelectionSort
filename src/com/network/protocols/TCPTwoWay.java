@@ -152,7 +152,7 @@ public class TCPTwoWay extends Thread {
 				Socket server = this.getServerSocket().accept();
 				
 				System.out.println("Just connected to " + server.getRemoteSocketAddress());
-				
+				/*
 				ObjectOutputStream oos = new ObjectOutputStream(server.getOutputStream());
 				ObjectInputStream ois = new ObjectInputStream(server.getInputStream());
 				MainMessage message;
@@ -175,7 +175,7 @@ public class TCPTwoWay extends Thread {
 						e.printStackTrace();
 					}
 				}
-				/*
+				*/
 				BufferedReader keyRead = new BufferedReader(new InputStreamReader(System.in));
 				// sending to client (pwrite object)
 				OutputStream ostream = server.getOutputStream(); 
@@ -193,7 +193,7 @@ public class TCPTwoWay extends Thread {
 					pwrite.println(sendMessage);             
 					pwrite.flush();
 				}        
-				*/
+				
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -201,8 +201,10 @@ public class TCPTwoWay extends Thread {
 		else {
 			System.out.println("As Client");
 			try {
-				
+
 				socket = new Socket(this.getServerIP(), this.getPort());
+				
+				/*
 				
 				ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
 			    ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
@@ -239,8 +241,8 @@ public class TCPTwoWay extends Thread {
 						e.printStackTrace();
 					}
 			    }
-			    
-				/*
+			    */
+				
 				BufferedReader keyRead = new BufferedReader(new InputStreamReader(System.in));
 	            // sending to client (pwrite object)
 				OutputStream ostream = socket.getOutputStream(); 
@@ -262,7 +264,7 @@ public class TCPTwoWay extends Thread {
 					System.out.println(receiveMessage); // displaying at DOS prompt
 					}         
 				}
-				*/            
+				         
 			} catch (IOException e) {
 				System.out.println("Exception object streams");
 				e.printStackTrace();
