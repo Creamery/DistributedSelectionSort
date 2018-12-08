@@ -1,6 +1,7 @@
 package com.controller;
 
 import com.main.Print;
+import com.message.MainMessage;
 
 /**
  * Contains connector functions to alter servers and clients
@@ -35,6 +36,9 @@ public class ControllerManager {
 		this.server = server;
 	}
 
+	public MainMessage getClientMessage() {
+		return this.getClient().getMainMessage();	
+	}
 	public ClientController getClient() {
 		if(this.client == null) {
 			this.client = new ClientController();

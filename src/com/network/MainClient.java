@@ -25,7 +25,8 @@ public class MainClient extends Thread implements UDPUnpacker {
 
 	private int UDPPort;
 	private int TCPPort;
-	
+
+	private volatile MainMessage mainMessage;
 	public MainClient() {
 		this.setUDPPort(Info.BROADCAST_PORT);
 		this.setTCPPort(Info.PORT);
@@ -169,6 +170,15 @@ public class MainClient extends Thread implements UDPUnpacker {
 	}
 	*/
 
+	public void setMainMessage(String message) {
+		this.mainMessage = new MainMessage();
+		mainMessage.setMessage(message);
+	}
+	
+	public MainMessage getMainMessage() {
+		return this.mainMessage;
+	}
+	
 	public InetAddress getAddress() {
 		return address;
 	}

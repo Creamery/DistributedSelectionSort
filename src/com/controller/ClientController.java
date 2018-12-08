@@ -3,6 +3,7 @@ package com.controller;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+import com.message.MainMessage;
 import com.network.MainClient;
 
 public class ClientController {
@@ -78,5 +79,10 @@ public class ClientController {
 
 	public void setAddress(InetAddress address) {
 		this.getClient().setAddress(address);
+	}
+
+	public MainMessage getMainMessage() {
+		
+		return this.getClient().getMainMessage();
 	}
 }

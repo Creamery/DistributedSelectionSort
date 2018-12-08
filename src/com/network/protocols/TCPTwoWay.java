@@ -14,6 +14,7 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import com.controller.ControllerManager;
 import com.main.Info;
 import com.message.MainMessage;
 import com.message.TCPMessage;
@@ -212,7 +213,9 @@ public class TCPTwoWay extends Thread {
 			    	try {
 			    		System.out.println("Waiting for message != null");
 			    		this.setMainMessage(null);
-			    		while(this.getMainMessage() == null) {};
+			    		while(this.mainMessage == null) {
+			    			this.mainMessage = ControllerManager.Instance().getClientMessage();
+			    		};
 			    		
 			    		this.setMainMessage(new MainMessage());
 			    		this.getMainMessage().setMessage("wan");
