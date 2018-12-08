@@ -62,12 +62,7 @@ public class MainClient extends Thread implements UDPUnpacker {
 //		this.getTcpStream().sendAsClient(message);
 	}
 	
-	public void send(int index, int value) {
 
-		System.out.println("Sending "+index+" "+value);
-		this.getTcpStream().send(index, value);
-	}
-	
 	// Listen for any server broadcast to connect
 	public void listen() {
 		this.getUdpListener().listen();
