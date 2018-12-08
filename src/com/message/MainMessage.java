@@ -16,6 +16,7 @@ public class MainMessage implements Serializable {
 	
 	// Call this if you want to reuse the MainMessage
 	public void reset() {
+		this.header = "";
 		this.message = "";
 		this.sortList = null;
 		this.startIndex = -1;

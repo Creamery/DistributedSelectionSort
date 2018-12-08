@@ -230,8 +230,10 @@ public class TCPTwoWay extends Thread {
 			    	try {
 			    		// WAIT for indices
 			    		System.out.println("Waiting for indices (message != null)");
-						message = (MainMessage) ois.readObject();
-						
+			    		do {
+							message = (MainMessage) ois.readObject();
+			    		}
+						while(!message.getHeader().equals(Info.HDR_SERVER_INDICES));
 						// END
 						if(message.getMessage().contains(Info.MSG_CLIENT_END)) {
 							this.setSending(false);
