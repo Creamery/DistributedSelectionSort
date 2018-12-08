@@ -211,8 +211,8 @@ public class TCPTwoWay extends Thread {
 			    while (this.isSending()) {
 			    	try {
 			    		System.out.println("Waiting for message != null");
-//			    		this.setMainMessage(null);
-//			    		while(this.getMainMessage() == null) {};
+			    		this.setMainMessage(null);
+			    		while(this.getMainMessage() == null) {};
 			    		
 			    		this.setMainMessage(new MainMessage());
 			    		this.getMainMessage().setMessage("wan");

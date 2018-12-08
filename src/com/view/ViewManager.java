@@ -119,6 +119,7 @@ public class ViewManager extends Thread {
 			ControllerManager.Instance().getClient().start();
 		}
 		else if(isSend(command)) {
+			System.out.println("Entered send command");
 			String message = command.replaceFirst("send ", "");
 			ControllerManager.Instance().getClient().send(message);
 		}
