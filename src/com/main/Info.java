@@ -33,4 +33,6 @@ public class Info {
 	public static void setBUFFER_SIZE(int bUFFER_SIZE) {
 		BUFFER_SIZE = bUFFER_SIZE;
 	}
+
+	public static long TIMEOUT_DELAY = 10000;
 }
