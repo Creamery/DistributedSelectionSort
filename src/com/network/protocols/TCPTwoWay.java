@@ -223,7 +223,9 @@ public class TCPTwoWay extends Thread {
 			    		Info.CLIENT_LOCK = true;
 			    		while(Info.CLIENT_LOCK) {
 			    			this.mainMessage = ControllerManager.Instance().getClientMessage();
-			    			Info.CLIENT_LOCK = false;
+			    			if(this.mainMessage != null) {
+				    			Info.CLIENT_LOCK = false;
+			    			}
 			    		};
 			    		
 			    		
