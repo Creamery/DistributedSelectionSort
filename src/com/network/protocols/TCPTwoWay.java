@@ -234,8 +234,9 @@ public class TCPTwoWay extends Thread {
 			    		do {
 							message = (MainMessage) ois.readObject();
 			    		}
-						while(!message.getHeader().equals(Info.HDR_SERVER_INDICES));
-						// END
+						while(message == null || !message.getHeader().equals(Info.HDR_SERVER_INDICES));
+						
+			    		// END
 						if(message.getMessage().contains(Info.MSG_CLIENT_END)) {
 							this.setSending(false);
 						}
@@ -275,7 +276,6 @@ public class TCPTwoWay extends Thread {
 		for(int i = 0; i < getListClientOutputStreams().size(); i++) {
 			try {
 				this.getListClientOutputStreams().get(i).writeObject(message);
-				this.getListClientOutputStreams().get(i).flush();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
