@@ -235,7 +235,7 @@ public class TCPTwoWay extends Thread {
 						while(message == null || !message.getHeader().equals(Info.HDR_SERVER_INDICES));
 						
 			    		// END
-						if(message != null && message.getMessage().contains(Info.MSG_CLIENT_END)) {
+						if(message != null && !message.getMessage().equals("") && message.getMessage().contains(Info.MSG_CLIENT_END)) {
 							this.setSending(false);
 						}
 						
