@@ -20,12 +20,13 @@ public class Info {
 	
 	public static String MSG_CLIENT_RECEIVED = "msgClientReceived";
 	public static String MSG_SERVER_ARRAY = "msgServerArray";
-	public static String MSG_CLIENT_END = "msgClientEnd";
+	
 
 	public static String HDR_SPLIT = "_";
 	public static String HDR_SERVER = "hdrServer";
 	public static String HDR_CLIENT = "hdrClient";
 	public static String HDR_SERVER_INDICES = "hdrIndices";
+	public static String HDR_CLIENT_END = "hdrClientEnd";
 	
 	public static int CLIENT_SIZE = 1;
 	
