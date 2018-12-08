@@ -3,7 +3,9 @@ package com.network.protocols;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 
 import com.main.Info;
 
@@ -13,7 +15,8 @@ public class UDPListener extends Thread {
 	private boolean isListening;
 	private DatagramPacket packet;
 	private DatagramSocket udpSocket;
-
+	private InetAddress sendAddress;
+	
     private byte[] buffer = new byte[Info.BUFFER_SIZE];
     
     public UDPListener(UDPUnpacker parent) {
@@ -57,11 +60,6 @@ public class UDPListener extends Thread {
 		System.out.println("Listening...");
 		while(this.isListening()) {
 
-
-			// Initialize/Send a new packet per iteration
-			this.setPacket(new DatagramPacket(this.getBuffer(), this.getBuffer().length));
-			
-			
 			// Allow socket to receive packets
 			try {
 				System.out.println("Waiting for UDP socket wait");
@@ -77,13 +75,14 @@ public class UDPListener extends Thread {
 			// If message is not empty, add the client IP to the list of clients
 			if(message != ""){
 				this.setListening(false);
-						
+
 				System.out.println("Unpacking...");
+				this.unpack(message);
 				this.getParent().unpack(message);
 
 				// Send back a new packet
 				System.out.println("Sending back ");
-				this.setPacket(new DatagramPacket(this.getBuffer(), this.getBuffer().length));
+				this.setPacket(new DatagramPacket(this.getBuffer(), this.getBuffer().length, this.getSendAddress(), this.getUdpSocket().getPort()));
 		
 			}
 			else {
@@ -92,7 +91,16 @@ public class UDPListener extends Thread {
 			}
 		}
 	}
-    
+    public void unpack(String message) {
+    	String ip = message.substring(message.indexOf("/")+1);
+		System.out.println("Unpacked message: "+message+"\nTrimmed: "+ip);
+
+		try {
+			this.setSendAddress(InetAddress.getByName(ip));
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		}
+    }
     public DatagramSocket getUdpSocket() {
 		if(this.udpSocket == null) {
 			try {
@@ -115,5 +123,13 @@ public class UDPListener extends Thread {
 
 	public void setParent(UDPUnpacker parent) {
 		this.parent = parent;
+	}
+
+	public InetAddress getSendAddress() {
+		return sendAddress;
+	}
+
+	public void setSendAddress(InetAddress sendAddress) {
+		this.sendAddress = sendAddress;
 	}
 }
