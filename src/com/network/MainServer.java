@@ -20,7 +20,6 @@ public class MainServer extends Thread implements UDPUnpacker {
 	private UDPListener udpListener;
 	private ServerProcessor processor;
 	
-//	private ServerSocket serverSocket;
 	private InetAddress address;
 	
 	private DatagramSocket udpSocket;
@@ -36,7 +35,7 @@ public class MainServer extends Thread implements UDPUnpacker {
 		this.setTCPPort(Info.PORT);
 		
 		try {
-			this.setProcessor(new ServerProcessor());
+			this.setProcessor(new ServerProcessor(Info.CLIENT_SIZE));
 			this.setAddress(InetAddress.getByName(Info.NETWORK.split("/")[1]));
 			this.setTcpStream(new TCPTwoWay("Server", this.getTCPPort(), this.getProcessor()));
 		} catch (IOException e) {
@@ -44,16 +43,13 @@ public class MainServer extends Thread implements UDPUnpacker {
 		}
 		
 		this.setUdpListener(new UDPListener(this));
-//		serverSocket = new ServerSocket(this.getTCPPort());
-		// Set how long the server will wait for a connection
-//		serverSocket.setSoTimeout(0);
 	}
 	
 	
 	// Initialize processor then run it
 	public void process() {
 		if(this.getProcessor() == null) {
-			this.setProcessor(new ServerProcessor());
+			this.setProcessor(new ServerProcessor(Info.CLIENT_SIZE));
 		}
 		this.getProcessor().process();
 	}
@@ -98,16 +94,9 @@ public class MainServer extends Thread implements UDPUnpacker {
 		
 		// Close the socket NOTE: Same socket used by udpListener
 		// this.getUdpSocket().close();
-
-
-//		this.getTcpStream().start();
+		
 		// Prepare to listen to replies
 		this.listen(Info.HDR_SERVER);
-
-
-		// Start TCP Connection
-		// this.startTCPConnection();
-		 
 	}
 	
 	public InetAddress getAddress() {

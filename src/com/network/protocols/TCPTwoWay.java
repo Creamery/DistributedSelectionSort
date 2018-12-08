@@ -135,26 +135,17 @@ public class TCPTwoWay extends Thread {
 				message.reset();
 				// oos.writeObject(message);
 				
-				/*
-				System.out.println("Waiting for reply...");
-				// WAIT for message
-				try {
-					do {
-						message = (MainMessage) ois.readObject();
-					}
-					while(!message.getMessage().contains(Info.MSG_CLIENT_RECEIVED));
-				} catch (ClassNotFoundException e1) {
-					e1.printStackTrace();
-				}
-				*/
+				
 				
 				
 				// START PROCESSING
-				while (this.isReceiving()) {
+//				while (this.isReceiving()) {
+				ArrayList<Integer> list = this.getProcessor().getSortList();
+				for(int h = 0; h < list.size(); h++) {
 					try {
 						// SEND indices
 						message.reset();
-						indices = serverProcessor.computeIndices(Info.CLIENT_SIZE);
+						indices = serverProcessor.computeIndices();
 						
 						// For each CLIENT
 						for(int i = 0; i < indices.size(); i++) {

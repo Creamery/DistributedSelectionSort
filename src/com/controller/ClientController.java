@@ -24,25 +24,13 @@ public class ClientController {
 			System.out.println("Server exists, TCP connect");
 			this.getClient().setupTCPStream();
 		}
-		
-		// this.createClient();
-		// this.listen();
 	}
 	
 	// Create a new client
 	public void createClient() {
 		this.setClient(new MainClient());
 	}
-	
-	// Listen for any server broadcast to connect to
-	/*
-	public void listen() {
-		if(this.getClient() == null) {
-			this.createClient();
-		}
-		this.getClient().listen();
-	}
-	*/
+
 	public void startTCPConnection() {
 		this.getClient().setupTCPStream();
 	}

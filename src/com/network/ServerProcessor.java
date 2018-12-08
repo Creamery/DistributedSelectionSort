@@ -2,20 +2,27 @@ package com.network;
 
 import java.util.ArrayList;
 
+import com.reusables.CsvParser;
+
+
 public class ServerProcessor extends ProcessorConnector {
+	private static final String generated_name_prefix = "unsorted_generated_";
+	private static final int _100 = 100;
+	private static final String filename = generated_name_prefix+_100+".csv";
+	
+	
 	private int currentIndex = 0;
 	private boolean isDone = false;
+	private int splitCount;
 	
-	
-	public ServerProcessor() {
+	public ServerProcessor(int split) {
 		this.setSortList(this.generateList());
+		this.setSplitCount(split);
 	}
 
+	// Generate list as specified by CSVParser
 	public ArrayList<Integer> generateList() {
-		ArrayList<Integer> list = new ArrayList<Integer>();
-		list.add(3);
-		list.add(1);
-		list.add(2);
+		ArrayList<Integer> list = CsvParser.read(filename);
 		return list;
 	}
 	
@@ -40,15 +47,24 @@ public class ServerProcessor extends ProcessorConnector {
 	}
 	
 	// Compute indices for N clients
-	public ArrayList<ProcessorIndices> computeIndices(int clients) {
+	public ArrayList<ProcessorIndices> computeIndices() {
 		ArrayList<ProcessorIndices> indices = new ArrayList<ProcessorIndices>();
-
-		for(int i = 0; i < clients; i++) {
-			indices.add(new ProcessorIndices(i, i+1));
+		int size = (int)Math.floor(((double)this.getSortList().size()-(double)this.getCurrentIndex())/(double)this.getSplitCount());
+		int index = this.getCurrentIndex();
+		
+		int sIndex;
+		int eIndex;
+		for(int i = 0; i < this.getSplitCount(); i++) {
+			sIndex = index;
+			eIndex = index+size;
+			indices.add(new ProcessorIndices(sIndex, eIndex));
+			
+			index += size;
 		}
 		
 		return indices;
 	}
+	
 	public void run() {
 		while(this.isRunning()) {
 			
@@ -69,5 +85,13 @@ public class ServerProcessor extends ProcessorConnector {
 
 	public void setCurrentIndex(int currentIndex) {
 		this.currentIndex = currentIndex;
+	}
+
+	public int getSplitCount() {
+		return splitCount;
+	}
+
+	public void setSplitCount(int splitCount) {
+		this.splitCount = splitCount;
 	}
 }
