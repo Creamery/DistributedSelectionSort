@@ -215,11 +215,8 @@ public class TCPTwoWay extends Thread {
 						message = (MainMessage) ois.readObject();
 						if(message.getMessage().contains(Info.MSG_SERVER_ARRAY)) {
 				    		clientProcessor.setSortList(message.getSortList());
-				    		System.out.println("Client: Received ARRAY");
-				    		
-//							this.setMainMessage(new MainMessage());
-//				    		this.getMainMessage().setMessage(Info.MSG_CLIENT_RECEIVED);
-//				    		oos.writeObject(this.getMainMessage());
+				    		System.out.println("Client: Received ARRAY "+clientProcessor.getSortList().size());
+
 						}
 					}while(!message.getMessage().contains(Info.MSG_SERVER_ARRAY));
 					message.reset();
@@ -232,12 +229,13 @@ public class TCPTwoWay extends Thread {
 			    		// WAIT for indices
 			    		System.out.println("Waiting for indices (message != null)");
 			    		do {
+			    			message = null;
 							message = (MainMessage) ois.readObject();
 			    		}
 						while(message == null || !message.getHeader().equals(Info.HDR_SERVER_INDICES));
 						
 			    		// END
-						if(message.getMessage().contains(Info.MSG_CLIENT_END)) {
+						if(message != null && message.getMessage().contains(Info.MSG_CLIENT_END)) {
 							this.setSending(false);
 						}
 						
