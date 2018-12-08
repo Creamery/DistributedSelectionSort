@@ -25,6 +25,7 @@ public class Info {
 	public static String HDR_SPLIT = "_";
 	public static String HDR_SERVER = "hdrServer";
 	public static String HDR_CLIENT = "hdrClient";
+	public static String HDR_SERVER_INDICES = "hdrIndices";
 	
 	public static int CLIENT_SIZE = 2;
 	

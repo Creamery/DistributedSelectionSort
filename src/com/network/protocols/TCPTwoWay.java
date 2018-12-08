@@ -147,12 +147,14 @@ public class TCPTwoWay extends Thread {
 						// SEND indices
 						message.reset();
 						indices = serverProcessor.computeIndices();
-						
 						// For each CLIENT
 						for(int i = 0; i < indices.size(); i++) {
 							processorIndex = indices.get(i);
 							message.reset();
+							message.setHeader(Info.HDR_SERVER_INDICES);
 							message.setIndices(processorIndex.getStartIndex(), processorIndex.getEndIndex());
+
+							System.out.println("Sending indices: "+processorIndex.getStartIndex()+" "+processorIndex.getEndIndex());
 							this.getListClientOutputStreams().get(i).writeObject(message);
 							//oos.writeObject(message);
 						}
