@@ -247,14 +247,14 @@ public class TCPTwoWay extends Thread {
 							System.out.println("Received indices "+this.getProcessor().getStartIndex()+" "+this.getProcessor().getEndIndex());
 							this.getProcessor().process();
 							// Block while is processing
-							while(this.getProcessor().getMinimumIndex() == -1) {};
+							while(this.getProcessor().isRunning()) {};
 							
 							
 				    		message.reset();
 				    		message.setMinimumValues(this.getProcessor().getMinimumIndex(), this.getProcessor().getMinimumValue());
 				    		
 				    		// SEND message
-				    		System.out.println("Sent min value");
+				    		System.out.println("Sent min index "+message.getMinIndex());
 			    			oos.writeObject(message);
 			    			message.reset();
 				    		
