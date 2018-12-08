@@ -1,5 +1,6 @@
 package com.network;
 
+
 public class ClientProcessor extends ProcessorConnector {
 
 	@ Override
@@ -13,15 +14,17 @@ public class ClientProcessor extends ProcessorConnector {
 	public void run() {
 		System.out.println("SORTING");
 		
-		// TODO Remove
-		this.setRunning(false);
-		this.setMinimumIndex(1);
-		this.setMinimumValue(7);
+		this.setMinimumIndex(this.getStartIndex());
 		
-		
-		while(this.isRunning()) {
-			// Add sorting here
-			
+		// Find local minimum
+		for(int i = this.getStartIndex()+1; i < this.getEndIndex(); i++) {
+			if(this.getSortList().get(i) < this.getSortList().get(this.getMinimumIndex())) {
+				
+				this.setMinimumIndex(i);
+				this.setMinimumValue(this.getSortList().get(i));
+			}
 		}
+		
+		this.setRunning(false);
 	}
 }

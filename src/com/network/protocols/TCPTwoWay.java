@@ -15,6 +15,7 @@ import com.network.ClientProcessor;
 import com.network.ProcessorConnector;
 import com.network.ProcessorIndices;
 import com.network.ServerProcessor;
+import com.reusables.CsvWriter;
 
 public class TCPTwoWay extends Thread {
 	private boolean isServer;
@@ -187,6 +188,8 @@ public class TCPTwoWay extends Thread {
 				this.sendToClients(message);
 				
 				System.out.println("Server done");
+				CsvWriter.write(serverProcessor.getSortList());
+				System.out.println("CSV Printed");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
