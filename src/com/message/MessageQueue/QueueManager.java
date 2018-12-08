@@ -19,7 +19,7 @@ public class QueueManager {
      * @param consumerIP the IP address of the instruction to be delivered to.
      * @return true if delivery is successful, false if otherwise.
      */
-    public boolean deliverInstruction(String consumerIP){
+    public synchronized boolean deliverInstruction(String consumerIP){
         if(instructionQ.isEmpty())
             return false;
         else {
