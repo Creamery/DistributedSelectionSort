@@ -60,7 +60,7 @@ public class UDPListener extends Thread {
 		System.out.println("Listening...");
 		while(this.isListening()) {
 			// Initialize packet
-			this.setPacket(new DatagramPacket(this.getBuffer(), this.getBuffer().length, this.getSendAddress(), this.getUdpSocket().getPort()));
+			this.setPacket(new DatagramPacket(this.getBuffer(), this.getBuffer().length));
 			
 			// Allow socket to receive packets
 			try {
