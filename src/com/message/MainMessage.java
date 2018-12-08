@@ -5,11 +5,11 @@ import java.util.ArrayList;
 
 public class MainMessage implements Serializable {
 	private static final long serialVersionUID = 1L;
-	private String header = "";
-	private String message;
-	private ArrayList<Integer> sortList;
-	private int startIndex;
-	private int endIndex;
+	private volatile String header = "";
+	private volatile String message;
+	private volatile ArrayList<Integer> sortList;
+	private volatile int startIndex;
+	private volatile int endIndex;
 	
 	private int minIndex;
 	private int minValue;

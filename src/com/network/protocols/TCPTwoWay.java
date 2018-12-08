@@ -150,7 +150,7 @@ public class TCPTwoWay extends Thread {
 						// For each CLIENT
 						for(int i = 0; i < indices.size(); i++) {
 							processorIndex = indices.get(i);
-							message = new MainMessage();
+							message.reset();
 							message.setHeader(Info.HDR_SERVER_INDICES);
 							message.setIndices(processorIndex.getStartIndex(), processorIndex.getEndIndex());
 
