@@ -159,11 +159,30 @@ public class TCPTwoWay extends Thread {
 				ObjectInputStream ois = new ObjectInputStream(server.getInputStream());
 				MainMessage message;
 				
+				// Initial send for array
+				message = new MainMessage();
+				message.setMessage("server sending array");
+				// SEND message
+				oos.writeObject(message);
+				
+				System.out.println("Waiting for reply...");
+				// WAIT for message
+				try {
+					do {
+						message = (MainMessage) ois.readObject();
+					}
+					while(!message.getMessage().contains("array"));
+				} catch (ClassNotFoundException e1) {
+					e1.printStackTrace();
+				}
+				
+				
 				while (this.isReceiving()) {
 					try {
 						System.out.println("Waiting for message...");
 						// WAIT for message
 						message = (MainMessage) ois.readObject();
+						
 						if(message != null) {
 							System.out.println("Received "+message.getMessage());
 							message = new MainMessage();
@@ -210,12 +229,25 @@ public class TCPTwoWay extends Thread {
 				socket = new Socket(this.getServerIP(), this.getPort());
 				
 				
-				
 				ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
 			    ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
 
 			    MainMessage message = null;
 //			    oos.writeObject(message);
+			    
+			    try {
+				    // WAIT message
+		    		System.out.println("Waiting for array...");
+					message = (MainMessage) ois.readObject();
+					
+					if(message.getMessage().contains("server")) {
+						this.setMainMessage(new MainMessage());
+			    		this.getMainMessage().setMessage("got array");
+			    		oos.writeObject(this.getMainMessage());
+					}
+			    } catch (ClassNotFoundException e) {
+					e.printStackTrace();
+				}
 			    while (this.isSending()) {
 			    	try {
 			    		System.out.println("Waiting for message != null");
@@ -234,7 +266,8 @@ public class TCPTwoWay extends Thread {
 			    		// SEND message
 		    			oos.writeObject(this.getMainMessage());
 		    			this.setMainMessage(null);
-			    		// WAIT message
+			    		
+		    			// WAIT message
 			    		System.out.println("Waiting for message...");
 						message = (MainMessage) ois.readObject();
 
