@@ -44,7 +44,7 @@ public class TCPTwoWay extends Thread {
 	private DataInputStream dataInFromServer;
 
 	private Socket socket;
-	private MainMessage mainMessage;
+	private volatile MainMessage mainMessage;
 	
 	public DataOutputStream getDataOutToServer() {
 		return dataOutToServer;
@@ -212,12 +212,11 @@ public class TCPTwoWay extends Thread {
 			    	try {
 			    		System.out.println("Waiting for message != null");
 			    		this.setMainMessage(null);
-			    		while(this.getMainMessage() != null) {
-						    // SEND message
-			    			oos.writeObject(this.getMainMessage());
-			    			this.setMainMessage(null);
-			    		}
+			    		while(this.getMainMessage() == null) {};
 			    		
+			    		// SEND message
+		    			oos.writeObject(this.getMainMessage());
+		    			this.setMainMessage(null);
 			    		// WAIT message
 			    		System.out.println("Waiting for message...");
 						message = (MainMessage) ois.readObject();
