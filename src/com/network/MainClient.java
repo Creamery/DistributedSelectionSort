@@ -175,6 +175,7 @@ public class MainClient extends Thread implements UDPUnpacker {
 	}
 	
 	public MainMessage getMainMessage() {
+		this.setMainMessage("asd");
 		return this.mainMessage;
 	}
 	

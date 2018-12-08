@@ -220,18 +220,15 @@ public class TCPTwoWay extends Thread {
 			    	try {
 			    		System.out.println("Waiting for message != null");
 			    		this.setMainMessage(null);
-			    		while(this.mainMessage == null) {
-			    			try {
-								this.sleep((long)100);
-							} catch (InterruptedException e) {
-								e.printStackTrace();
-							}
+			    		Info.CLIENT_LOCK = true;
+			    		while(Info.CLIENT_LOCK) {
 			    			this.mainMessage = ControllerManager.Instance().getClientMessage();
+			    			Info.CLIENT_LOCK = false;
 			    		};
 			    		
 			    		
-			    		this.setMainMessage(new MainMessage());
-			    		this.getMainMessage().setMessage("wan");
+//			    		this.setMainMessage(new MainMessage());
+//			    		this.getMainMessage().setMessage("wan");
 			    		// SEND message
 		    			oos.writeObject(this.getMainMessage());
 		    			this.setMainMessage(null);

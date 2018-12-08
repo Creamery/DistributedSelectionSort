@@ -4,6 +4,8 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 public class Info {
+	public static volatile boolean CLIENT_LOCK = true;
+	
 	public static int PORT = 80;
 	public static int BROADCAST_PORT = 4445;
 
