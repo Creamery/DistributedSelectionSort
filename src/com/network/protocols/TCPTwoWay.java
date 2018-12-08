@@ -1,6 +1,5 @@
 package com.network.protocols;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -42,6 +41,8 @@ public class TCPTwoWay extends Thread {
 	private DataOutputStream dataOutToServer;
 	private InputStream inFromServer;
 	private DataInputStream dataInFromServer;
+
+	private Socket socket;
 	
 	public DataOutputStream getDataOutToServer() {
 		return dataOutToServer;
@@ -212,7 +213,7 @@ public class TCPTwoWay extends Thread {
 			System.out.println("As Client");
 			try {
 				
-				Socket socket = new Socket(this.getServerIP(), this.getPort());
+				socket = new Socket(this.getServerIP(), this.getPort());
 				
 				BufferedReader keyRead = new BufferedReader(new InputStreamReader(System.in));
 	            // sending to client (pwrite object)
