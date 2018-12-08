@@ -208,10 +208,10 @@ public class TCPTwoWay extends Thread {
 
 			    MainMessage message = null;
 //			    oos.writeObject(message);
-
 			    while (this.isSending()) {
 			    	try {
 			    		System.out.println("Waiting for message != null");
+			    		this.setMainMessage(null);
 			    		while(this.getMainMessage() != null) {
 						    // SEND message
 			    			oos.writeObject(this.getMainMessage());
