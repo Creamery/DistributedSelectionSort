@@ -211,7 +211,8 @@ public class TCPTwoWay extends Thread {
 			System.out.println("As Client");
 			try {
 				
-				Socket socket = new Socket(this.getClientIP(), this.getPort());
+				Socket socket = new Socket("127.0.0.1", 3000);
+				
 				BufferedReader keyRead = new BufferedReader(new InputStreamReader(System.in));
 	            // sending to client (pwrite object)
 				OutputStream ostream = socket.getOutputStream(); 
