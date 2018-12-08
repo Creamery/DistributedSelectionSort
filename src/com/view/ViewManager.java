@@ -119,7 +119,8 @@ public class ViewManager extends Thread {
 			ControllerManager.Instance().getClient().start();
 		}
 		else if(isSend(command)) {
-			ControllerManager.Instance().getClient().send(1, 2);
+			String message = command.replaceFirst("send ", "");
+			ControllerManager.Instance().getClient().send(message);
 		}
 		else if(isView(command)) {
 			// View server
