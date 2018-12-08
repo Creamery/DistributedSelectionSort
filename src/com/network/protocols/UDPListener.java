@@ -6,7 +6,6 @@ import java.net.DatagramSocket;
 import java.net.SocketException;
 
 import com.main.Info;
-import com.message.MainMessage;
 
 public class UDPListener extends Thread {
 	private UDPUnpacker parent;
@@ -59,14 +58,12 @@ public class UDPListener extends Thread {
 		while(this.isListening()) {
 
 
-//			System.out.println("Sending (1)");
-			// Initialize a new packet per iteration
+			// Initialize/Send a new packet per iteration
 			this.setPacket(new DatagramPacket(this.getBuffer(), this.getBuffer().length));
 			
 			
 			// Allow socket to receive packets
 			try {
-
 				System.out.println("Waiting for UDP socket wait");
 				this.getUdpSocket().receive(packet);
 			} catch (IOException e1) {
@@ -76,12 +73,18 @@ public class UDPListener extends Thread {
 			String message = new String(packet.getData()).trim();
 
 			System.out.println("Received "+message);
+			
 			// If message is not empty, add the client IP to the list of clients
 			if(message != ""){
 				this.setListening(false);
+						
 				System.out.println("Unpacking...");
 				this.getParent().unpack(message);
-				
+
+				// Send back a new packet
+				System.out.println("Sending back ");
+				this.setPacket(new DatagramPacket(this.getBuffer(), this.getBuffer().length));
+		
 			}
 			else {
 

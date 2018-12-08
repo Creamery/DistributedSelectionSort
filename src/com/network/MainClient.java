@@ -82,6 +82,7 @@ public class MainClient extends Thread implements UDPUnpacker {
 	
 	// Set the server and client addresses of the TCP connection
 	public void setupTCPStream() {
+		System.out.println("TCP Setup");
 		this.getTcpStream().setServerIP(this.getServerIP());
 		this.getTcpStream().setClientIP(this.getAddress());
 		
