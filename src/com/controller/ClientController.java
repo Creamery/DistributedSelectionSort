@@ -10,8 +10,21 @@ public class ClientController {
 	
 	// Create a client then start listening
 	public void start() {
-		this.createClient();
-		this.listen();
+		
+		if(this.getClient() == null) {
+			this.createClient();
+		}
+		if(this.getClient().getServerIP() == null) {
+			System.out.println("Server is null, listening");
+			this.getClient().listen();
+		}
+		else {
+			System.out.println("Server exists, TCP connect");
+			this.getClient().setupTCPStream();
+		}
+		
+		// this.createClient();
+		// this.listen();
 	}
 	
 	// Create a new client
@@ -20,11 +33,16 @@ public class ClientController {
 	}
 	
 	// Listen for any server broadcast to connect to
+	/*
 	public void listen() {
 		if(this.getClient() == null) {
 			this.createClient();
 		}
 		this.getClient().listen();
+	}
+	*/
+	public void startTCPConnection() {
+		this.getClient().setupTCPStream();
 	}
 	
 	public void send(int index, int value) {

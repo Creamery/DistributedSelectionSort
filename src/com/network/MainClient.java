@@ -65,7 +65,8 @@ public class MainClient extends Thread implements UDPUnpacker {
 	public void run() {
 
 	}
-
+	
+	// Send IP as a reply
 	public void send() {
 		System.out.println("Sending IP...");
 		byte[] buffer = Info.NETWORK.getBytes();
@@ -79,7 +80,7 @@ public class MainClient extends Thread implements UDPUnpacker {
 			// Send IP
 			this.getUdpSocket().send(packet);
 			// System.out.println("Sending packet to port "+this.getUdpSocket().getPort());
-			Print.serverBroadcast();
+			// Print.serverBroadcast();
 		} catch(IOException e){
 			e.printStackTrace();
 		}
