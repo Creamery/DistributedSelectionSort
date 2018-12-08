@@ -64,7 +64,7 @@ public class UDPListener extends Thread {
 			
 			// Allow socket to receive packets
 			try {
-				System.out.println("Waiting for UDP socket wait");
+				System.out.println("Waiting for UDP socket waiting on port "+this.getUdpSocket().getPort());
 				this.getUdpSocket().receive(packet);
 			} catch (IOException e1) {
 				e1.printStackTrace();

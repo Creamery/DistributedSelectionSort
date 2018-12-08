@@ -85,6 +85,7 @@ public class MainServer extends Thread implements UDPUnpacker {
 		try {
 			// Send IP
 			this.getUdpSocket().send(packet);
+			System.out.println("Sending packet to port "+this.getUdpSocket().getPort());
 			Print.serverBroadcast();
 		} catch(IOException e){
 			e.printStackTrace();
