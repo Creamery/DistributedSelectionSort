@@ -98,6 +98,11 @@ public class MainServer extends Thread implements UDPUnpacker {
 
 //		this.getTcpStream().start();
 		// Prepare to listen to replies
+
+
+		// Start TCP Connection
+		// this.startTCPConnection();
+		 
 	}
 	
 	public InetAddress getAddress() {

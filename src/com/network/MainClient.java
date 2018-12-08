@@ -1,12 +1,14 @@
 package com.network;
 
 import java.io.IOException;
+import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
 import com.main.Info;
+import com.main.Print;
 import com.network.protocols.TCPTwoWay;
 import com.network.protocols.UDPListener;
 import com.network.protocols.UDPUnpacker;
@@ -64,7 +66,24 @@ public class MainClient extends Thread implements UDPUnpacker {
 
 	}
 
+	public void send() {
+		System.out.println("Sending IP...");
+		byte[] buffer = Info.NETWORK.getBytes();
+		DatagramPacket packet = null;
+		
+		// Prepare to send
+		try {
+			packet = new DatagramPacket(buffer, buffer.length, this.getServerIP(), this.getUDPPort());
 
+			System.out.println("Sending packet to "+this.getServerIP()+" : "+this.getUDPPort());
+			// Send IP
+			this.getUdpSocket().send(packet);
+			// System.out.println("Sending packet to port "+this.getUdpSocket().getPort());
+			Print.serverBroadcast();
+		} catch(IOException e){
+			e.printStackTrace();
+		}
+	}
 	@Override
 	public void unpack(String message) {
 		this.stopListening();
@@ -75,7 +94,8 @@ public class MainClient extends Thread implements UDPUnpacker {
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
-        this.setupTCPStream();
+		System.out.println("TODO TCP setup");
+        // this.setupTCPStream();
 		System.out.println("TCP Setup done");
 	}
 	
