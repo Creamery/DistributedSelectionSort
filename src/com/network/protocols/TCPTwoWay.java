@@ -150,13 +150,12 @@ public class TCPTwoWay extends Thread {
 						// For each CLIENT
 						for(int i = 0; i < indices.size(); i++) {
 							processorIndex = indices.get(i);
-							message.reset();
+							message = new MainMessage();
 							message.setHeader(Info.HDR_SERVER_INDICES);
 							message.setIndices(processorIndex.getStartIndex(), processorIndex.getEndIndex());
 
-							System.out.println("Sending indices: "+processorIndex.getStartIndex()+" "+processorIndex.getEndIndex());
+							System.out.println("Sending indices: "+message.getStartIndex()+" "+message.getEndIndex());
 							this.getListClientOutputStreams().get(i).writeObject(message);
-							this.getListClientOutputStreams().get(i).flush();
 							//oos.writeObject(message);
 						}
 						
@@ -164,6 +163,7 @@ public class TCPTwoWay extends Thread {
 						// WAIT for message (each CLIENT)
 						for(int i = 0; i < Info.CLIENT_SIZE; i++) {
 							message = (MainMessage) this.getListClientInputStreams().get(i).readObject();
+
 							System.out.println("Client "+i+"responded");
 							//message = (MainMessage) ois.readObject();
 							
