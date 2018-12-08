@@ -21,7 +21,7 @@ public class ServerProcessor extends ProcessorConnector {
 	
 	public void next() {
 		this.currentIndex += 1;
-		if(this.currentIndex == 1) { // TODO change to index size
+		if(this.currentIndex == this.getSortList().size()) { // TODO change to index size
 			this.setDone(true);
 		}
 	}
