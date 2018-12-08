@@ -34,12 +34,15 @@ public class MainServer extends Thread implements UDPUnpacker {
 	public MainServer() throws IOException {
 		this.setUDPPort(Info.BROADCAST_PORT);
 		this.setTCPPort(Info.PORT);
+		
 		try {
+			this.setProcessor(new ServerProcessor());
 			this.setAddress(InetAddress.getByName(Info.NETWORK.split("/")[1]));
-			this.setTcpStream(new TCPTwoWay("Server", this.getTCPPort()));
+			this.setTcpStream(new TCPTwoWay("Server", this.getTCPPort(), this.getProcessor()));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
 		this.setUdpListener(new UDPListener(this));
 //		serverSocket = new ServerSocket(this.getTCPPort());
 		// Set how long the server will wait for a connection

@@ -30,11 +30,14 @@ public class MainClient extends Thread implements UDPUnpacker {
 	public MainClient() {
 		this.setUDPPort(Info.BROADCAST_PORT);
 		this.setTCPPort(Info.PORT);
+		
 		try {
-			this.setTcpStream(new TCPTwoWay("Client", this.getTCPPort()));
+			this.setProcessor(new ClientProcessor());
+			this.setTcpStream(new TCPTwoWay("Client", this.getTCPPort(), this.getProcessor()));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
 		this.setUdpListener(new UDPListener(this));
 	}
 	

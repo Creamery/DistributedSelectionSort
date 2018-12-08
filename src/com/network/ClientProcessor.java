@@ -1,7 +1,15 @@
 package com.network;
 
-public class ClientProcessor extends Thread {
-	private boolean isRunning;
+import java.util.ArrayList;
+
+public class ClientProcessor extends ProcessorConnector {
+
+
+	@ Override
+	public void start(ArrayList<Integer> list, int start, int end) {
+		super.start(list, start, end);
+		// TODO: process
+	}
 	
 	// Initialize before running
 	public void process() {
@@ -11,15 +19,7 @@ public class ClientProcessor extends Thread {
 	
 	public void run() {
 		while(this.isRunning()) {
-			
+			// Add sorting here
 		}
-	}
-	
-	public boolean isRunning() {
-		return isRunning;
-	}
-	
-	public void setRunning(boolean isRunning) {
-		this.isRunning = isRunning;
 	}
 }

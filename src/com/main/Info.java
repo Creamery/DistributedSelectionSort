@@ -6,6 +6,8 @@ import java.net.UnknownHostException;
 public class Info {
 	public static volatile boolean CLIENT_LOCK = true;
 	
+	public static volatile boolean SERVER_LOCK = true;
+	
 	public static int PORT = 80;
 	public static int BROADCAST_PORT = 4445;
 
@@ -18,6 +20,10 @@ public class Info {
 	public static String NETWORK = GetSelfAddress();
 	public static int SERVER_TIMEOUT = 0;
 	public static int BUFFER_SIZE = 256;
+	
+	public static String MSG_CLIENT_RECEIVED = "received";
+	public static String MSG_SERVER_ARRAY = "array";
+	
 	
 	public static String GetSelfAddress() {
 		try {
