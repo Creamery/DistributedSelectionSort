@@ -21,6 +21,7 @@ public class ClientController {
 		}
 		else {
 			System.out.println("Server exists, TCP connect");
+			this.getClient().run();
 			this.getClient().setupTCPStream();
 		}
 		
