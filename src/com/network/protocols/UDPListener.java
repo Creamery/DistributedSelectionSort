@@ -77,8 +77,6 @@ public class UDPListener extends Thread {
 			
 			// If message is not empty, add the client IP to the list of clients
 			if(message != ""){
-				this.setListening(false);
-
 				System.out.println("Unpacking...");
 				// this.reply(packet);
 				this.getParent().unpack(message);

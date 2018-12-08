@@ -35,6 +35,7 @@ public class MainServer extends Thread implements UDPUnpacker {
 		this.setUDPPort(Info.BROADCAST_PORT);
 		this.setTCPPort(Info.PORT);
 		try {
+			this.setAddress(InetAddress.getByName(Info.NETWORK.split("/")[1]));
 			this.setTcpStream(new TCPTwoWay("Server", this.getTCPPort()));
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -98,6 +99,7 @@ public class MainServer extends Thread implements UDPUnpacker {
 
 //		this.getTcpStream().start();
 		// Prepare to listen to replies
+		this.listen();
 
 
 		// Start TCP Connection
@@ -180,18 +182,23 @@ public class MainServer extends Thread implements UDPUnpacker {
 
 	@Override
 	public void unpack(String message) {
-		this.stopListening();
-		
-		
-		String ip = message.substring(message.indexOf("/")+1);
-		System.out.println("Unpacked message: "+message+"\nTrimmed: "+ip);
-		
 		try {
-			this.getListClients().add(InetAddress.getByName(ip));
+			String ip = message.substring(message.indexOf("/")+1);
+			System.out.println("Unpacked message: "+message+"\nTrimmed: "+ip);
+	
+			InetAddress address = InetAddress.getByName(ip);
+			System.out.println("this address is "+this.getAddress());
+			if(this.getAddress().toString().substring(1).equals(ip)) {
+				System.out.println("Received own address");
+			}
+			else {
+				this.stopListening();
+				this.getListClients().add(address);
+				System.out.println("Added client "+ip);
+			}
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
-		System.out.println("Added client "+ip);
 		// Start TCP Connection
 		// this.startTCPConnection();
 	}
