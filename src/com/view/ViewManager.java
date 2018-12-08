@@ -93,6 +93,7 @@ public class ViewManager extends Thread {
 		}
 		else if(isStart(command) || isSort(command)) {
 			// Start sorting
+			ControllerManager.Instance().getServer().connectToClients();
 		}
 		else if(isStop(command)) {
 			// Stop sorting

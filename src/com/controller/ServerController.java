@@ -22,6 +22,11 @@ public class ServerController {
 		this.getMainServer().broadcast();
 	}
 	
+	public void connectToClients() {
+		// Starts a TCP connection to all clients in the list
+		this.getMainServer().startTCPConnection();
+	}
+	
 	// Start processing
 	public void process() {
 		this.getMainServer().process();

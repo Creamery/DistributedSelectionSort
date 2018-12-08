@@ -81,21 +81,16 @@ public class UDPListener extends Thread {
 				this.setListening(false);
 
 				System.out.println("Unpacking...");
-				this.reply(packet);
+				// this.reply(packet);
 				this.getParent().unpack(message);
-
-				// Send back a new packet
-				System.out.println("Sending back at port "+this.getUdpSocket().getPort());
-				this.setPacket(new DatagramPacket(this.getBuffer(), this.getBuffer().length, this.getSendAddress(), this.getUdpSocket().getPort()));
-		
 			}
 			else {
-
 				System.out.println("Message is empty...");
 			}
 		}
 	}
 	
+	/*
     public void reply(DatagramPacket packet) {
     	String message = new String(packet.getData()).trim();
 		
@@ -118,7 +113,8 @@ public class UDPListener extends Thread {
 		
 		System.out.println("Sent reply");
     }
-    
+    */
+	
     public DatagramSocket getUdpSocket() {
 		if(this.udpSocket == null) {
 			try {

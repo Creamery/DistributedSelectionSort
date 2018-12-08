@@ -83,10 +83,6 @@ public class MainServer extends Thread implements UDPUnpacker {
 			e1.printStackTrace();
 		}
 		try {
-
-			System.out.println("Preparing to listen");
-			// Prepare to listen to replies
-			this.listen();
 			System.out.println("Sending packet");
 			// Send IP
 			this.getUdpSocket().send(packet);
@@ -190,7 +186,7 @@ public class MainServer extends Thread implements UDPUnpacker {
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
-		System.out.println("TCP Connection will start");
+		System.out.println("Added client "+ip);
 		// Start TCP Connection
 		// this.startTCPConnection();
 	}
