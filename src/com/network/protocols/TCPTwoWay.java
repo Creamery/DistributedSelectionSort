@@ -1,12 +1,15 @@
 package com.network.protocols;
 
+import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -78,12 +81,18 @@ public class TCPTwoWay extends Thread {
 	public void initializeClientSocket(InetAddress serverIP) {
 		this.setServerIP(serverIP);
 		try {
+			this.setTcpClientSocket(new Socket(this.getServerIP(), this.getPort()));
+			
+			PrintWriter toServer = new PrintWriter(this.getTcpClientSocket().getOutputStream(),true);
+			BufferedReader fromServer = new BufferedReader(new InputStreamReader(this.getTcpClientSocket().getInputStream()));
+			toServer.println("Hello from " + this.getTcpClientSocket().getLocalSocketAddress()); 
+			String line = fromServer.readLine();
+			System.out.println("Client received: " + line + " from Server");
+
+			/*
 			System.out.println("Socket sent");
 			this.setTcpClientSocket(new Socket(this.getServerIP(), this.getPort()));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		try {
+			
 			System.out.println("[CLIENT]: "+"Just connected to " + this.getTcpClientSocket().getRemoteSocketAddress());
 			
 
@@ -95,7 +104,7 @@ public class TCPTwoWay extends Thread {
 
 
 			System.out.println("Client object streams 1");
-			
+			*/
 //	        OutputStream outToServer = client.getOutputStream();
 //	        ObjectOutputStream out = new ObjectOutputStream(outToServer);
 ////	        out.writeUTF("[CLIENT]: "+"Hello from " + client.getLocalSocketAddress());
@@ -106,10 +115,10 @@ public class TCPTwoWay extends Thread {
 //	        ObjectInputStream in = new ObjectInputStream(inFromServer);
 	        
 
-			System.out.println("Client object streams 2");
-	        this.initializeObjectStreams(
-	        		new ObjectOutputStream(this.getTcpClientSocket().getOutputStream()),
-	        		new ObjectInputStream(this.getTcpClientSocket().getInputStream()));
+//			System.out.println("Client object streams 2");
+//	        this.initializeObjectStreams(
+//	        		new ObjectOutputStream(this.getTcpClientSocket().getOutputStream()),
+//	        		new ObjectInputStream(this.getTcpClientSocket().getInputStream()));
 
 	        
 			System.out.println("Client object streams END");
@@ -125,6 +134,19 @@ public class TCPTwoWay extends Thread {
 		System.out.println("TCP listener run");
 		try {
 			// Wait for TCP connection from CLIENT
+			Socket server = this.getServerSocket().accept();
+			
+			System.out.println("Just connected to " + server.getRemoteSocketAddress()); 
+
+			
+			PrintWriter toClient = new PrintWriter(server.getOutputStream(),true);
+			BufferedReader fromClient = new BufferedReader(new InputStreamReader(server.getInputStream()));
+			String line = fromClient.readLine();
+			System.out.println("Server received: " + line); 
+			toClient.println("Thank you for connecting to " + server.getLocalSocketAddress() + "\nGoodbye!"); 
+
+
+			/*
 			Socket client = this.getServerSocket().accept();
 			this.setTcpServerSocket(client);
 			
@@ -137,7 +159,7 @@ public class TCPTwoWay extends Thread {
 			this.initializeObjectStreams(
 					new ObjectOutputStream(this.getTcpServerSocket().getOutputStream()),
 					new ObjectInputStream(this.getTcpServerSocket().getInputStream()));
-			
+			*/
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
