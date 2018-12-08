@@ -95,6 +95,7 @@ public class TCPTwoWay extends Thread {
 	}
 	public void initializeClientSocket(InetAddress serverIP) {
 		this.setServerIP(serverIP);
+		this.setPort(Info.PORT);
 		
 			/*
 			System.out.println("Socket sent");
@@ -211,7 +212,7 @@ public class TCPTwoWay extends Thread {
 			System.out.println("As Client");
 			try {
 				
-				Socket socket = new Socket("127.0.0.1", 3000);
+				Socket socket = new Socket(this.getServerIP(), this.getPort());
 				
 				BufferedReader keyRead = new BufferedReader(new InputStreamReader(System.in));
 	            // sending to client (pwrite object)
