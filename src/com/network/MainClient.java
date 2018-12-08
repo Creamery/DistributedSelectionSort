@@ -72,17 +72,6 @@ public class MainClient extends Thread implements UDPUnpacker {
 	
 	// Listen to a server broadcast
 	public void run() {
-		String command = "";
-
-		System.out.println("Client command listener");
-		while(true) {
-			command = System.in.toString().trim();
-			if(command.contains("send")) {
-				System.out.println("Send");
-				this.send(command);
-			}	
-		}
-		
 	}
 	
 	// Send IP as a reply
