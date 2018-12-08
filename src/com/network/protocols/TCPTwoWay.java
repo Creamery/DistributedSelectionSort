@@ -190,6 +190,12 @@ public class TCPTwoWay extends Thread {
 						e.printStackTrace();
 					}
 				}
+				
+				message.reset();
+				message.setMessage(Info.MSG_CLIENT_END);
+				this.sendToClients(message);
+				
+				System.out.println("Server done");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -257,6 +263,7 @@ public class TCPTwoWay extends Thread {
 						e.printStackTrace();
 					}
 			    }
+			    System.out.println("Client done");
 			} catch (IOException e) {
 				System.out.println("Exception object streams");
 				e.printStackTrace();
