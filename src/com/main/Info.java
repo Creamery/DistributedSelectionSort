@@ -26,7 +26,7 @@ public class Info {
 	public static String HDR_SERVER = "hdrServer";
 	public static String HDR_CLIENT = "hdrClient";
 	
-	public static int CLIENT_SIZE = 1;
+	public static int CLIENT_SIZE = 2;
 	
 	public static String GetSelfAddress() {
 		try {
