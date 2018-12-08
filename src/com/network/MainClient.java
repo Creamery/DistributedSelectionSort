@@ -51,7 +51,7 @@ public class MainClient extends Thread implements UDPUnpacker {
 	
 	public void send(String message) {
 		System.out.println("Sending "+message);
-		this.getTcpStream().sendToServer(message);
+		this.getTcpStream().sendAsClient(message);
 	}
 	
 	public void send(int index, int value) {

@@ -15,6 +15,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 import com.main.Info;
+import com.message.MainMessage;
 import com.message.TCPMessage;
 
 public class TCPTwoWay extends Thread {
@@ -43,6 +44,7 @@ public class TCPTwoWay extends Thread {
 	private DataInputStream dataInFromServer;
 
 	private Socket socket;
+	private MainMessage mainMessage;
 	
 	public DataOutputStream getDataOutToServer() {
 		return dataOutToServer;
@@ -132,6 +134,11 @@ public class TCPTwoWay extends Thread {
 	        
 			
 	}
+
+	public void sendAsClient(String message) {
+		this.setMainMessage(new MainMessage());
+		this.getMainMessage().setMessage(message);
+	}
 	
 	// Run listener
 	public void run() {
@@ -141,13 +148,35 @@ public class TCPTwoWay extends Thread {
 			try {
 				Socket server = this.getServerSocket().accept();
 				
-				System.out.println("Just connected to " + server.getRemoteSocketAddress()); 
+				System.out.println("Just connected to " + server.getRemoteSocketAddress());
+				
+				ObjectOutputStream oos = new ObjectOutputStream(server.getOutputStream());
+				ObjectInputStream ois = new ObjectInputStream(server.getInputStream());
+				MainMessage message;
+				
+				while (this.isReceiving()) {
+					try {
+						// WAIT for message
+						message = (MainMessage) ois.readObject();
+						if(message != null) {
+							System.out.println("Received "+message.getMessage());
+							message = new MainMessage();
+							message.setMessage("server got it");
+							
+							// SEND message
+							oos.writeObject(message);
+							message = null;;
+						}
+					} catch (ClassNotFoundException e) {
+						e.printStackTrace();
+					}
+				}
+				/*
 				BufferedReader keyRead = new BufferedReader(new InputStreamReader(System.in));
-                  // sending to client (pwrite object)
+				// sending to client (pwrite object)
 				OutputStream ostream = server.getOutputStream(); 
 				PrintWriter pwrite = new PrintWriter(ostream, true);
-
-                      // receiving from server ( receiveRead  object)
+				// receiving from server ( receiveRead  object)
 				InputStream istream = server.getInputStream();
 				BufferedReader receiveRead = new BufferedReader(new InputStreamReader(istream));
 
@@ -159,52 +188,8 @@ public class TCPTwoWay extends Thread {
 					sendMessage = keyRead.readLine(); 
 					pwrite.println(sendMessage);             
 					pwrite.flush();
-				}                	
-
-//				// Wait for TCP connection from CLIENT
-//				Socket server = this.getServerSocket().accept();
-//				
-//				System.out.println("Just connected to " + server.getRemoteSocketAddress()); 
-//				
-//
-//				DataInputStream fromServer = new DataInputStream(new BufferedInputStream(server.getInputStream()));
-//				while(isReceiving()) {
-//
-//					System.out.println("Receiving...");
-//					String line = fromServer.readUTF();
-//					System.out.println(line);
-//					if(line.trim().equals("end")) {
-//						System.out.println("Ending server");
-//						this.setReceiving(false);
-//					}
-//				}
-//				
-//				// Close socket when done receiving.
-//				System.out.println("CLOSE");
-//				this.getTcpServerSocket().close();
-				
-				
-				
-//				PrintWriter toClient = new PrintWriter(server.getOutputStream(),true);
-//				BufferedReader fromClient = new BufferedReader(new InputStreamReader(server.getInputStream()));
-//				String line = fromClient.readLine();
-//				System.out.println("Server received: " + line); 
-//				toClient.println("Thank you for connecting to " + server.getLocalSocketAddress()); 
-//
-//				while(isReceiving()) {
-//					line = fromClient.readLine();
-//					System.out.println("Server received: " + line); 
-//					toClient.println("Server received " + line); 
-//					if(line.equals("end")) {
-//						this.setReceiving(false);
-//					}
-//				}
-
-//				// Close socket when done receiving.
-//				System.out.println("CLOSE");
-//				this.getTcpServerSocket().close();
-				
-				
+				}        
+				*/
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -215,6 +200,36 @@ public class TCPTwoWay extends Thread {
 				
 				socket = new Socket(this.getServerIP(), this.getPort());
 				
+				ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+			    ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+
+			    MainMessage message = null;
+//			    oos.writeObject(message);
+
+			    while (this.isSending()) {
+			    	try {
+			    		while(this.getMainMessage() != null) {
+						    // SEND message
+			    			oos.writeObject(this.getMainMessage());
+			    			this.setMainMessage(null);
+			    		}
+			    		
+			    		// WAIT message
+			    		System.out.println("Waiting for message...");
+						message = (MainMessage) ois.readObject();
+
+				    	if(message != null) {
+				    		System.out.println("Client received "+message.getMessage());
+				    		message = null;
+				    		// oos.writeObject("bye");
+				    	}
+				    	
+					} catch (ClassNotFoundException e) {
+						e.printStackTrace();
+					}
+			    }
+			    
+				/*
 				BufferedReader keyRead = new BufferedReader(new InputStreamReader(System.in));
 	            // sending to client (pwrite object)
 				OutputStream ostream = socket.getOutputStream(); 
@@ -235,50 +250,12 @@ public class TCPTwoWay extends Thread {
 					{
 					System.out.println(receiveMessage); // displaying at DOS prompt
 					}         
-				}               
+				}
+				*/            
 			} catch (IOException e) {
 				System.out.println("Exception object streams");
 				e.printStackTrace();
 			}
-//			try {
-//				this.setTcpClientSocket(new Socket(this.getServerIP(), this.getPort()));
-//				
-//				
-//				DataInputStream fromServer = null;
-//				DataOutputStream toServer = null;
-//				
-//				fromServer = new DataInputStream(System.in);
-//				toServer = new DataOutputStream(this.getTcpClientSocket().getOutputStream());
-//				
-//				String line = "";
-//				while (!line.equals("end")) {
-//					try {
-//						line = fromServer.readLine();
-//						toServer.writeUTF(line);
-//						toServer.flush();
-//					} catch(IOException ioe) {
-//						System.out.println("Sending error: " + ioe.getMessage());
-//					}
-//				}
-//				/*
-//				PrintWriter toServer = new PrintWriter(this.getTcpClientSocket().getOutputStream(),true);
-//				BufferedReader fromServer = new BufferedReader(new InputStreamReader(this.getTcpClientSocket().getInputStream()));
-//				toServer.println("Hello from " + this.getTcpClientSocket().getLocalSocketAddress()); 
-//				String line = fromServer.readLine();
-//				System.out.println("Client received: " + line + " from Server");
-//				
-////				while(isSending()) {
-////					line = fromServer.readLine();
-////					System.out.println("Client received: " + line + " from Server");				
-////				}
-//				
-//				*/
-//				System.out.println("Client object streams END");
-//				
-//			} catch (IOException e) {
-//				System.out.println("Exception object streams");
-//				e.printStackTrace();
-//			}
 		}
 
 		// Wait for message to receive
@@ -327,7 +304,6 @@ public class TCPTwoWay extends Thread {
 //		}
 
 	}
-	
 //	public void sendAsClient(String message) {
 //		System.out.println("Sending as client");
 //		try {
@@ -360,10 +336,6 @@ public class TCPTwoWay extends Thread {
 //			e.printStackTrace();
 //		}
 //	}
-	public void sendToServer(String message) {
-		
-	}
-	
 	public void send(int index, int value) {
 		this.getTcpMessage().setMessage("Sent index: "+index+" "+value+"value");
 		
@@ -557,6 +529,22 @@ public class TCPTwoWay extends Thread {
 
 	public void setServer(boolean isServer) {
 		this.isServer = isServer;
+	}
+
+	public Socket getSocket() {
+		return socket;
+	}
+
+	public void setSocket(Socket socket) {
+		this.socket = socket;
+	}
+
+	public MainMessage getMainMessage() {
+		return mainMessage;
+	}
+
+	public void setMainMessage(MainMessage mainMessage) {
+		this.mainMessage = mainMessage;
 	}
 	
 }
