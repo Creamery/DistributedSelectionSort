@@ -24,7 +24,7 @@ public class ClientProcessor extends ProcessorConnector {
 				this.setMinimumValue(this.getSortList().get(i));
 			}
 		}
-		
+		System.out.println("Min value is "+this.getMinimumValue());
 		this.setRunning(false);
 	}
 }
