@@ -66,7 +66,7 @@ public class TCPTwoWay extends Thread {
 	}
 	
 	// To be called after a successful accept.
-	public void initializeObjectStreams(ObjectOutputStream outputStream, ObjectInputStream inputStream) throws IOException {
+	public void initializeObjectStreams(ObjectInputStream inputStream, ObjectOutputStream outputStream) throws IOException {
 		// Prepare object I/O
 		this.setObjectInputStream(inputStream);
 		this.setObjectOutputStream(outputStream);
@@ -103,9 +103,13 @@ public class TCPTwoWay extends Thread {
 //	        ObjectInputStream in = new ObjectInputStream(inFromServer);
 	        
 	        
+//	        this.initializeObjectStreams(
+//	        		new ObjectOutputStream(this.getTcpClientSocket().getOutputStream()),
+//	        		new ObjectInputStream(this.getTcpClientSocket().getInputStream()));
+
 	        this.initializeObjectStreams(
-	        		new ObjectOutputStream(this.getTcpClientSocket().getOutputStream()),
-	        		new ObjectInputStream(this.getTcpClientSocket().getInputStream()));
+	        		new ObjectInputStream(this.getTcpClientSocket().getInputStream()),
+	        		new ObjectOutputStream(this.getTcpClientSocket().getOutputStream()));
 
 			System.out.println("Client object streams");
 			
@@ -130,8 +134,8 @@ public class TCPTwoWay extends Thread {
 			
 			System.out.println("Server object streams");
 			this.initializeObjectStreams(
-					new ObjectOutputStream(this.getTcpServerSocket().getOutputStream()),
-					new ObjectInputStream(this.getTcpServerSocket().getInputStream()));
+					new ObjectInputStream(this.getTcpServerSocket().getInputStream()),
+					new ObjectOutputStream(this.getTcpServerSocket().getOutputStream()));
 			
 		} catch (IOException e1) {
 			e1.printStackTrace();
