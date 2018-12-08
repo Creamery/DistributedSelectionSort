@@ -58,13 +58,14 @@ public class UDPListener extends Thread {
 	
 	public void run() {
 		System.out.println("Listening...");
+		
 		while(this.isListening()) {
 			// Initialize packet
 			this.setPacket(new DatagramPacket(this.getBuffer(), this.getBuffer().length));
 			
 			// Allow socket to receive packets
 			try {
-				System.out.println("Waiting for UDP socket waiting on port "+this.getUdpSocket().getPort());
+				System.out.println("Waiting for UDP socket waiting on port "+this.getUdpSocket().getLocalPort());
 				this.getUdpSocket().receive(packet);
 			} catch (IOException e1) {
 				e1.printStackTrace();
@@ -83,7 +84,7 @@ public class UDPListener extends Thread {
 				this.getParent().unpack(message);
 
 				// Send back a new packet
-				System.out.println("Sending back ");
+				System.out.println("Sending back at port "+this.getUdpSocket().getPort());
 				this.setPacket(new DatagramPacket(this.getBuffer(), this.getBuffer().length, this.getSendAddress(), this.getUdpSocket().getPort()));
 		
 			}
