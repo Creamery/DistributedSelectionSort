@@ -15,22 +15,17 @@ import com.message.PacketType;
 import com.message.TCPMessage;
 import com.network.ClientProcessor;
 import com.network.ProcessorConnector;
-import com.network.ProcessorIndices;
 import com.network.ServerProcessor;
-import com.reusables.CsvWriter;
-import com.reusables.Stopwatch;
 
 public class TCPTwoWayQueue extends Thread {
 	private boolean isServer;
 	
 	private String hostName;
-	
 	private boolean isReceiving;
 	private boolean isSending;
 	private TCPMessage tcpMessage;
 	private int port;
-	private volatile int minValue = 99999999; // TODO: make a better sentinel
-	private volatile int minIndex = -1;
+	
 	
 	private volatile MainMessage packetRequest;
 	private volatile MainMessage packetInstruction;
@@ -123,9 +118,13 @@ public class TCPTwoWayQueue extends Thread {
 		return instruction;
 	}
 	
-	public MainMessage processPacket() {
+	public MainMessage processPacket(int start, int end) {
 		MainMessage instruction = new MainMessage();
+		
 		instruction.setPacketHeader(PacketType.HDR_PROCESS);
+		instruction.setStartIndex(start);
+		instruction.setEndIndex(end);
+		
 		return instruction;
 	}
 	
@@ -146,15 +145,24 @@ public class TCPTwoWayQueue extends Thread {
 		
 		switch(type) {
 			case HDR_SORTLIST:
+				this.clientProcessor.setSortList(
+						instructionPacket.getSortList());
 				break;
 				
 			case HDR_PROCESS:
+				this.clientProcessor.process(
+						instructionPacket.getStartIndex(),
+						instructionPacket.getEndIndex());
 				break;
 				
 			case HDR_SWAP:
+				this.clientProcessor.swap(
+						instructionPacket.getSwapIndex1(),
+						instructionPacket.getSwapIndex2());
 				break;
 				
 			case HDR_END:
+				this.setSending(false); // Breaks the client function loop
 				break;
 				
 			default:
@@ -172,6 +180,7 @@ public class TCPTwoWayQueue extends Thread {
 			// Process the requestPacket
 			switch(type) {
 				case HDR_REQUEST:
+					// Retrieve from message queue
 					break;
 				default:
 					break;

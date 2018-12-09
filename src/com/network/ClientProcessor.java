@@ -1,7 +1,5 @@
 package com.network;
 
-import com.main.Info;
-
 public class ClientProcessor extends ProcessorConnector {
 
 	@ Override
@@ -18,20 +16,20 @@ public class ClientProcessor extends ProcessorConnector {
 	}
 
 	
-	public void updateIndices() {
-		this.startIndex = this.getStartIndex()+1;
-		this.endIndex = this.getEndIndex()+1;
-		
-		if(this.clientIndex == Info.CLIENT_SIZE) {
-			this.endIndex = this.getSortList().size();
-		}
-		if(this.getEndIndex() > this.getSortList().size()) {
-			this.endIndex = this.getSortList().size();
-		}
-		if(this.startIndex > this.endIndex) {
-			this.startIndex = this.endIndex;
-		}
-	}
+//	public void updateIndices() {
+//		this.startIndex = this.getStartIndex()+1;
+//		this.endIndex = this.getEndIndex()+1;
+//		
+//		if(this.clientIndex == Info.CLIENT_SIZE) {
+//			this.endIndex = this.getSortList().size();
+//		}
+//		if(this.getEndIndex() > this.getSortList().size()) {
+//			this.endIndex = this.getSortList().size();
+//		}
+//		if(this.startIndex > this.endIndex) {
+//			this.startIndex = this.endIndex;
+//		}
+//	}
 	
 	public void swap(int index1, int index2) {
 		int temp = getSortList().get(index1);
