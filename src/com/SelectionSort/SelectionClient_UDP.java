@@ -15,8 +15,8 @@ public class SelectionClient_UDP {
     }
 
     public void runSelection(){
-        int startIndex = instruction.GetStartIndex();
-        int endIndex = instruction.GetEndIndex();
+        int startIndex = instruction.getStartIndex();
+        int endIndex = instruction.getEndIndex();
 
         int localMin = startIndex;
         for(int i = startIndex + 1; i < endIndex; i++) {
