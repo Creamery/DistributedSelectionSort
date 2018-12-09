@@ -117,56 +117,33 @@ public class MainClient extends Thread implements UDPUnpacker {
 //		this.getTcpStream().initializeClientSocket(this.getServerIP());
 //		this.getTcpStream().startAsClient();
 	}
-	
-	// Start sorting
-	/*
-	public void start(String host, String address, String port) throws UnknownHostException {
-		this.setHost(host);
-		this.setPort(Integer.parseInt(port));
-		this.setAddress(InetAddress.getByName(address));
-		
-		this.run();
-	}
-	*/
-	/*
-	public void run() {
-		System.out.println("[CLIENT]: "+"Running MainClient...");
-		
-		String serverName = this.getHost();
-		InetAddress ip = this.getAddress();
-		int port = this.getPort();
-		
+
+	/**
+	 * This method is called when the client is 'ready' for sorting.
+	 */
+	public void setupUDPStream(){
+		System.out.println("UDP Setup");
+		// UDP -- wait server to send a TCP connection request
 		try {
-			System.out.println("[CLIENT]: "+"Connecting to " + serverName + " on port " + port);
-			Socket client = new Socket(ip, port);
-	       
-	        System.out.println("[CLIENT]: "+"Just connected to " + client.getRemoteSocketAddress());
-	        // Object I/O Stream
-	        OutputStream outToServer = client.getOutputStream();
-	        ObjectOutputStream out = new ObjectOutputStream(outToServer);
-	        
-//	        out.writeUTF("[CLIENT]: "+"Hello from " + client.getLocalSocketAddress());
-	        MainMessage sentMessage = new MainMessage();
-	        sentMessage.setMessage("[CLIENT]: "+"Hello from " + client.getLocalSocketAddress());
-	        out.writeObject(sentMessage);
-	        
-	        InputStream inFromServer = client.getInputStream();
-	        ObjectInputStream in = new ObjectInputStream(inFromServer);
-	      
-	        try {
-				MainMessage receivedMessage = (MainMessage) in.readObject();
-		        System.out.println("[CLIENT]: "+"Server says " + receivedMessage.getMessage());
-			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
-			}
-	        
-	        client.close();
-	     }
-		catch (IOException e) {
+			DatagramSocket udpSocket = new DatagramSocket(Info.PORT);
+		} catch (SocketException e){ e.printStackTrace(); }
+		byte[] buf = new byte[Info.UDP_PACKET_SIZE];
+		DatagramPacket pck = new DatagramPacket(buf,buf.length);
+		try {
+			udpSocket.receive(pck);
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		String msg = new String(pck.getData()).trim();
+		if(msg.equals("SYNC")){
+			// SEND A TCP Connection Request
+		}
+
+
+
+		//TODO: start UDP client-side selection.
 	}
-	*/
+
 
 	public void setMainMessage(String message) {
 		this.mainMessage = new MainMessage();
