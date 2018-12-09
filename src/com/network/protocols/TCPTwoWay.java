@@ -153,7 +153,7 @@ public class TCPTwoWay extends Thread {
 							message.setHeader(Info.HDR_SERVER_INDICES);
 							message.setIndices(serverProcessor.getSortList(), indices.get(i).getStartIndex(), indices.get(i).getEndIndex());
 //							message.setSortList(serverProcessor.getSortList());
-							message.printList();
+
 							System.out.println("Sending indices: "+message.getStartIndex()+" "+message.getEndIndex());
 							this.getListClientOutputStreams().get(i).flush();
 							this.getListClientOutputStreams().get(i).writeObject(message);
@@ -172,12 +172,12 @@ public class TCPTwoWay extends Thread {
 							//message = (MainMessage) ois.readObject();
 							if(minIndex == -1) {
 								minIndex = message.getMinIndex();
-								minValue = message.getMinValue()+1;
-							}
-							else if(message.getMinValue() < minValue) {
+								minValue = message.getMinValue();
+							} else if(message.getMinValue() < minValue) {
 								minValue = message.getMinValue();
 								minIndex = message.getMinIndex();
 							}
+							message = new MainMessage();
 						}
 						
 						// SWAP

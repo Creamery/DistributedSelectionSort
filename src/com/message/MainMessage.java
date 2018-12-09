@@ -36,12 +36,7 @@ public class MainMessage implements Serializable {
 	public int getStartIndex() {
 		return startIndex;
 	}
-	public void printList() {
-		System.out.print("msg: ");
-		for(int i = 0; i < this.getSortList().size(); i++) {
-			System.out.print(this.getSortList().get(i)+" ");
-		}
-	}
+	
 	public void setStartIndex(int startIndex) {
 		this.startIndex = startIndex;
 	}
