@@ -101,7 +101,7 @@ public class TCPTwoWay extends Thread {
 		//System.out.println("TCP listener run");
 		
 		if(isServer()) {
-			//System.out.println("As Server");
+			System.out.println("As Server");
 			ServerProcessor serverProcessor = (ServerProcessor) this.getProcessor();
 			ArrayList<ProcessorIndices> indices = null;
 			
@@ -202,7 +202,7 @@ public class TCPTwoWay extends Thread {
 			}
 		}
 		else {
-			// System.out.println("As Client");
+			System.out.println("As Client");
 			try {
 				ClientProcessor clientProcessor = (ClientProcessor) this.getProcessor();
 				
