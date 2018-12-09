@@ -181,14 +181,16 @@ public class TCPTwoWayQueue extends Thread {
 			switch(type) {
 				case HDR_REQUEST:
 					// Retrieve from message queue
+					
+
+					// Then send back an instruction packet
+					this.getListClientOutputStreams().get(client).writeObject(
+							sortlistPacket(serverProcessor.getSortList()));
 					break;
 				default:
 					break;
 			}
 			
-			// Then send back an instruction packet
-			MainMessage instructionPacket = new MainMessage();
-			this.getListClientOutputStreams().get(client).writeObject(instructionPacket);
 			
 
 			this.setServerProcessing(false); // TODO: Called by external scripts
