@@ -22,6 +22,14 @@ public class Info {
 	public static String MSG_SERVER_ARRAY = "msgServerArray";
 	
 
+	public static String HDR_REQUEST = "hdrRequest";
+	public static String HDR_INDICES = "hdrIndices";
+	public static String HDR_SWAP = "hdrSwap";
+	public static String HDR_INSTRUCTION = "hdrInstruction";
+	
+	
+	
+	
 	public static String HDR_SPLIT = "_";
 	public static String HDR_SERVER = "hdrServer";
 	public static String HDR_CLIENT = "hdrClient";

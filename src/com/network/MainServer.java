@@ -12,11 +12,13 @@ import java.util.ArrayList;
 import com.main.Info;
 import com.main.Print;
 import com.network.protocols.TCPTwoWay;
+import com.network.protocols.TCPTwoWayQueue;
 import com.network.protocols.UDPListener;
 import com.network.protocols.UDPUnpacker;
 
 public class MainServer extends Thread implements UDPUnpacker {
-	private TCPTwoWay tcpStream;
+	// private TCPTwoWay tcpStream;
+	private TCPTwoWayQueue tcpStream;
 	private UDPListener udpListener;
 	private ServerProcessor processor;
 	
@@ -37,7 +39,8 @@ public class MainServer extends Thread implements UDPUnpacker {
 		try {
 			this.setProcessor(new ServerProcessor(Info.CLIENT_SIZE));
 			this.setAddress(InetAddress.getByName(Info.NETWORK.split("/")[1]));
-			this.setTcpStream(new TCPTwoWay("Server", this.getTCPPort(), this.getProcessor()));
+//			this.setTcpStream(new TCPTwoWay("Server", this.getTCPPort(), this.getProcessor()));
+			this.setTcpStream(new TCPTwoWayQueue("Server", this.getTCPPort(), this.getProcessor()));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -154,14 +157,20 @@ public class MainServer extends Thread implements UDPUnpacker {
 	public void setObjectOutputStream(ObjectOutputStream objectOutputStream) {
 		this.objectOutputStream = objectOutputStream;
 	}
-
-	public TCPTwoWay getTcpStream() {
+	public TCPTwoWayQueue getTcpStream() {
 		return tcpStream;
 	}
 
-	public void setTcpStream(TCPTwoWay tcpStream) {
+	public void setTcpStream(TCPTwoWayQueue tcpStream) {
 		this.tcpStream = tcpStream;
 	}
+//	public TCPTwoWay getTcpStream() {
+//		return tcpStream;
+//	}
+//
+//	public void setTcpStream(TCPTwoWay tcpStream) {
+//		this.tcpStream = tcpStream;
+//	}
 
 	public UDPListener getUdpListener() {
 		return udpListener;

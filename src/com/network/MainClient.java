@@ -10,11 +10,13 @@ import java.net.UnknownHostException;
 import com.main.Info;
 import com.message.MainMessage;
 import com.network.protocols.TCPTwoWay;
+import com.network.protocols.TCPTwoWayQueue;
 import com.network.protocols.UDPListener;
 import com.network.protocols.UDPUnpacker;
 
 public class MainClient extends Thread implements UDPUnpacker {
-	private TCPTwoWay tcpStream;
+	// private TCPTwoWay tcpStream;
+	private TCPTwoWayQueue tcpStream;
 	private UDPListener udpListener;
 	private ClientProcessor processor;
 	
@@ -33,7 +35,8 @@ public class MainClient extends Thread implements UDPUnpacker {
 		
 		try {
 			this.setProcessor(new ClientProcessor());
-			this.setTcpStream(new TCPTwoWay("Client", this.getTCPPort(), this.getProcessor()));
+//			this.setTcpStream(new TCPTwoWay("Client", this.getTCPPort(), this.getProcessor()));
+			this.setTcpStream(new TCPTwoWayQueue("Client", this.getTCPPort(), this.getProcessor()));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -219,14 +222,20 @@ public class MainClient extends Thread implements UDPUnpacker {
 	public void setProcessor(ClientProcessor processor) {
 		this.processor = processor;
 	}
-
-	public TCPTwoWay getTcpStream() {
+	public TCPTwoWayQueue getTcpStream() {
 		return tcpStream;
 	}
 
-	public void setTcpStream(TCPTwoWay tcpStream) {
+	public void setTcpStream(TCPTwoWayQueue tcpStream) {
 		this.tcpStream = tcpStream;
 	}
+//	public TCPTwoWay getTcpStream() {
+//		return tcpStream;
+//	}
+//
+//	public void setTcpStream(TCPTwoWay tcpStream) {
+//		this.tcpStream = tcpStream;
+//	}
 
 	public UDPListener getUdpListener() {
 		return udpListener;

@@ -19,7 +19,7 @@ import com.network.ServerProcessor;
 import com.reusables.CsvWriter;
 import com.reusables.Stopwatch;
 
-public class TCPTwoWay extends Thread {
+public class TCPTwoWayQueue extends Thread {
 	private boolean isServer;
 	
 	private String hostName;
@@ -30,7 +30,11 @@ public class TCPTwoWay extends Thread {
 	private int port;
 	private volatile int minValue = 99999999; // TODO: make a better sentinel
 	private volatile int minIndex = -1;
+	
 	private volatile MainMessage message;
+	private volatile MainMessage packetRequest;
+	private volatile MainMessage packetInstruction;
+	
 	// For SERVER
 	private ServerSocket serverSocket;
 	private Socket tcpServerSocket;
@@ -51,7 +55,7 @@ public class TCPTwoWay extends Thread {
 	private ProcessorConnector processor;
 	
 
-	public TCPTwoWay(String name, int port, ProcessorConnector processorConnector) throws IOException {
+	public TCPTwoWayQueue(String name, int port, ProcessorConnector processorConnector) throws IOException {
 		this.setHostName(name);
 		this.setTcpMessage(new TCPMessage());
 		this.setProcessor(processorConnector);
@@ -72,16 +76,6 @@ public class TCPTwoWay extends Thread {
 	}
 
 	
-	// To be called after a successful accept.
-//	public void initializeObjectStreams(ObjectOutputStream outputStream, ObjectInputStream inputStream) throws IOException {
-//		// Prepare object I/O
-//		this.setObjectInputStream(inputStream);
-//		this.setObjectOutputStream(outputStream);
-//
-////		this.setObjectInputStream(new ObjectInputStream(this.getTcpServerSocket().getInputStream()));
-////		this.setObjectOutputStream(new ObjectOutputStream(this.getTcpServerSocket().getOutputStream()));
-//	}
-	
 	public void startAsServer() {
 		this.setServer(true);
 		this.setReceiving(true);
@@ -98,13 +92,38 @@ public class TCPTwoWay extends Thread {
 	}
 
 
+	public MainMessage requestPacket() {
+		MainMessage request = new MainMessage();
+		request.setHeader(Info.HDR_REQUEST);
+		return request;
+	}
+	
+	public void processInstructionPacket(MainMessage instructionPacket) {
+		
+	}
+	
+	public void processRequestPacket(int client, MainMessage requestPacket) {
+		try {
+
+			// Process the requestPacket
+			
+			// Then send back an instruction packet
+			MainMessage instructionPacket = new MainMessage();
+			this.getListClientOutputStreams().get(client).writeObject(instructionPacket);
+			
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	// Run Listener
 	public void run() {
 		if(isServer()) {
 
 			Print.message("Starting as SERVER");
 			ServerProcessor serverProcessor = (ServerProcessor) this.getProcessor();
-			ArrayList<ProcessorIndices> indices = null;
+			// ArrayList<ProcessorIndices> indices = null;
 			
 			
 			try {
@@ -136,140 +155,76 @@ public class TCPTwoWay extends Thread {
 				message.reset();
 				// oos.writeObject(message);
 				
-				
-				// START PROCESSING
-				Print.response("Processing, please wait!");
-				Stopwatch.start();
-				ArrayList<Integer> list = this.getProcessor().getSortList();
-				for(int h = 0; h < list.size(); h++) {
+				// Receiving is for server
+				this.setReceiving(true);
+				while(this.isReceiving()) {
 					try {
-						// System.out.println("INDEX: "+h);
-						indices = serverProcessor.computeIndices();
-						// For each CLIENT
-						for(int i = 0; i < indices.size(); i++) {
-							// SEND indices
-							// message.reset();
-							message = new MainMessage();
-							message.setHeader(Info.HDR_SERVER_INDICES);
-							message.setIndices(serverProcessor.getSortList(), indices.get(i).getStartIndex(), indices.get(i).getEndIndex());
-
-
-							// System.out.println("Sending indices: "+message.getStartIndex()+" "+message.getEndIndex());
-							this.getListClientOutputStreams().get(i).flush();
-							this.getListClientOutputStreams().get(i).writeObject(message);
-							//oos.writeObject(message);
+						// Iteratively check each client if an object is sent (blocks until client sends)
+						for(int i = 0; i < this.getListClientSockets().size(); i++) {
+								this.packetRequest = (MainMessage) this.getListClientInputStreams().get(i).readObject();
+								System.out.println("Received a packet from Client "+i);
+								this.processRequestPacket(i, packetRequest);
 						}
 						
-						// System.out.println("Waiting for Minimum Value...");
-						// WAIT for message (each CLIENT)
-						minIndex = -1;
-						minValue = -1;
-						for(int i = 0; i < Info.CLIENT_SIZE; i++) {
-							message = (MainMessage) this.getListClientInputStreams().get(i).readObject();
-
-							// System.out.println("Client "+i+" responded");
-							
-							//message = (MainMessage) ois.readObject();
-							if(minIndex == -1) {
-								minIndex = message.getMinIndex();
-								minValue = message.getMinValue();
-							} else if(message.getMinValue() < minValue) {
-								minValue = message.getMinValue();
-								minIndex = message.getMinIndex();
-							}
-							message = new MainMessage();
-						}
-						
-						// SWAP
-						serverProcessor.swap(minIndex);
-						serverProcessor.next(); // Move current index
-						
-						if(serverProcessor.isDone()) {
-							this.setReceiving(false);
-						}
 					} catch (ClassNotFoundException e) {
 						e.printStackTrace();
 					}
 				}
 				
-				message.reset();
-				message.setHeader(Info.HDR_CLIENT_END);
-				this.sendToClients(message);
-				
-				try {
-					Stopwatch.endAndPrint();
-				} catch (Exception e){
-					e.printStackTrace();
-				}
-				CsvWriter.write(serverProcessor.getSortList());
-				System.out.println("CSV Printed");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
 		else {
 			Print.message("Starting as CLIENT");
+			
 			try {
+				
 				ClientProcessor clientProcessor = (ClientProcessor) this.getProcessor();
-				
 				socket = new Socket(this.getServerIP(), this.getPort());
-				
-				ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
-			    ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+//				ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+//			    ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+				ObjectInputStream fromServer = new ObjectInputStream(socket.getInputStream());
+			    ObjectOutputStream toServer = new ObjectOutputStream(socket.getOutputStream());
 			    message = null;
 			    
+			    
+			    // WAIT for array
 			    try {
-				    // WAIT message
 					do {
-						message = (MainMessage) ois.readObject();
+						message = (MainMessage) fromServer.readObject();
 						if(message.getMessage().contains(Info.MSG_SERVER_ARRAY)) {
 				    		clientProcessor.setSortList(message.getSortList());
-				    		// System.out.println("Client: Received ARRAY "+clientProcessor.getSortList().size());
-
 						}
 					}while(!message.getMessage().contains(Info.MSG_SERVER_ARRAY));
 					message.reset();
 			    } catch (ClassNotFoundException e) {
 					e.printStackTrace();
 				}
+			    
+			    // BEGIN LOOP
 			    while (this.isSending()) {
 			    	try {
-			    		// WAIT for indices
-			    		// System.out.println("Waiting for indices (message != null)");
-			    		do {
-			    			message = null;
-							message = (MainMessage) ois.readObject();
-			    		}
-						while(message == null || !(message.getHeader().equals(Info.HDR_SERVER_INDICES) || message.getHeader().equals(Info.HDR_CLIENT_END)));
-						
-			    		// END
-						if(message.getHeader().equals(Info.HDR_CLIENT_END)) {
-							this.setSending(false);
-						}
-						
-						// PROCESS
-						else {
-							clientProcessor.resetMinimum();
-							clientProcessor.setIndices(message);
-							clientProcessor.setSortList(message.getSortList());
-							
-							// System.out.println("Received indices "+clientProcessor.getStartIndex()+" "+clientProcessor.getEndIndex());
-							clientProcessor.process(message.getStartIndex(), message.getEndIndex());
-							
-							// Block while is processing
-							while(clientProcessor.isRunning()) {};
-							
-							
-				    		message = new MainMessage();
-				    		message.setMinimumValues(clientProcessor.getMinimumIndex(), clientProcessor.getMinimumValue());
-				    		
-				    		// SEND message
-				    		// System.out.println("Sent min index "+message.getMinIndex());
-				    		oos.flush();
-			    			oos.writeObject(message);
-			    			message.reset();
-				    		
-						}
+			    		
+			    		
+			    		
+			    		// SEND a requestPacket
+			    		toServer.writeObject(requestPacket());
+			    		System.out.println("Request sent to server");
+			    		
+			    		
+			    		// WAIT for server reply
+			    		this.packetInstruction = (MainMessage) fromServer.readObject();
+			    		System.out.println("Received a packet from Server ");
+			    		
+			    		// PROCESS the instruction
+			    		this.processInstructionPacket(packetInstruction);
+			    		
+			    		
+			    		
+			    		
+			    		
+			    		
 					} catch (ClassNotFoundException e) {
 						e.printStackTrace();
 					}
@@ -429,6 +384,25 @@ public class TCPTwoWay extends Thread {
 
 	public void setListClientInputStreams(ArrayList<ObjectInputStream> listClientInputStreams) {
 		this.listClientInputStreams = listClientInputStreams;
+	}
+
+	public MainMessage getPacketRequest() {
+		return packetRequest;
+	}
+
+
+	public void setPacketRequest(MainMessage packetRequest) {
+		this.packetRequest = packetRequest;
+	}
+
+
+	public MainMessage getPacketInstruction() {
+		return packetInstruction;
+	}
+
+
+	public void setPacketInstruction(MainMessage packetInstruction) {
+		this.packetInstruction = packetInstruction;
 	}
 	
 }
