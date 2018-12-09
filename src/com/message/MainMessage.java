@@ -57,7 +57,7 @@ public class MainMessage implements Serializable {
 	}
 
 	public void setEndIndex(int endIndex) {
-		if(endIndex > this.getSortList().size()) {
+		if(this.getSortList() != null && endIndex > this.getSortList().size()) {
 			endIndex = this.getSortList().size();
 		}
 		this.endIndex = endIndex;
