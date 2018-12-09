@@ -145,7 +145,6 @@ public class TCPTwoWay extends Thread {
 					try {
 						
 						indices = serverProcessor.computeIndices();
-						System.out.print("server sending list "); serverProcessor.printList();
 						// For each CLIENT
 						for(int i = 0; i < indices.size(); i++) {
 							// SEND indices

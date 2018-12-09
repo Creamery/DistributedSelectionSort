@@ -14,12 +14,7 @@ public class ClientProcessor extends ProcessorConnector {
 		this.setEndIndex(end);
 		this.run();
 	}
-	
-	public void printList() {
-		for(int i = 0; i < this.getSortList().size(); i++) {
-			System.out.print(this.getSortList().get(i)+" ");
-		}
-	}
+
 	
 	public void run() {
 		System.out.println("SORTING");
@@ -27,8 +22,6 @@ public class ClientProcessor extends ProcessorConnector {
 		this.setMinimumIndex(this.getStartIndex());
 		this.setMinimumValue(this.getSortList().get(this.getMinimumIndex()));
 
-		// System.out.println("New sort sList["+this.getSortList().size()+"] "+this.getSortList().get(this.getSortList().size()-1));
-		printList();
 		// Find local minimum
 		for(int i = this.getStartIndex()+1; i < this.getEndIndex(); i++) {
 			System.out.println("Comparing "+getSortList().get(i)+" and "+getSortList().get(this.getMinimumIndex()));

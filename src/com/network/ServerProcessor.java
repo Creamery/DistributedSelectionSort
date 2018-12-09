@@ -29,7 +29,7 @@ public class ServerProcessor extends ProcessorConnector {
 	public void next() {
 		this.currentIndex += 1;
 		System.out.println("CurrIndex "+currentIndex);
-		if(this.currentIndex == getSortList().size()) { // TODO change to index size
+		if(this.currentIndex == getSortList().size()-1) { // TODO change to index size
 			this.setDone(true);
 		}
 	}
@@ -45,15 +45,9 @@ public class ServerProcessor extends ProcessorConnector {
 	}
 	
 	public void swap(int minIndex) {
-		System.out.print("origList ");
-		this.printList();
-		
 		int temp = getSortList().get(this.getCurrentIndex());
 		this.getSortList().set(this.getCurrentIndex(), this.getSortList().get(minIndex));
 		this.getSortList().set(minIndex, temp);
-		
-		System.out.print("swapList ");
-		this.printList();
 	}
 	
 	// Compute indices for N clients
