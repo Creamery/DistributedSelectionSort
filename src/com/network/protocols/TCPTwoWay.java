@@ -156,6 +156,7 @@ public class TCPTwoWay extends Thread {
 							message.setSortList(serverProcessor.getSortList());
 							
 							System.out.println("Sending indices: "+message.getStartIndex()+" "+message.getEndIndex());
+							this.getListClientOutputStreams().get(i).flush();
 							this.getListClientOutputStreams().get(i).writeObject(message);
 							//oos.writeObject(message);
 						}
@@ -168,6 +169,7 @@ public class TCPTwoWay extends Thread {
 							System.out.println("Client "+i+" responded");
 							//message = (MainMessage) ois.readObject();
 							if(minIndex == -1) {
+								minIndex = message.getMinIndex();
 								minValue = message.getMinValue()+1;
 							}
 							if(message.getMinValue() < minValue) {
@@ -250,14 +252,15 @@ public class TCPTwoWay extends Thread {
 							System.out.println("Received indices "+clientProcessor.getStartIndex()+" "+clientProcessor.getEndIndex());
 							clientProcessor.process(message.getSortList(), message.getStartIndex(), message.getEndIndex());
 							// Block while is processing
-							while(this.getProcessor().isRunning()) {};
+							while(clientProcessor.isRunning()) {};
 							
 							
 				    		message.reset();
-				    		message.setMinimumValues(this.getProcessor().getMinimumIndex(), this.getProcessor().getMinimumValue());
+				    		message.setMinimumValues(clientProcessor.getMinimumIndex(), clientProcessor.getMinimumValue());
 				    		
 				    		// SEND message
 				    		System.out.println("Sent min index "+message.getMinIndex());
+				    		oos.flush();
 			    			oos.writeObject(message);
 			    			message.reset();
 				    		
