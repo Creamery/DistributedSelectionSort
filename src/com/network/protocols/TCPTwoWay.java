@@ -292,7 +292,7 @@ public class TCPTwoWay extends Thread {
 			    			message.reset();
 			    			
 			    			// WAIT for swap indices
-			    			message = null;
+			    			message = new MainMessage();
 							message = (MainMessage) ois.readObject();
 							clientProcessor.swap(message.getSwapIndex1(), message.getSwapIndex2());
 						}
