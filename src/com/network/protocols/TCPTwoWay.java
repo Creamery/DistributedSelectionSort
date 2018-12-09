@@ -26,7 +26,9 @@ public class TCPTwoWay extends Thread {
 	private boolean isSending;
 	private TCPMessage tcpMessage;
 	private int port;
-	
+	private volatile int minValue = 99999999; // TODO: make a better sentinel
+	private volatile int minIndex = -1;
+	private volatile MainMessage message;
 	// For SERVER
 	private ServerSocket serverSocket;
 	private Socket tcpServerSocket;
@@ -102,16 +104,13 @@ public class TCPTwoWay extends Thread {
 			System.out.println("As Server");
 			ServerProcessor serverProcessor = (ServerProcessor) this.getProcessor();
 			ArrayList<ProcessorIndices> indices = null;
-			ProcessorIndices processorIndex = null;
-			int minValue = 99999999; // TODO: make a better sentinel
-			int minIndex = -1;
+			
 			
 			try {
 				
 				Socket server = null;
 				ObjectOutputStream oos = null;
 				ObjectInputStream ois = null;
-				MainMessage message = null;
 				
 				// ACCEPT CLIENTS
 				for(int i = 0; i < Info.CLIENT_SIZE; i++) {
@@ -149,10 +148,9 @@ public class TCPTwoWay extends Thread {
 						indices = serverProcessor.computeIndices();
 						// For each CLIENT
 						for(int i = 0; i < indices.size(); i++) {
-							processorIndex = indices.get(i);
 							message = new MainMessage();
 							message.setHeader(Info.HDR_SERVER_INDICES);
-							message.setIndices(processorIndex.getStartIndex(), processorIndex.getEndIndex());
+							message.setIndices(indices.get(i).getStartIndex(), indices.get(i).getEndIndex());
 							message.setSortList(serverProcessor.getSortList());
 							
 							System.out.println("Sending indices: "+message.getStartIndex()+" "+message.getEndIndex());
@@ -167,12 +165,13 @@ public class TCPTwoWay extends Thread {
 							message = (MainMessage) this.getListClientInputStreams().get(i).readObject();
 
 							System.out.println("Client "+i+" responded");
+							
 							//message = (MainMessage) ois.readObject();
 							if(minIndex == -1) {
 								minIndex = message.getMinIndex();
 								minValue = message.getMinValue()+1;
 							}
-							if(message.getMinValue() < minValue) {
+							else if(message.getMinValue() < minValue) {
 								minValue = message.getMinValue();
 								minIndex = message.getMinIndex();
 							}

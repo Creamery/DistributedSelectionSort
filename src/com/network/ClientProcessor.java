@@ -10,6 +10,7 @@ public class ClientProcessor extends ProcessorConnector {
 		
 		this.run();
 	}
+	
 	public void process(ArrayList<Integer> list, int start, int end) {
 		this.setRunning(true);
 		this.setSortList(list);
