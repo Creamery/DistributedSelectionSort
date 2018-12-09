@@ -215,7 +215,6 @@ public class TCPTwoWay extends Thread {
 			    try {
 				    // WAIT message
 					do {
-			    		System.out.println("Waiting for array...");
 						message = (MainMessage) ois.readObject();
 						if(message.getMessage().contains(Info.MSG_SERVER_ARRAY)) {
 				    		clientProcessor.setSortList(message.getSortList());
@@ -227,7 +226,7 @@ public class TCPTwoWay extends Thread {
 			    } catch (ClassNotFoundException e) {
 					e.printStackTrace();
 				}
-			    
+			    System.out.println("Sorting...");
 			    while (this.isSending()) {
 			    	try {
 			    		// WAIT for indices
