@@ -61,8 +61,12 @@ public class MainMessage implements Serializable {
 		return sortList;
 	}
 
-	public void setSortList(ArrayList<Integer> sortList) {
-		this.sortList = sortList;
+	public void setSortList(ArrayList<Integer> list) {
+		this.sortList = new ArrayList<Integer>();
+
+		for(int i = 0; i < list.size(); i++) {
+			this.sortList.add(list.get(i));
+		}
 	}
 
 	public int getMinIndex() {
