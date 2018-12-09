@@ -6,21 +6,21 @@ import com.message.messageQueue.SelectionInstruction;
 
 import java.util.ArrayList;
 
-public class SelectionBase {
+public class SelectionSort_UDP {
 
     private QueueManager qManager;
     private Thread clientListener;
     private ArrayList<Integer> toSort;
     private int splitCount;
 
-    public SelectionBase(ArrayList<Integer> toSort, int numPartitions){
+    public SelectionSort_UDP(ArrayList<Integer> toSort, int numPartitions){
         qManager = new QueueManager();
         clientListener = new Thread(new QManagerListener(qManager));
         this.toSort = toSort;
         this.splitCount = numPartitions;
     }
 
-    public void RunSorting(){
+    public void runSorting(){
         int size = toSort.size();
         clientListener.start();
         for(int i=0; i<size; i++){

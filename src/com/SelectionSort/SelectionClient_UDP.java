@@ -4,12 +4,12 @@ import com.message.messageQueue.SelectionInstruction;
 
 import java.util.ArrayList;
 
-public class SelectionClient {
+public class SelectionClient_UDP {
 
     private ArrayList<Integer> toSelect;
     private SelectionInstruction instruction;
 
-    public SelectionClient(ArrayList<Integer> toSelect, SelectionInstruction instruction){
+    public SelectionClient_UDP(ArrayList<Integer> toSelect, SelectionInstruction instruction){
         this.toSelect = toSelect;
         this.instruction = instruction;
     }
