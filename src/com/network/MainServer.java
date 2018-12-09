@@ -176,25 +176,23 @@ public class MainServer extends Thread implements UDPUnpacker {
 	public void unpack(String message) {
 		try {
 			String ip = message.substring(message.indexOf("/")+1);
-			System.out.println("Unpacked message: "+message+"\nTrimmed: "+ip);
-	
 			InetAddress address = InetAddress.getByName(ip);
 			
-			System.out.println("this address is "+this.getAddress());
-			
 			if(this.getAddress().toString().substring(1).equals(ip)) {
-				System.out.println("Received own address");
+				//System.out.println("Received own address");
 			}
 			else {
-				this.stopListening();
 				this.getListClients().add(address);
-				System.out.println("Added client "+ip);
+				Print.message("Added client "+ip);
+				
+				if(this.getListClients().size() == Info.CLIENT_SIZE) {
+					Print.response("Stopped listening");
+					this.stopListening();
+				}
 			}
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
-		// Start TCP Connection
-		// this.startTCPConnection();
 	}
 
 	public void startTCPConnection() {
