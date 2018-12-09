@@ -22,8 +22,8 @@ public abstract class ProcessorConnector extends Thread{
 	}
 	
 	public void setIndices(MainMessage message) {
-		this.setStartIndex(message.getStartIndex());
-		this.setEndIndex(message.getEndIndex());
+		this.startIndex = message.getStartIndex();
+		this.endIndex = message.getEndIndex();
 	}
 	
 	public void setSortList(ArrayList<Integer> list) {
