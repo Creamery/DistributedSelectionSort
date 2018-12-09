@@ -7,7 +7,7 @@ import com.reusables.CsvParser;
 
 public class ServerProcessor extends ProcessorConnector {
 	private static final String generated_name_prefix = "unsorted_generated_";
-	private static final int _100 = 10000;
+	private static final int _100 = 100;
 	private static final int _10000 = 10000;
 	private static final int _100000 = 100000;
 	private static final int _200000 = 200000;

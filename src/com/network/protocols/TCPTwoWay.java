@@ -166,7 +166,7 @@ public class TCPTwoWay extends Thread {
 							}
 							
 
-							// System.out.println("Sending indices: "+message.getStartIndex()+" "+message.getEndIndex());
+							System.out.println("Sending indices: "+message.getStartIndex()+" "+message.getEndIndex());
 							this.getListClientOutputStreams().get(i).flush();
 							this.getListClientOutputStreams().get(i).writeObject(message);
 							//oos.writeObject(message);
@@ -193,10 +193,12 @@ public class TCPTwoWay extends Thread {
 						}
 						
 						// SWAP
-						serverProcessor.swap(minIndex);
+						message = new MainMessage();
 						message.setSwapIndex1(minIndex);
 						message.setSwapIndex2(serverProcessor.getCurrentIndex());
+						// SEND Swap
 						sendToClients(message);
+						serverProcessor.swap(minIndex);
 						serverProcessor.next(); // Move current index
 						
 						if(serverProcessor.isDone()) {
@@ -207,6 +209,7 @@ public class TCPTwoWay extends Thread {
 					}
 				}
 				
+				// SEND END
 				message.reset();
 				message.setHeader(Info.HDR_CLIENT_END);
 				this.sendToClients(message);
@@ -289,7 +292,6 @@ public class TCPTwoWay extends Thread {
 				    		// System.out.println("Sent min index "+message.getMinIndex());
 				    		oos.flush();
 			    			oos.writeObject(message);
-			    			message.reset();
 			    			
 			    			// WAIT for swap indices
 			    			message = new MainMessage();
