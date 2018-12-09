@@ -11,8 +11,8 @@ public class MainMessage implements Serializable {
 	private volatile int startIndex;
 	private volatile int endIndex;
 	
-	private int minIndex;
-	private int minValue;
+	private volatile int minIndex;
+	private volatile int minValue;
 	
 	// Call this if you want to reuse the MainMessage
 	public void reset() {

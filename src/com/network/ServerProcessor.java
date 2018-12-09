@@ -11,8 +11,8 @@ public class ServerProcessor extends ProcessorConnector {
 	private static final String filename = generated_name_prefix+_100+".csv";
 	
 	
-	private int currentIndex = 0;
-	private boolean isDone = false;
+	private volatile int currentIndex = 0;
+	private volatile boolean isDone = false;
 	private int splitCount;
 	
 	public ServerProcessor(int split) {
@@ -28,6 +28,7 @@ public class ServerProcessor extends ProcessorConnector {
 	
 	public void next() {
 		this.currentIndex += 1;
+		System.out.println("CurrIndex "+currentIndex);
 		if(this.currentIndex == this.getSortList().size()) { // TODO change to index size
 			this.setDone(true);
 		}
