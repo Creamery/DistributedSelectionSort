@@ -24,13 +24,9 @@ public class ClientProcessor extends ProcessorConnector {
 
 		// Find local minimum
 		for(int i = this.getStartIndex()+1; i < this.getEndIndex(); i++) {
-			System.out.println("Comparing "+getSortList().get(i)+" and "+getSortList().get(this.getMinimumIndex()));
-			
 			if(this.getSortList().get(i) < getSortList().get(this.getMinimumIndex())) {
-				
 				this.setMinimumIndex(i);
-				this.setMinimumValue(this.getSortList().get(i));
-				System.out.println("LESS. NEW VAL "+this.getMinimumIndex() +" and " + this.getMinimumValue());
+				this.setMinimumValue(getSortList().get(i));
 			}
 		}
 		System.out.println("Min value is "+this.getMinimumValue());
