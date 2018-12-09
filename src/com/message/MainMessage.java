@@ -28,7 +28,8 @@ public class MainMessage implements Serializable {
 		this.setMinValue(value);
 	}
 	
-	public void setIndices(int start, int end) {
+	public void setIndices(ArrayList<Integer> list, int start, int end) {
+		this.setSortList(list);
 		this.setStartIndex(start);
 		this.setEndIndex(end);
 	}
