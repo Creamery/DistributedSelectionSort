@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import com.main.Info;
 import com.main.Print;
 import com.message.MainMessage;
+import com.message.PacketType;
 import com.message.TCPMessage;
 import com.network.ClientProcessor;
 import com.network.ProcessorConnector;
@@ -31,7 +32,6 @@ public class TCPTwoWayQueue extends Thread {
 	private volatile int minValue = 99999999; // TODO: make a better sentinel
 	private volatile int minIndex = -1;
 	
-	private volatile MainMessage message;
 	private volatile MainMessage packetRequest;
 	private volatile MainMessage packetInstruction;
 	
@@ -39,19 +39,49 @@ public class TCPTwoWayQueue extends Thread {
 	private ServerSocket serverSocket;
 	private Socket tcpServerSocket;
 	private InetAddress serverIP;
-//	private ObjectInputStream objectInputStream;
+	private volatile MainMessage packetServer;
+	private volatile ServerProcessor serverProcessor;
+	
+	private volatile Socket serverStreamSocket;
+	private volatile ObjectOutputStream toClient = null;
+	private volatile ObjectInputStream fromClient = null;
 	
 	private ArrayList<Socket> listClientSockets;
 	private ArrayList<ObjectOutputStream> listClientOutputStreams;
 	private ArrayList<ObjectInputStream> listClientInputStreams;
+	private volatile boolean serverProcessing;
 	
+	public boolean isServerProcessing() {
+		return serverProcessing;
+	}
+
+
+	public void setServerProcessing(boolean serverProcessing) {
+		this.serverProcessing = serverProcessing;
+	}
+
+
+	public boolean isClientProcessing() {
+		return clientProcessing;
+	}
+
+
+	public void setClientProcessing(boolean clientProcessing) {
+		this.clientProcessing = clientProcessing;
+	}
+
+
 	// For CLIENT
 	private InetAddress clientIP;
-//	private ObjectOutputStream objectOutputStream;
 	private Socket tcpClientSocket;
-
-	private Socket socket;
-	private volatile MainMessage mainMessage;
+	private volatile MainMessage packetClient;
+	private volatile ClientProcessor clientProcessor;
+	
+	private volatile Socket clientStreamSocket;
+	private volatile ObjectOutputStream toServer = null;
+	private volatile ObjectInputStream fromServer = null;
+	private volatile boolean clientProcessing;
+	
 	private ProcessorConnector processor;
 	
 
@@ -60,102 +90,141 @@ public class TCPTwoWayQueue extends Thread {
 		this.setTcpMessage(new TCPMessage());
 		this.setProcessor(processorConnector);
 		
-		// Initialize server socket
-		this.setServerSocket(new ServerSocket(port));
+		
+		this.setServerSocket(new ServerSocket(port)); // Initialize server socket
 		this.getServerSocket().setSoTimeout(Info.SERVER_TIMEOUT);
 		this.setPort(Info.PORT);
 		
+		this.setClientIP(InetAddress.getLocalHost()); // Set clientIP to self IP
 		
-		// Set clientIP to self IP
-		this.setClientIP(InetAddress.getLocalHost());
-		
-		this.setMainMessage(null);
 		this.setListClientSockets(new ArrayList<Socket>());
 		this.setListClientOutputStreams(new ArrayList<ObjectOutputStream>());
 		this.setListClientInputStreams(new ArrayList<ObjectInputStream>());
 	}
 
+
+	// PACKET FACTORY --------------------------
+	public MainMessage sortlistPacket(ArrayList<Integer> list) {
+		MainMessage packet = new MainMessage();
+		packet.setPacketHeader(PacketType.HDR_SORTLIST);
+		packet.setSortList(list);
+		return packet;
+	}
 	
-	public void startAsServer() {
-		this.setServer(true);
-		this.setReceiving(true);
-		this.run();
-	}
-	public void startAsClient() {
-		this.setServer(false);
-		this.setSending(true);
-		this.run();
-	}
-	public void initializeClientSocket(InetAddress serverIP) {
-		this.setServerIP(serverIP);
-		this.setPort(Info.PORT);
-	}
-
-
 	public MainMessage requestPacket() {
 		MainMessage request = new MainMessage();
-		request.setHeader(Info.HDR_REQUEST);
+		request.setPacketHeader(PacketType.HDR_REQUEST);
 		return request;
 	}
 	
-	public void processInstructionPacket(MainMessage instructionPacket) {
-		
+	public MainMessage swapPacket() {
+		MainMessage instruction = new MainMessage();
+		instruction.setPacketHeader(PacketType.HDR_SWAP);
+		return instruction;
 	}
 	
-	public void processRequestPacket(int client, MainMessage requestPacket) {
-		try {
+	public MainMessage processPacket() {
+		MainMessage instruction = new MainMessage();
+		instruction.setPacketHeader(PacketType.HDR_PROCESS);
+		return instruction;
+	}
+	
+	public MainMessage endPacket() {
+		MainMessage instruction = new MainMessage();
+		instruction.setPacketHeader(PacketType.HDR_END);
+		return instruction;
+	}
+	//------------------------------------------
+	
+	
+	
+	
+	// PACKET PROCESSORS -----------------------
+	public void processInstructionPacket(MainMessage instructionPacket) { // FOR CLIENT
+		this.setClientProcessing(true);
+		PacketType type = instructionPacket.getPacketHeader();
+		
+		switch(type) {
+			case HDR_SORTLIST:
+				break;
+				
+			case HDR_PROCESS:
+				break;
+				
+			case HDR_SWAP:
+				break;
+				
+			case HDR_END:
+				break;
+				
+			default:
+				break;
+		}
 
+		this.setClientProcessing(false); // TODO: Called by external scripts
+	}
+	
+	public void processRequestPacket(int client, MainMessage requestPacket) { // FOR SERVER
+		try {
+			this.setServerProcessing(true);
+			PacketType type = requestPacket.getPacketHeader();
+			
 			// Process the requestPacket
+			switch(type) {
+				case HDR_REQUEST:
+					break;
+				default:
+					break;
+			}
 			
 			// Then send back an instruction packet
 			MainMessage instructionPacket = new MainMessage();
 			this.getListClientOutputStreams().get(client).writeObject(instructionPacket);
 			
-			
+
+			this.setServerProcessing(false); // TODO: Called by external scripts
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
+
+	//------------------------------------------
 	
-	// Run Listener
+	
+	
+	
+	
+	
+	// SERVER-CLIENT FUNCTIONS -----------------
 	public void run() {
+		
+
+		// SERVER FUNCTION -------------------------
 		if(isServer()) {
-
-			Print.message("Starting as SERVER");
-			ServerProcessor serverProcessor = (ServerProcessor) this.getProcessor();
-			// ArrayList<ProcessorIndices> indices = null;
-			
-			
 			try {
-				
-				Socket server = null;
-				ObjectOutputStream oos = null;
-				ObjectInputStream ois = null;
-				
-				// ACCEPT CLIENTS
-				for(int i = 0; i < Info.CLIENT_SIZE; i++) {
-					server = this.getServerSocket().accept();
-					this.getListClientSockets().add(server);
-					
-					Print.response("Just connected to " + server.getRemoteSocketAddress());
+				Print.message("Starting as SERVER");
+				this.serverProcessor = (ServerProcessor) this.getProcessor();
 
-					oos = new ObjectOutputStream(server.getOutputStream());
-					ois = new ObjectInputStream(server.getInputStream());
+				// CONNECT to all clients
+				for(int i = 0; i < Info.CLIENT_SIZE; i++) { 
+					serverStreamSocket = this.getServerSocket().accept(); // Accept client connection
+					this.getListClientSockets().add(serverStreamSocket);
 					
-					this.getListClientOutputStreams().add(oos);
-					this.getListClientInputStreams().add(ois);
+					Print.response("Just connected to " + serverStreamSocket.getRemoteSocketAddress());
+
+					toClient = new ObjectOutputStream(serverStreamSocket.getOutputStream());
+					fromClient = new ObjectInputStream(serverStreamSocket.getInputStream());
+					
+					this.getListClientOutputStreams().add(toClient); // Then keep a reference to client I/O streams
+					this.getListClientInputStreams().add(fromClient);
 				}
 				
 				
-				// SEND ARRAY to all clients
-				message = new MainMessage();
-				message.setMessage(Info.MSG_SERVER_ARRAY);	
-				message.setSortList(this.getProcessor().getSortList());
-				sendToClients(message);
-				message.reset();
-				// oos.writeObject(message);
+				// SEND sortlist to all clients
+				sendToClients(sortlistPacket(serverProcessor.getSortList()));
 				
-				// Receiving is for server
+				
+				// LISTEN to packet requests
 				this.setReceiving(true);
 				while(this.isReceiving()) {
 					try {
@@ -175,54 +244,53 @@ public class TCPTwoWayQueue extends Thread {
 				e.printStackTrace();
 			}
 		}
+		//------------------------------------------
+		
+		
+		
+		
+		
+		// CLIENT FUNCTION -------------------------
 		else {
-			Print.message("Starting as CLIENT");
-			
 			try {
+				Print.message("Starting as CLIENT");
+				this.clientProcessor = (ClientProcessor) this.getProcessor();
 				
-				ClientProcessor clientProcessor = (ClientProcessor) this.getProcessor();
-				socket = new Socket(this.getServerIP(), this.getPort());
-//				ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
-//			    ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
-				ObjectInputStream fromServer = new ObjectInputStream(socket.getInputStream());
-			    ObjectOutputStream toServer = new ObjectOutputStream(socket.getOutputStream());
-			    message = null;
-			    
-			    
-			    // WAIT for array
+				this.clientStreamSocket = new Socket(this.getServerIP(), this.getPort());
+				ObjectInputStream fromServer = new ObjectInputStream(clientStreamSocket.getInputStream());
+			    ObjectOutputStream toServer = new ObjectOutputStream(clientStreamSocket.getOutputStream());
+
+			    // WAIT for sort list
 			    try {
-					do {
-						message = (MainMessage) fromServer.readObject();
-						if(message.getMessage().contains(Info.MSG_SERVER_ARRAY)) {
-				    		clientProcessor.setSortList(message.getSortList());
-						}
-					}while(!message.getMessage().contains(Info.MSG_SERVER_ARRAY));
-					message.reset();
+					this.packetClient = (MainMessage) fromServer.readObject();
+					this.processInstructionPacket(this.packetClient);
+
 			    } catch (ClassNotFoundException e) {
 					e.printStackTrace();
 				}
+			    
+			    
 			    
 			    // BEGIN LOOP
 			    while (this.isSending()) {
 			    	try {
 			    		
-			    		
-			    		
-			    		// SEND a requestPacket
+			    		// SEND a requestPacket for the next instruction
 			    		toServer.writeObject(requestPacket());
 			    		System.out.println("Request sent to server");
 			    		
 			    		
-			    		// WAIT for server reply
+			    		// WAIT for server reply (blocks)
 			    		this.packetInstruction = (MainMessage) fromServer.readObject();
 			    		System.out.println("Received a packet from Server ");
+			    		
 			    		
 			    		// PROCESS the instruction
 			    		this.processInstructionPacket(packetInstruction);
 			    		
 			    		
-			    		
-			    		
+			    		// WAIT while client is processing
+			    		while(isClientProcessing()) {};
 			    		
 			    		
 					} catch (ClassNotFoundException e) {
@@ -230,11 +298,12 @@ public class TCPTwoWayQueue extends Thread {
 					}
 			    }
 			    System.out.println("Client done");
+			    
 			} catch (IOException e) {
-				// System.out.println("Exception object streams");
 				e.printStackTrace();
 			}
 		}
+		//------------------------------------------
 	}
 
 	// Sends message to ALL clients
@@ -247,7 +316,23 @@ public class TCPTwoWayQueue extends Thread {
 			}
 		}
 	}
+	
+	public void startAsServer() {
+		this.setServer(true);
+		this.setReceiving(true);
+		this.run();
+	}
+	public void startAsClient() {
+		this.setServer(false);
+		this.setSending(true);
+		this.run();
+	}
+	public void initializeClientSocket(InetAddress serverIP) {
+		this.setServerIP(serverIP);
+		this.setPort(Info.PORT);
+	}
 
+	
 	public boolean isReceiving() {
 		return isReceiving;
 	}
@@ -335,19 +420,6 @@ public class TCPTwoWayQueue extends Thread {
 	public void setServer(boolean isServer) {
 		this.isServer = isServer;
 	}
-
-	public Socket getSocket() {
-		return socket;
-	}
-
-	public void setSocket(Socket socket) {
-		this.socket = socket;
-	}
-
-	public MainMessage getMainMessage() {
-		return mainMessage;
-	}
-
 	public ArrayList<Socket> getListClientSockets() {
 		return listClientSockets;
 	}
@@ -355,11 +427,6 @@ public class TCPTwoWayQueue extends Thread {
 	public void setListClientSockets(ArrayList<Socket> listClientSockets) {
 		this.listClientSockets = listClientSockets;
 	}
-
-	public void setMainMessage(MainMessage mainMessage) {
-		this.mainMessage = mainMessage;
-	}
-
 	public ProcessorConnector getProcessor() {
 		return processor;
 	}
@@ -403,6 +470,106 @@ public class TCPTwoWayQueue extends Thread {
 
 	public void setPacketInstruction(MainMessage packetInstruction) {
 		this.packetInstruction = packetInstruction;
+	}
+
+
+	public MainMessage getPacketServer() {
+		return packetServer;
+	}
+
+
+	public void setPacketServer(MainMessage packetServer) {
+		this.packetServer = packetServer;
+	}
+
+
+	public MainMessage getPacketClient() {
+		return packetClient;
+	}
+
+
+	public void setPacketClient(MainMessage packetClient) {
+		this.packetClient = packetClient;
+	}
+
+
+	public ClientProcessor getClientProcessor() {
+		return clientProcessor;
+	}
+
+
+	public void setClientProcessor(ClientProcessor clientProcessor) {
+		this.clientProcessor = clientProcessor;
+	}
+
+
+	public ServerProcessor getServerProcessor() {
+		return serverProcessor;
+	}
+
+
+	public void setServerProcessor(ServerProcessor serverProcessor) {
+		this.serverProcessor = serverProcessor;
+	}
+
+
+	public Socket getServerStreamSocket() {
+		return serverStreamSocket;
+	}
+
+
+	public void setServerStreamSocket(Socket serverStreamSocket) {
+		this.serverStreamSocket = serverStreamSocket;
+	}
+
+
+	public Socket getClientStreamSocket() {
+		return clientStreamSocket;
+	}
+
+
+	public void setClientStreamSocket(Socket clientStreamSocket) {
+		this.clientStreamSocket = clientStreamSocket;
+	}
+
+
+	public ObjectOutputStream getToClient() {
+		return toClient;
+	}
+
+
+	public void setToClient(ObjectOutputStream toClient) {
+		this.toClient = toClient;
+	}
+
+
+	public ObjectInputStream getFromClient() {
+		return fromClient;
+	}
+
+
+	public void setFromClient(ObjectInputStream fromClient) {
+		this.fromClient = fromClient;
+	}
+
+
+	public ObjectOutputStream getToServer() {
+		return toServer;
+	}
+
+
+	public void setToServer(ObjectOutputStream toServer) {
+		this.toServer = toServer;
+	}
+
+
+	public ObjectInputStream getFromServer() {
+		return fromServer;
+	}
+
+
+	public void setFromServer(ObjectInputStream fromServer) {
+		this.fromServer = fromServer;
 	}
 	
 }

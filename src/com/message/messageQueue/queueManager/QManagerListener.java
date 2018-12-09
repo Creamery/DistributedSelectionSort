@@ -3,11 +3,11 @@ package com.message.messageQueue.queueManager;
 /**
  * Waits for requests from the clients
  */
-public class QManagerListener implements Runnable{
+public class QManagerListener implements Runnable {
 
     private QueueManager mngr;
 
-    public QManagerListener(QueueManager mngr){
+    public QManagerListener(QueueManager mngr) {
         this.mngr = mngr;
     }
 

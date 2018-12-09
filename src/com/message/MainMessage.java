@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 public class MainMessage implements Serializable {
 	private static final long serialVersionUID = 1L;
+	private volatile PacketType packetHeader;
 	private volatile String header = "";
 	private volatile String message;
 	private volatile ArrayList<Integer> sortList;
@@ -129,6 +130,14 @@ public class MainMessage implements Serializable {
 
 	public void setSwapIndex2(int swapIndex2) {
 		this.swapIndex2 = swapIndex2;
+	}
+
+	public PacketType getPacketHeader() {
+		return packetHeader;
+	}
+
+	public void setPacketHeader(PacketType packetHeader) {
+		this.packetHeader = packetHeader;
 	}
 	
 }

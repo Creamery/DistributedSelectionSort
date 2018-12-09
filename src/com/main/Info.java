@@ -23,10 +23,10 @@ public class Info {
 	
 
 	public static String HDR_REQUEST = "hdrRequest";
-	public static String HDR_INDICES = "hdrIndices";
+	public static String HDR_PROCESS = "hdrProcess";
 	public static String HDR_SWAP = "hdrSwap";
+	public static String HDR_END = "hdrEnd";
 	public static String HDR_INSTRUCTION = "hdrInstruction";
-	
 	
 	
 	
@@ -35,6 +35,9 @@ public class Info {
 	public static String HDR_CLIENT = "hdrClient";
 	public static String HDR_SERVER_INDICES = "hdrIndices";
 	public static String HDR_CLIENT_END = "hdrClientEnd";
+	public static String HDR_SORTLIST = "hdrSortlist";
+	
+	
 	
 	public static int CLIENT_SIZE = 2;
 	
