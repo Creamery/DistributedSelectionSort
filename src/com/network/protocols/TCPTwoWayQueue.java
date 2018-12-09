@@ -112,6 +112,14 @@ public class TCPTwoWayQueue extends Thread {
 		return request;
 	}
 	
+	public MainMessage resultPacket(int index, int value) {
+		MainMessage result = new MainMessage();
+		result.setPacketHeader(PacketType.HDR_RESULT);
+		result.setMinIndex(index);
+		result.setMinValue(value);
+		return result;
+	}
+	
 	public MainMessage swapPacket() {
 		MainMessage instruction = new MainMessage();
 		instruction.setPacketHeader(PacketType.HDR_SWAP);
@@ -138,6 +146,9 @@ public class TCPTwoWayQueue extends Thread {
 	
 	
 	
+	
+	
+	
 	// PACKET PROCESSORS -----------------------
 	public void processInstructionPacket(MainMessage instructionPacket) { // FOR CLIENT
 		this.setClientProcessing(true);
@@ -150,9 +161,20 @@ public class TCPTwoWayQueue extends Thread {
 				break;
 				
 			case HDR_PROCESS:
-				this.clientProcessor.process(
-						instructionPacket.getStartIndex(),
-						instructionPacket.getEndIndex());
+				try {
+					this.clientProcessor.process(
+							instructionPacket.getStartIndex(),
+							instructionPacket.getEndIndex());
+					
+					while(clientProcessor.isRunning()) {};
+				
+					toServer.writeObject(resultPacket(
+							clientProcessor.getMinimumIndex(),
+							clientProcessor.getMinimumValue()));
+				
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 				break;
 				
 			case HDR_SWAP:
@@ -184,9 +206,16 @@ public class TCPTwoWayQueue extends Thread {
 					
 
 					// Then send back an instruction packet
+					// TODO: Sample only, remove
+//					this.getListClientOutputStreams().get(client).writeObject(
+//							sortlistPacket(serverProcessor.getSortList()));
 					this.getListClientOutputStreams().get(client).writeObject(
-							sortlistPacket(serverProcessor.getSortList()));
+							processPacket(0, 0));
 					break;
+				
+				case HDR_RESULT:
+					break;
+					
 				default:
 					break;
 			}
@@ -268,8 +297,8 @@ public class TCPTwoWayQueue extends Thread {
 				this.clientProcessor = (ClientProcessor) this.getProcessor();
 				
 				this.clientStreamSocket = new Socket(this.getServerIP(), this.getPort());
-				ObjectInputStream fromServer = new ObjectInputStream(clientStreamSocket.getInputStream());
-			    ObjectOutputStream toServer = new ObjectOutputStream(clientStreamSocket.getOutputStream());
+				fromServer = new ObjectInputStream(clientStreamSocket.getInputStream());
+			    toServer = new ObjectOutputStream(clientStreamSocket.getOutputStream());
 
 			    // WAIT for sort list
 			    try {
@@ -298,7 +327,6 @@ public class TCPTwoWayQueue extends Thread {
 			    		
 			    		// PROCESS the instruction
 			    		this.processInstructionPacket(packetInstruction);
-			    		
 			    		
 			    		// WAIT while client is processing
 			    		while(isClientProcessing()) {};

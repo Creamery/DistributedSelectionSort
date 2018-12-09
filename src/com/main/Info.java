@@ -27,6 +27,7 @@ public class Info {
 	public static String HDR_SWAP = "hdrSwap";
 	public static String HDR_END = "hdrEnd";
 	public static String HDR_INSTRUCTION = "hdrInstruction";
+	public static String HDR_SORTLIST = "hdrSortlist";
 	
 	
 	
@@ -35,11 +36,10 @@ public class Info {
 	public static String HDR_CLIENT = "hdrClient";
 	public static String HDR_SERVER_INDICES = "hdrIndices";
 	public static String HDR_CLIENT_END = "hdrClientEnd";
-	public static String HDR_SORTLIST = "hdrSortlist";
 	
 	
 	
-	public static int CLIENT_SIZE = 2;
+	public static int CLIENT_SIZE = 1;
 	
 	public static String GetSelfAddress() {
 		try {

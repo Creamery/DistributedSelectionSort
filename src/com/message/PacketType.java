@@ -1,7 +1,11 @@
 package com.message;
 
 public enum PacketType {
+	// FROM CLIENT HEADERS
 	HDR_REQUEST,
+	HDR_RESULT,
+	
+	// FROM SERVER HEADERS
 	HDR_PROCESS,
 	HDR_SWAP,
 	HDR_END,
