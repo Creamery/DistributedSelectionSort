@@ -98,10 +98,10 @@ public class TCPTwoWay extends Thread {
 
 	// Run Listener
 	public void run() {
-		System.out.println("TCP listener run");
+		//System.out.println("TCP listener run");
 		
 		if(isServer()) {
-			System.out.println("As Server");
+			//System.out.println("As Server");
 			ServerProcessor serverProcessor = (ServerProcessor) this.getProcessor();
 			ArrayList<ProcessorIndices> indices = null;
 			
@@ -117,7 +117,7 @@ public class TCPTwoWay extends Thread {
 					server = this.getServerSocket().accept();
 					this.getListClientSockets().add(server);
 					
-					System.out.println("Just connected to " + server.getRemoteSocketAddress());
+					//System.out.println("Just connected to " + server.getRemoteSocketAddress());
 
 					oos = new ObjectOutputStream(server.getOutputStream());
 					ois = new ObjectInputStream(server.getInputStream());
@@ -139,7 +139,6 @@ public class TCPTwoWay extends Thread {
 				
 				
 				// START PROCESSING
-//				while (this.isReceiving()) {
 				ArrayList<Integer> list = this.getProcessor().getSortList();
 				for(int h = 0; h < list.size(); h++) {
 					try {
@@ -152,22 +151,22 @@ public class TCPTwoWay extends Thread {
 							message = new MainMessage();
 							message.setHeader(Info.HDR_SERVER_INDICES);
 							message.setIndices(serverProcessor.getSortList(), indices.get(i).getStartIndex(), indices.get(i).getEndIndex());
-//							message.setSortList(serverProcessor.getSortList());
 
-							System.out.println("Sending indices: "+message.getStartIndex()+" "+message.getEndIndex());
+
+							// System.out.println("Sending indices: "+message.getStartIndex()+" "+message.getEndIndex());
 							this.getListClientOutputStreams().get(i).flush();
 							this.getListClientOutputStreams().get(i).writeObject(message);
 							//oos.writeObject(message);
 						}
 						
-						System.out.println("Waiting for Minimum Value...");
+						// System.out.println("Waiting for Minimum Value...");
 						// WAIT for message (each CLIENT)
 						minIndex = -1;
 						minValue = -1;
 						for(int i = 0; i < Info.CLIENT_SIZE; i++) {
 							message = (MainMessage) this.getListClientInputStreams().get(i).readObject();
 
-							System.out.println("Client "+i+" responded");
+							// System.out.println("Client "+i+" responded");
 							
 							//message = (MainMessage) ois.readObject();
 							if(minIndex == -1) {
@@ -181,12 +180,7 @@ public class TCPTwoWay extends Thread {
 						}
 						
 						// SWAP
-						System.out.println("minIndex "+minIndex);
-						System.out.println("curr:  "+serverProcessor.getSortList().get(serverProcessor.getCurrentIndex())+
-								" min "+serverProcessor.getSortList().get(minIndex));
 						serverProcessor.swap(minIndex);
-						System.out.println("curr:  "+serverProcessor.getSortList().get(serverProcessor.getCurrentIndex())+
-								" min "+serverProcessor.getSortList().get(minIndex));
 						serverProcessor.next(); // Move current index
 						
 						if(serverProcessor.isDone()) {
@@ -201,7 +195,6 @@ public class TCPTwoWay extends Thread {
 				message.setHeader(Info.HDR_CLIENT_END);
 				this.sendToClients(message);
 				
-				System.out.println("Server done");
 				CsvWriter.write(serverProcessor.getSortList());
 				System.out.println("CSV Printed");
 			} catch (IOException e) {
@@ -209,7 +202,7 @@ public class TCPTwoWay extends Thread {
 			}
 		}
 		else {
-			System.out.println("As Client");
+			// System.out.println("As Client");
 			try {
 				ClientProcessor clientProcessor = (ClientProcessor) this.getProcessor();
 				
@@ -222,11 +215,11 @@ public class TCPTwoWay extends Thread {
 			    try {
 				    // WAIT message
 					do {
-			    		System.out.println("Waiting for array...");
+			    		// System.out.println("Waiting for array...");
 						message = (MainMessage) ois.readObject();
 						if(message.getMessage().contains(Info.MSG_SERVER_ARRAY)) {
 				    		clientProcessor.setSortList(message.getSortList());
-				    		System.out.println("Client: Received ARRAY "+clientProcessor.getSortList().size());
+				    		// System.out.println("Client: Received ARRAY "+clientProcessor.getSortList().size());
 
 						}
 					}while(!message.getMessage().contains(Info.MSG_SERVER_ARRAY));
@@ -238,12 +231,12 @@ public class TCPTwoWay extends Thread {
 			    while (this.isSending()) {
 			    	try {
 			    		// WAIT for indices
-			    		System.out.println("Waiting for indices (message != null)");
+			    		// System.out.println("Waiting for indices (message != null)");
 			    		do {
 			    			message = null;
 							message = (MainMessage) ois.readObject();
 			    		}
-						while(message == null || !message.getHeader().equals(Info.HDR_SERVER_INDICES));
+						while(message == null || !message.getHeader().equals(Info.HDR_SERVER_INDICES) || !message.getHeader().equals(Info.HDR_CLIENT_END));
 						
 			    		// END
 						if(message.getHeader().equals(Info.HDR_CLIENT_END)) {
@@ -256,8 +249,9 @@ public class TCPTwoWay extends Thread {
 							clientProcessor.setIndices(message);
 							clientProcessor.setSortList(message.getSortList());
 							
-							System.out.println("Received indices "+clientProcessor.getStartIndex()+" "+clientProcessor.getEndIndex());
+							// System.out.println("Received indices "+clientProcessor.getStartIndex()+" "+clientProcessor.getEndIndex());
 							clientProcessor.process(message.getStartIndex(), message.getEndIndex());
+							
 							// Block while is processing
 							while(clientProcessor.isRunning()) {};
 							
@@ -266,7 +260,7 @@ public class TCPTwoWay extends Thread {
 				    		message.setMinimumValues(clientProcessor.getMinimumIndex(), clientProcessor.getMinimumValue());
 				    		
 				    		// SEND message
-				    		System.out.println("Sent min index "+message.getMinIndex());
+				    		// System.out.println("Sent min index "+message.getMinIndex());
 				    		oos.flush();
 			    			oos.writeObject(message);
 			    			message.reset();
@@ -278,7 +272,7 @@ public class TCPTwoWay extends Thread {
 			    }
 			    System.out.println("Client done");
 			} catch (IOException e) {
-				System.out.println("Exception object streams");
+				// System.out.println("Exception object streams");
 				e.printStackTrace();
 			}
 		}

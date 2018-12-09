@@ -28,14 +28,8 @@ public class ServerProcessor extends ProcessorConnector {
 	
 	public void next() {
 		this.currentIndex += 1;
-		System.out.println("CurrIndex "+currentIndex);
 		if(this.currentIndex == getSortList().size()-1) { // TODO change to index size
 			this.setDone(true);
-		}
-	}
-	public void printList() {
-		for(int i = 0; i < getSortList().size(); i++) {
-			System.out.print(getSortList().get(i)+" ");
 		}
 	}
 	@ Override
@@ -56,7 +50,6 @@ public class ServerProcessor extends ProcessorConnector {
 		int size = (int)Math.floor(((double)getSortList().size()-(double)this.getCurrentIndex())/(double)this.getSplitCount());
 		int index = this.getCurrentIndex();
 		
-		System.out.println("Size is "+size);
 	
 		int sIndex = index;
 		int eIndex = sIndex+size;

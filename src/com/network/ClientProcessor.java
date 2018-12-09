@@ -17,8 +17,6 @@ public class ClientProcessor extends ProcessorConnector {
 
 	
 	public void run() {
-		System.out.println("SORTING");
-		
 		this.setMinimumIndex(this.getStartIndex());
 		this.setMinimumValue(this.getSortList().get(this.getMinimumIndex()));
 
@@ -29,7 +27,6 @@ public class ClientProcessor extends ProcessorConnector {
 				this.setMinimumValue(getSortList().get(i));
 			}
 		}
-		System.out.println("Min value is "+this.getMinimumValue());
 		this.setRunning(false);
 	}
 }
