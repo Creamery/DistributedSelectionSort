@@ -33,7 +33,11 @@ public class ServerProcessor extends ProcessorConnector {
 			this.setDone(true);
 		}
 	}
-	
+	public void printList() {
+		for(int i = 0; i < this.getSortList().size(); i++) {
+			System.out.print(this.getSortList().get(i)+" ");
+		}
+	}
 	@ Override
 	public void process() {
 		this.setRunning(true);
@@ -44,6 +48,8 @@ public class ServerProcessor extends ProcessorConnector {
 		int temp = this.getSortList().get(this.getCurrentIndex());
 		this.getSortList().set(this.getCurrentIndex(), this.getSortList().get(minIndex));
 		this.getSortList().set(minIndex, temp);
+		
+		this.printList();
 	}
 	
 	// Compute indices for N clients

@@ -26,10 +26,24 @@ public abstract class ProcessorConnector extends Thread{
 		this.endIndex = message.getEndIndex();
 	}
 	
-	public void setSortList(ArrayList<Integer> list) {
-		System.out.println("New sort list["+list.size()+"] "+list.get(list.size()-1));
-		this.sortList = new ArrayList<Integer>(list);
+	public void printList(ArrayList<Integer> list) {
+		for(int i = 0; i < list.size(); i++) {
+			System.out.print(list.get(i)+" ");
+		}
 	}
+	
+	public void setSortList(ArrayList<Integer> list) {
+		System.out.print("bef ");
+		printList(this.getSortList());
+		System.out.print("new ");
+		printList(list);
+		
+		setSortList(new ArrayList<Integer>(list));
+		
+		System.out.print("aft ");
+		printList(this.getSortList());
+	}
+	
 	public ArrayList<Integer> getSortList() {
 		return sortList;
 	}
