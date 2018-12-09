@@ -40,11 +40,10 @@ public class ServerProcessor extends ProcessorConnector {
 		this.run();
 	}
 	
-	public void swap(int index1, int index2) {
-		int value1 = this.getSortList().get(index1);
-		
-		this.getSortList().set(index1, this.getSortList().get(index2));
-		this.getSortList().set(index2, value1);
+	public void swap(int minIndex) {
+		int temp = this.getSortList().get(this.getCurrentIndex());
+		this.getSortList().set(this.getCurrentIndex(), this.getSortList().get(minIndex));
+		this.getSortList().set(minIndex, temp);
 	}
 	
 	// Compute indices for N clients

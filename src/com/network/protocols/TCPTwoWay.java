@@ -179,7 +179,11 @@ public class TCPTwoWay extends Thread {
 						
 						// SWAP
 						System.out.println("minIndex "+minIndex);
-						serverProcessor.swap(serverProcessor.getCurrentIndex(), minIndex);
+						System.out.println("curr:  "+serverProcessor.getSortList().get(serverProcessor.getCurrentIndex())+
+								" min "+serverProcessor.getSortList().get(minIndex));
+						serverProcessor.swap(minIndex);
+						System.out.println("curr:  "+serverProcessor.getSortList().get(serverProcessor.getCurrentIndex())+
+								" min "+serverProcessor.getSortList().get(minIndex));
 						serverProcessor.next(); // Move current index
 						
 						if(serverProcessor.isDone()) {
