@@ -53,14 +53,16 @@ public class ServerProcessor extends ProcessorConnector {
 		int size = (int)Math.floor(((double)this.getSortList().size()-(double)this.getCurrentIndex())/(double)this.getSplitCount());
 		int index = this.getCurrentIndex();
 		
-		int sIndex;
-		int eIndex;
+		System.out.println("Size is "+size);
+	
+		int sIndex = index;
+		int eIndex = sIndex+size;
 		for(int i = 0; i < this.getSplitCount(); i++) {
-			sIndex = index;
-			eIndex = index+size;
+			
 			indices.add(new ProcessorIndices(sIndex, eIndex));
 			
-			index += size;
+			sIndex = eIndex;
+			eIndex = sIndex + size;
 		}
 		
 		return indices;

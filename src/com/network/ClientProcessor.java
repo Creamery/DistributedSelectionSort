@@ -28,6 +28,7 @@ public class ClientProcessor extends ProcessorConnector {
 		// Find local minimum
 		for(int i = this.getStartIndex()+1; i < this.getEndIndex(); i++) {
 			System.out.println("Comparing "+this.getSortList().get(i)+" and "+this.getSortList().get(this.getMinimumIndex()));
+			
 			if(this.getSortList().get(i) < this.getSortList().get(this.getMinimumIndex())) {
 				
 				this.setMinimumIndex(i);
