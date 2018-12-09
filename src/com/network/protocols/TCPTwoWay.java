@@ -245,6 +245,7 @@ public class TCPTwoWay extends Thread {
 						// PROCESS
 						else {
 							this.getProcessor().setSortList(message.getSortList());
+							this.getProcessor().resetMinimum();
 							this.getProcessor().setIndices(message);
 							System.out.println("Received indices "+this.getProcessor().getStartIndex()+" "+this.getProcessor().getEndIndex());
 							this.getProcessor().process();
