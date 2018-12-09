@@ -15,7 +15,10 @@ public class MainMessage implements Serializable {
 	private volatile int minValue;
 
 	private volatile int clientIndex;
-	
+
+	private volatile int swapIndex1;
+	private volatile int swapIndex2;
+
 	// Call this if you want to reuse the MainMessage
 	public void reset() {
 		this.header = "";
@@ -110,6 +113,22 @@ public class MainMessage implements Serializable {
 
 	public void setClientIndex(int clientIndex) {
 		this.clientIndex = clientIndex;
+	}
+
+	public int getSwapIndex1() {
+		return swapIndex1;
+	}
+
+	public void setSwapIndex1(int swapIndex1) {
+		this.swapIndex1 = swapIndex1;
+	}
+
+	public int getSwapIndex2() {
+		return swapIndex2;
+	}
+
+	public void setSwapIndex2(int swapIndex2) {
+		this.swapIndex2 = swapIndex2;
 	}
 	
 }

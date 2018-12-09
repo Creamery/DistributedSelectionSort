@@ -149,7 +149,7 @@ public class TCPTwoWay extends Thread {
 				ArrayList<Integer> list = this.getProcessor().getSortList();
 				for(int h = 0; h < list.size(); h++) {
 					try {
-						System.out.println("INDEX: "+h);
+						// System.out.println("INDEX: "+h);
 						// indices = serverProcessor.computeIndices();
 						// For each CLIENT
 						for(int i = 0; i < indices.size(); i++) {
@@ -194,6 +194,9 @@ public class TCPTwoWay extends Thread {
 						
 						// SWAP
 						serverProcessor.swap(minIndex);
+						message.setSwapIndex1(minValue);
+						message.setSwapIndex2(serverProcessor.getCurrentIndex());
+						sendToClients(message);
 						serverProcessor.next(); // Move current index
 						
 						if(serverProcessor.isDone()) {
@@ -287,7 +290,11 @@ public class TCPTwoWay extends Thread {
 				    		oos.flush();
 			    			oos.writeObject(message);
 			    			message.reset();
-				    		
+			    			
+			    			// WAIT for swap indices
+			    			message = null;
+							message = (MainMessage) ois.readObject();
+							clientProcessor.swap(message.getSwapIndex1(), message.getSwapIndex2());
 						}
 					} catch (ClassNotFoundException e) {
 						e.printStackTrace();

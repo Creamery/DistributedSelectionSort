@@ -33,6 +33,12 @@ public class ClientProcessor extends ProcessorConnector {
 		}
 	}
 	
+	public void swap(int index1, int index2) {
+		int temp = getSortList().get(index1);
+		this.getSortList().set(index1, this.getSortList().get(index2));
+		this.getSortList().set(index2, temp);
+	}
+	
 	public void run() {
 		this.setMinimumIndex(this.getStartIndex());
 		this.setMinimumValue(this.getSortList().get(this.getMinimumIndex()));
