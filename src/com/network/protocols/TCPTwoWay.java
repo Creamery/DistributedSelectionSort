@@ -163,6 +163,7 @@ public class TCPTwoWay extends Thread {
 						
 						System.out.println("Waiting for Minimum Value...");
 						// WAIT for message (each CLIENT)
+						minIndex = -1;
 						for(int i = 0; i < Info.CLIENT_SIZE; i++) {
 							message = (MainMessage) this.getListClientInputStreams().get(i).readObject();
 
