@@ -249,11 +249,12 @@ public class TCPTwoWay extends Thread {
 						
 						// PROCESS
 						else {
-							clientProcessor.setSortList(message.getSortList());
 							clientProcessor.resetMinimum();
 							clientProcessor.setIndices(message);
+							clientProcessor.setSortList(message.getSortList());
+							
 							System.out.println("Received indices "+clientProcessor.getStartIndex()+" "+clientProcessor.getEndIndex());
-							clientProcessor.process(message.getSortList(), message.getStartIndex(), message.getEndIndex());
+							clientProcessor.process(message.getStartIndex(), message.getEndIndex());
 							// Block while is processing
 							while(clientProcessor.isRunning()) {};
 							
