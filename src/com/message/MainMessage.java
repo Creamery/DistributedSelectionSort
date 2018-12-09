@@ -33,10 +33,10 @@ public class MainMessage implements Serializable {
 		this.setMinValue(value);
 	}
 	
-	public void updateList(ArrayList<Integer> list) {
-		this.setSortList(list);
+	public void updateList() {
 		this.setStartIndex(this.getStartIndex()+1);
 		this.setEndIndex(this.getEndIndex()+1);
+		System.out.println("sIndex = "+this.getStartIndex()+" "+this.getEndIndex());
 	}
 	
 	public void setIndices(ArrayList<Integer> list, int start, int end) {

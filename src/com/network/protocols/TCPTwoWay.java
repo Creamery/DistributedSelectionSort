@@ -162,11 +162,11 @@ public class TCPTwoWay extends Thread {
 								isInitial = false;
 							}
 							else {
-								message.updateList(serverProcessor.getSortList());	
+								message.updateList();	
 							}
 							
 
-							System.out.println("Sending indices: "+message.getStartIndex()+" "+message.getEndIndex());
+							// System.out.println("Sending indices: "+message.getStartIndex()+" "+message.getEndIndex());
 							this.getListClientOutputStreams().get(i).flush();
 							this.getListClientOutputStreams().get(i).writeObject(message);
 							//oos.writeObject(message);
