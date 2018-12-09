@@ -261,7 +261,7 @@ public class TCPTwoWay extends Thread {
 							while(clientProcessor.isRunning()) {};
 							
 							
-				    		message.reset();
+				    		message = new MainMessage();
 				    		message.setMinimumValues(clientProcessor.getMinimumIndex(), clientProcessor.getMinimumValue());
 				    		
 				    		// SEND message
