@@ -30,11 +30,14 @@ public class MainClient extends Thread implements UDPUnpacker {
 	public MainClient() {
 		this.setUDPPort(Info.BROADCAST_PORT);
 		this.setTCPPort(Info.PORT);
+		
 		try {
-			this.setTcpStream(new TCPTwoWay("Client", this.getTCPPort()));
+			this.setProcessor(new ClientProcessor());
+			this.setTcpStream(new TCPTwoWay("Client", this.getTCPPort(), this.getProcessor()));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
 		this.setUdpListener(new UDPListener(this));
 	}
 	
@@ -59,26 +62,20 @@ public class MainClient extends Thread implements UDPUnpacker {
 //		this.getTcpStream().sendAsClient(message);
 	}
 	
-	public void send(int index, int value) {
 
-		System.out.println("Sending "+index+" "+value);
-		this.getTcpStream().send(index, value);
-	}
-	
 	// Listen for any server broadcast to connect
-	public void listen() {
-		this.getUdpListener().listen();
+	public void listen(String newHeader) {
+		this.getUdpListener().listen(newHeader);
 	}
 	
 	// Listen to a server broadcast
 	public void run() {
-
 	}
 	
 	// Send IP as a reply
 	public void send() {
 		System.out.println("Sending IP...");
-		byte[] buffer = Info.NETWORK.getBytes();
+		byte[] buffer = (Info.HDR_CLIENT+Info.HDR_SPLIT+Info.NETWORK).getBytes();
 		DatagramPacket packet = null;
 		
 		// Prepare to send
@@ -176,6 +173,7 @@ public class MainClient extends Thread implements UDPUnpacker {
 	}
 	
 	public MainMessage getMainMessage() {
+		this.setMainMessage("message");
 		return this.mainMessage;
 	}
 	

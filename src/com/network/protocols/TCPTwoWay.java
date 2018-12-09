@@ -1,23 +1,23 @@
 package com.network.protocols;
 
-import java.io.BufferedReader;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 
-import com.controller.ControllerManager;
 import com.main.Info;
+import com.main.Print;
 import com.message.MainMessage;
 import com.message.TCPMessage;
+import com.network.ClientProcessor;
+import com.network.ProcessorConnector;
+import com.network.ProcessorIndices;
+import com.network.ServerProcessor;
+import com.reusables.CsvWriter;
+import com.reusables.Stopwatch;
 
 public class TCPTwoWay extends Thread {
 	private boolean isServer;
@@ -28,37 +28,33 @@ public class TCPTwoWay extends Thread {
 	private boolean isSending;
 	private TCPMessage tcpMessage;
 	private int port;
-	
+	private volatile int minValue = 99999999; // TODO: make a better sentinel
+	private volatile int minIndex = -1;
+	private volatile MainMessage message;
 	// For SERVER
 	private ServerSocket serverSocket;
 	private Socket tcpServerSocket;
 	private InetAddress serverIP;
-	private ObjectInputStream objectInputStream;
+//	private ObjectInputStream objectInputStream;
+	
+	private ArrayList<Socket> listClientSockets;
+	private ArrayList<ObjectOutputStream> listClientOutputStreams;
+	private ArrayList<ObjectInputStream> listClientInputStreams;
 	
 	// For CLIENT
 	private InetAddress clientIP;
-	private ObjectOutputStream objectOutputStream;
+//	private ObjectOutputStream objectOutputStream;
 	private Socket tcpClientSocket;
-	private OutputStream outToServer;
-	private DataOutputStream dataOutToServer;
-	private InputStream inFromServer;
-	private DataInputStream dataInFromServer;
 
 	private Socket socket;
 	private volatile MainMessage mainMessage;
+	private ProcessorConnector processor;
 	
-	public DataOutputStream getDataOutToServer() {
-		return dataOutToServer;
-	}
 
-	public void setDataOutToServer(DataOutputStream dataOutToServer) {
-		this.dataOutToServer = dataOutToServer;
-	}
-
-	// SERVER 
-	public TCPTwoWay(String name, int port) throws IOException {
+	public TCPTwoWay(String name, int port, ProcessorConnector processorConnector) throws IOException {
 		this.setHostName(name);
 		this.setTcpMessage(new TCPMessage());
+		this.setProcessor(processorConnector);
 		
 		// Initialize server socket
 		this.setServerSocket(new ServerSocket(port));
@@ -70,24 +66,21 @@ public class TCPTwoWay extends Thread {
 		this.setClientIP(InetAddress.getLocalHost());
 		
 		this.setMainMessage(null);
+		this.setListClientSockets(new ArrayList<Socket>());
+		this.setListClientOutputStreams(new ArrayList<ObjectOutputStream>());
+		this.setListClientInputStreams(new ArrayList<ObjectInputStream>());
 	}
-	
-//	public void start() {
-//		this.setReceiving(true);
-//		this.setSending(true);
-//		this.run();
-//	}
 
 	
 	// To be called after a successful accept.
-	public void initializeObjectStreams(ObjectOutputStream outputStream, ObjectInputStream inputStream) throws IOException {
-		// Prepare object I/O
-		this.setObjectInputStream(inputStream);
-		this.setObjectOutputStream(outputStream);
-
-//		this.setObjectInputStream(new ObjectInputStream(this.getTcpServerSocket().getInputStream()));
-//		this.setObjectOutputStream(new ObjectOutputStream(this.getTcpServerSocket().getOutputStream()));
-	}
+//	public void initializeObjectStreams(ObjectOutputStream outputStream, ObjectInputStream inputStream) throws IOException {
+//		// Prepare object I/O
+//		this.setObjectInputStream(inputStream);
+//		this.setObjectOutputStream(outputStream);
+//
+////		this.setObjectInputStream(new ObjectInputStream(this.getTcpServerSocket().getInputStream()));
+////		this.setObjectOutputStream(new ObjectOutputStream(this.getTcpServerSocket().getOutputStream()));
+//	}
 	
 	public void startAsServer() {
 		this.setServer(true);
@@ -102,319 +95,205 @@ public class TCPTwoWay extends Thread {
 	public void initializeClientSocket(InetAddress serverIP) {
 		this.setServerIP(serverIP);
 		this.setPort(Info.PORT);
-		
-			/*
-			System.out.println("Socket sent");
-			this.setTcpClientSocket(new Socket(this.getServerIP(), this.getPort()));
-			
-			System.out.println("[CLIENT]: "+"Just connected to " + this.getTcpClientSocket().getRemoteSocketAddress());
-			
-
-			System.out.println("Client object streams 0");
-			this.setOutToServer(this.getTcpClientSocket().getOutputStream());
-			this.setDataOutToServer(new DataOutputStream(outToServer));
-			this.setInFromServer(this.getTcpClientSocket().getInputStream());
-			this.setDataInFromServer(new DataInputStream(inFromServer));
-
-
-			System.out.println("Client object streams 1");
-			*/
-//	        OutputStream outToServer = client.getOutputStream();
-//	        ObjectOutputStream out = new ObjectOutputStream(outToServer);
-////	        out.writeUTF("[CLIENT]: "+"Hello from " + client.getLocalSocketAddress());
-//	        MainMessage sentMessage = new MainMessage();
-//	        sentMessage.setMessage("[CLIENT]: "+"Hello from " + client.getLocalSocketAddress());
-//	        out.writeObject(sentMessage);
-//	        InputStream inFromServer = client.getInputStream();
-//	        ObjectInputStream in = new ObjectInputStream(inFromServer);
-	        
-
-//			System.out.println("Client object streams 2");
-//	        this.initializeObjectStreams(
-//	        		new ObjectOutputStream(this.getTcpClientSocket().getOutputStream()),
-//	        		new ObjectInputStream(this.getTcpClientSocket().getInputStream()));
-
-	        
-			
 	}
 
-//	public void sendAsClient(String message) {
-//		this.setMainMessage(new MainMessage());
-//		this.getMainMessage().setMessage(message);
-//	}
-	
-	// Run listener
+
+	// Run Listener
 	public void run() {
-		System.out.println("TCP listener run");
 		if(isServer()) {
-			System.out.println("As Server");
+
+			Print.message("Starting as SERVER");
+			ServerProcessor serverProcessor = (ServerProcessor) this.getProcessor();
+			ArrayList<ProcessorIndices> indices = null;
+			
+			
 			try {
-				Socket server = this.getServerSocket().accept();
 				
-				System.out.println("Just connected to " + server.getRemoteSocketAddress());
-				/*
-				ObjectOutputStream oos = new ObjectOutputStream(server.getOutputStream());
-				ObjectInputStream ois = new ObjectInputStream(server.getInputStream());
-				MainMessage message;
+				Socket server = null;
+				ObjectOutputStream oos = null;
+				ObjectInputStream ois = null;
 				
-				while (this.isReceiving()) {
+				// ACCEPT CLIENTS
+				for(int i = 0; i < Info.CLIENT_SIZE; i++) {
+					server = this.getServerSocket().accept();
+					this.getListClientSockets().add(server);
+					
+					Print.response("Just connected to " + server.getRemoteSocketAddress());
+
+					oos = new ObjectOutputStream(server.getOutputStream());
+					ois = new ObjectInputStream(server.getInputStream());
+					
+					this.getListClientOutputStreams().add(oos);
+					this.getListClientInputStreams().add(ois);
+				}
+				
+				
+				// SEND ARRAY to all clients
+				message = new MainMessage();
+				message.setMessage(Info.MSG_SERVER_ARRAY);	
+				message.setSortList(this.getProcessor().getSortList());
+				sendToClients(message);
+				message.reset();
+				// oos.writeObject(message);
+				
+				
+				
+				
+				// START PROCESSING
+				Print.response("Processing, please wait!");
+				Stopwatch.start();
+				ArrayList<Integer> list = this.getProcessor().getSortList();
+				for(int h = 0; h < list.size(); h++) {
 					try {
-						System.out.println("Waiting for message...");
-						// WAIT for message
-						message = (MainMessage) ois.readObject();
-						if(message != null) {
-							System.out.println("Received "+message.getMessage());
+						// System.out.println("INDEX: "+h);
+						indices = serverProcessor.computeIndices();
+						// For each CLIENT
+						for(int i = 0; i < indices.size(); i++) {
+							// SEND indices
+							// message.reset();
 							message = new MainMessage();
-							message.setMessage("server got it");
+							message.setHeader(Info.HDR_SERVER_INDICES);
+							message.setIndices(serverProcessor.getSortList(), indices.get(i).getStartIndex(), indices.get(i).getEndIndex());
+
+
+							// System.out.println("Sending indices: "+message.getStartIndex()+" "+message.getEndIndex());
+							this.getListClientOutputStreams().get(i).flush();
+							this.getListClientOutputStreams().get(i).writeObject(message);
+							//oos.writeObject(message);
+						}
+						
+						// System.out.println("Waiting for Minimum Value...");
+						// WAIT for message (each CLIENT)
+						minIndex = -1;
+						minValue = -1;
+						for(int i = 0; i < Info.CLIENT_SIZE; i++) {
+							message = (MainMessage) this.getListClientInputStreams().get(i).readObject();
+
+							// System.out.println("Client "+i+" responded");
 							
-							// SEND message
-							oos.writeObject(message);
-							message = null;;
+							//message = (MainMessage) ois.readObject();
+							if(minIndex == -1) {
+								minIndex = message.getMinIndex();
+								minValue = message.getMinValue();
+							} else if(message.getMinValue() < minValue) {
+								minValue = message.getMinValue();
+								minIndex = message.getMinIndex();
+							}
+							message = new MainMessage();
+						}
+						
+						// SWAP
+						serverProcessor.swap(minIndex);
+						serverProcessor.next(); // Move current index
+						
+						if(serverProcessor.isDone()) {
+							this.setReceiving(false);
 						}
 					} catch (ClassNotFoundException e) {
 						e.printStackTrace();
 					}
 				}
-				*/
-				BufferedReader keyRead = new BufferedReader(new InputStreamReader(System.in));
-				// sending to client (pwrite object)
-				OutputStream ostream = server.getOutputStream(); 
-				PrintWriter pwrite = new PrintWriter(ostream, true);
-				// receiving from server ( receiveRead  object)
-				InputStream istream = server.getInputStream();
-				BufferedReader receiveRead = new BufferedReader(new InputStreamReader(istream));
-
-				String receiveMessage, sendMessage;               
-				while(isReceiving()) {
-					if((receiveMessage = receiveRead.readLine()) != null) {
-						System.out.println(receiveMessage);         
-					}         
-					sendMessage = keyRead.readLine(); 
-					pwrite.println(sendMessage);             
-					pwrite.flush();
-				}        
 				
+				message.reset();
+				message.setHeader(Info.HDR_CLIENT_END);
+				this.sendToClients(message);
+				
+				try {
+					Stopwatch.endAndPrint();
+				} catch (Exception e){
+					e.printStackTrace();
+				}
+				CsvWriter.write(serverProcessor.getSortList());
+				System.out.println("CSV Printed");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
 		else {
-			System.out.println("As Client");
+			Print.message("Starting as CLIENT");
 			try {
-
-				socket = new Socket(this.getServerIP(), this.getPort());
+				ClientProcessor clientProcessor = (ClientProcessor) this.getProcessor();
 				
-				/*
+				socket = new Socket(this.getServerIP(), this.getPort());
 				
 				ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
 			    ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+			    message = null;
+			    
+			    try {
+				    // WAIT message
+					do {
+						message = (MainMessage) ois.readObject();
+						if(message.getMessage().contains(Info.MSG_SERVER_ARRAY)) {
+				    		clientProcessor.setSortList(message.getSortList());
+				    		// System.out.println("Client: Received ARRAY "+clientProcessor.getSortList().size());
 
-			    MainMessage message = null;
-//			    oos.writeObject(message);
+						}
+					}while(!message.getMessage().contains(Info.MSG_SERVER_ARRAY));
+					message.reset();
+			    } catch (ClassNotFoundException e) {
+					e.printStackTrace();
+				}
 			    while (this.isSending()) {
 			    	try {
-			    		System.out.println("Waiting for message != null");
-			    		this.setMainMessage(null);
-			    		while(this.mainMessage == null) {
-			    			this.mainMessage = ControllerManager.Instance().getClientMessage();
-			    		};
-			    		
-			    		this.setMainMessage(new MainMessage());
-			    		this.getMainMessage().setMessage("wan");
-			    		// SEND message
-		    			oos.writeObject(this.getMainMessage());
-		    			this.setMainMessage(null);
-			    		// WAIT message
-			    		System.out.println("Waiting for message...");
-						message = (MainMessage) ois.readObject();
-
-				    	if(message != null) {
-				    		System.out.println("Client received "+message.getMessage());
-				    		this.setMainMessage(new MainMessage());
-				    		this.getMainMessage().setMessage("yowz?");
-				    		oos.writeObject(this.getMainMessage());
+			    		// WAIT for indices
+			    		// System.out.println("Waiting for indices (message != null)");
+			    		do {
+			    			message = null;
+							message = (MainMessage) ois.readObject();
+			    		}
+						while(message == null || !(message.getHeader().equals(Info.HDR_SERVER_INDICES) || message.getHeader().equals(Info.HDR_CLIENT_END)));
+						
+			    		// END
+						if(message.getHeader().equals(Info.HDR_CLIENT_END)) {
+							this.setSending(false);
+						}
+						
+						// PROCESS
+						else {
+							clientProcessor.resetMinimum();
+							clientProcessor.setIndices(message);
+							clientProcessor.setSortList(message.getSortList());
+							
+							// System.out.println("Received indices "+clientProcessor.getStartIndex()+" "+clientProcessor.getEndIndex());
+							clientProcessor.process(message.getStartIndex(), message.getEndIndex());
+							
+							// Block while is processing
+							while(clientProcessor.isRunning()) {};
+							
+							
+				    		message = new MainMessage();
+				    		message.setMinimumValues(clientProcessor.getMinimumIndex(), clientProcessor.getMinimumValue());
 				    		
-				    		message = null;
-				    	}
-				    	
+				    		// SEND message
+				    		// System.out.println("Sent min index "+message.getMinIndex());
+				    		oos.flush();
+			    			oos.writeObject(message);
+			    			message.reset();
+				    		
+						}
 					} catch (ClassNotFoundException e) {
 						e.printStackTrace();
 					}
 			    }
-			    */
-				
-				BufferedReader keyRead = new BufferedReader(new InputStreamReader(System.in));
-	            // sending to client (pwrite object)
-				OutputStream ostream = socket.getOutputStream(); 
-				PrintWriter pwrite = new PrintWriter(ostream, true);
-	
-	            // receiving from server ( receiveRead  object)
-				InputStream istream = socket.getInputStream();
-				BufferedReader receiveRead = new BufferedReader(new InputStreamReader(istream));
-	
-				System.out.println("Start the chitchat, type and press Enter key");
-	
-				String receiveMessage, sendMessage;               
-				while(isSending()) {
-					sendMessage = keyRead.readLine();  // keyboard reading
-					pwrite.println(sendMessage);       // sending to server
-					pwrite.flush();                    // flush the data
-					if((receiveMessage = receiveRead.readLine()) != null) //receive from server
-					{
-					System.out.println(receiveMessage); // displaying at DOS prompt
-					}         
-				}
-				         
+			    System.out.println("Client done");
 			} catch (IOException e) {
-				System.out.println("Exception object streams");
+				// System.out.println("Exception object streams");
 				e.printStackTrace();
 			}
 		}
-
-		// Wait for message to receive
-//		while(isReceiving()) {
-//			try {
-
-//				System.out.println("isReceiving");
-
-//				System.out.println("[SERVER]: "+"Waiting for client on port " +
-//						serverSocket.getLocalPort() + "...");
-//				// Wait for TCP connection from CLIENT
-//				this.setTcpServerSocket(this.getServerSocket().accept());
-//				// Prompt successful connection
-//				System.out.println("[SERVER]: "+"Just connected to " + this.getTcpServerSocket().getRemoteSocketAddress());
-//				
-//				// Prepare object I/O
-//				this.setObjectInputStream(new ObjectInputStream(this.getTcpServerSocket().getInputStream()));
-
-				// RECEIVING a message				
-				/*
-				try {
-					// Receive a TCPMessage object from input stream
-					TCPMessage receivedMessage = (TCPMessage) this.getObjectInputStream().readObject();
-					System.out.println(this.getHostName()+" received "+receivedMessage.getMessage());
-				} catch (ClassNotFoundException e) {
-					e.printStackTrace();
-				}
-				*/
-				// SENDING a message
-//				this.setObjectOutputStream(new ObjectOutputStream(this.getTcpServerSocket().getOutputStream()));
-				
-//				this.getTcpMessage().setMessage("Message to send");
-//				this.getObjectOutputStream().writeObject(this.getTcpMessage());
-				
-//				sentMessage.setMessage("[SERVER]: "+"Thank you for connecting to " + server.getLocalSocketAddress()
-//					+ "\nGoodbye!");
-				
-			
-//			} catch (SocketTimeoutException s) {
-//				 System.out.println("[SERVER]: "+"Socket timed out!");
-//				 break;
-//			 } catch (IOException e) {
-//				 e.printStackTrace();
-//				 break;
-//			 }
-//		}
-
 	}
-//	public void sendAsClient(String message) {
-//		System.out.println("Sending as client");
-//		try {
-//			this.setTcpClientSocket(new Socket(this.getServerIP(), this.getPort()));
-//			
-////			PrintWriter toServer = new PrintWriter(this.getTcpClientSocket().getOutputStream(),true);
-////			BufferedReader fromServer = new BufferedReader(new InputStreamReader(this.getTcpClientSocket().getInputStream()));
-//		
-//			DataInputStream fromServer = new DataInputStream(new BufferedInputStream(this.getTcpClientSocket().getInputStream()));;
-//			
-////			toServer.println("Hello from " + this.getTcpClientSocket().getLocalSocketAddress()); 
-////			String line = fromServer.readLine();
-////			System.out.println("Client received: " + line + " from Server");
-//			
-//			while(isSending()) {
-//				String line = fromServer.readUTF();
-//				System.out.println(line);
-//				if(line.trim().equals("end")) {
-//					System.out.println("Ending client");
-//					this.setSending(false);
-//				}
-////				line = fromServer.readLine();
-////				System.out.println("Client received: " + line + " from Server");	
-//			}
-//			
-//			System.out.println("Client object streams END");
-//			
-//		} catch (IOException e) {
-//			System.out.println("Exception object streams");
-//			e.printStackTrace();
-//		}
-//	}
-	public void send(int index, int value) {
-		this.getTcpMessage().setMessage("Sent index: "+index+" "+value+"value");
-		
-		try {
-			
-			this.getObjectOutputStream().writeObject(this.getTcpMessage());
-		} catch (IOException e) {
-			e.printStackTrace();
+
+	// Sends message to ALL clients
+	public void sendToClients(MainMessage message) {
+		for(int i = 0; i < getListClientOutputStreams().size(); i++) {
+			try {
+				this.getListClientOutputStreams().get(i).writeObject(message);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
-	
-	// CLIENT
-	
-	/*
-	public void initializeSender(InetAddress serverIP) {
-		this.setServerIP(serverIP);
-		
-		try {
-			this.setTcpClientSocket(new Socket(this.getServerIP(), this.getPort()));
-			System.out.println("[CLIENT]: "+"Just connected to " + this.getTcpClientSocket().getRemoteSocketAddress());
-				
-	        this.setOutToServer(this.getTcpClientSocket().getOutputStream());
-	        this.setDataOutToServer(new DataOutputStream(outToServer));
-	        
-	        
-	        this.setInFromServer(this.getTcpClientSocket().getInputStream());
-	        this.setDataInFromServer(new DataInputStream(inFromServer));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-	}
-	
-	// Closes the client socket. Assumes that it has been initialized.
-	public void closeSender() {
-        try {
-			this.getTcpClientSocket().close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	
-	// Send a message to serverIP. Call initializeSender first.
-	public void send(int index, int value) {
-		System.out.println("[CLIENT]: "+"Running CandyClient...");
-		
-		
-		try {
-//			System.out.println("[CLIENT]: "+"Connecting to " + serverName + " on port " + port);
-
-	        // Write to server
-	        this.getDataOutToServer().writeUTF("[CLIENT]: "+ this.getTcpClientSocket().getLocalSocketAddress()
-	        		+" index: " + index + " value: " + value);
-
-	        
-//	        this.setInFromServer(this.getTcpClientSocket().getInputStream());
-//	        this.setDataInFromServer(new DataInputStream(inFromServer));
-//	        System.out.println("[CLIENT]: "+"Server says " + this.getDataInFromServer().readUTF());
-	     }
-		catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	*/
-
 
 	public boolean isReceiving() {
 		return isReceiving;
@@ -464,22 +343,6 @@ public class TCPTwoWay extends Thread {
 		this.clientIP = clientIP;
 	}
 
-	public ObjectInputStream getObjectInputStream() {
-		return objectInputStream;
-	}
-
-	public void setObjectInputStream(ObjectInputStream objectInputStream) {
-		this.objectInputStream = objectInputStream;
-	}
-
-	public ObjectOutputStream getObjectOutputStream() {
-		return objectOutputStream;
-	}
-
-	public void setObjectOutputStream(ObjectOutputStream objectOutputStream) {
-		this.objectOutputStream = objectOutputStream;
-	}
-
 	public TCPMessage getTcpMessage() {
 		return tcpMessage;
 	}
@@ -502,30 +365,6 @@ public class TCPTwoWay extends Thread {
 
 	public void setServerIP(InetAddress serverIP) {
 		this.serverIP = serverIP;
-	}
-
-	public OutputStream getOutToServer() {
-		return outToServer;
-	}
-
-	public void setOutToServer(OutputStream outToServer) {
-		this.outToServer = outToServer;
-	}
-
-	public InputStream getInFromServer() {
-		return inFromServer;
-	}
-
-	public void setInFromServer(InputStream inFromServer) {
-		this.inFromServer = inFromServer;
-	}
-
-	public DataInputStream getDataInFromServer() {
-		return dataInFromServer;
-	}
-
-	public void setDataInFromServer(DataInputStream dataInFromServer) {
-		this.dataInFromServer = dataInFromServer;
 	}
 
 	public String getHostName() {
@@ -556,8 +395,42 @@ public class TCPTwoWay extends Thread {
 		return mainMessage;
 	}
 
+	public ArrayList<Socket> getListClientSockets() {
+		return listClientSockets;
+	}
+
+	public void setListClientSockets(ArrayList<Socket> listClientSockets) {
+		this.listClientSockets = listClientSockets;
+	}
+
 	public void setMainMessage(MainMessage mainMessage) {
 		this.mainMessage = mainMessage;
+	}
+
+	public ProcessorConnector getProcessor() {
+		return processor;
+	}
+
+	public void setProcessor(ProcessorConnector processor) {
+		this.processor = processor;
+	}
+
+	public ArrayList<ObjectOutputStream> getListClientOutputStreams() {
+		return listClientOutputStreams;
+	}
+
+	public void setListClientOutputStreams(ArrayList<ObjectOutputStream> listClientOutputStreams) {
+		this.listClientOutputStreams = listClientOutputStreams;
+	}
+
+
+	public ArrayList<ObjectInputStream> getListClientInputStreams() {
+		return listClientInputStreams;
+	}
+
+
+	public void setListClientInputStreams(ArrayList<ObjectInputStream> listClientInputStreams) {
+		this.listClientInputStreams = listClientInputStreams;
 	}
 	
 }

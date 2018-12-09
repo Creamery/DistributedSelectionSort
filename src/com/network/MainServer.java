@@ -20,7 +20,6 @@ public class MainServer extends Thread implements UDPUnpacker {
 	private UDPListener udpListener;
 	private ServerProcessor processor;
 	
-//	private ServerSocket serverSocket;
 	private InetAddress address;
 	
 	private DatagramSocket udpSocket;
@@ -34,29 +33,29 @@ public class MainServer extends Thread implements UDPUnpacker {
 	public MainServer() throws IOException {
 		this.setUDPPort(Info.BROADCAST_PORT);
 		this.setTCPPort(Info.PORT);
+		
 		try {
+			this.setProcessor(new ServerProcessor(Info.CLIENT_SIZE));
 			this.setAddress(InetAddress.getByName(Info.NETWORK.split("/")[1]));
-			this.setTcpStream(new TCPTwoWay("Server", this.getTCPPort()));
+			this.setTcpStream(new TCPTwoWay("Server", this.getTCPPort(), this.getProcessor()));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
 		this.setUdpListener(new UDPListener(this));
-//		serverSocket = new ServerSocket(this.getTCPPort());
-		// Set how long the server will wait for a connection
-//		serverSocket.setSoTimeout(0);
 	}
 	
 	
 	// Initialize processor then run it
 	public void process() {
 		if(this.getProcessor() == null) {
-			this.setProcessor(new ServerProcessor());
+			this.setProcessor(new ServerProcessor(Info.CLIENT_SIZE));
 		}
 		this.getProcessor().process();
 	}
 	
-	public void listen() {
-		this.getUdpListener().listen();
+	public void listen(String newHeader) {
+		this.getUdpListener().listen(newHeader);
 	}
 	public void stopListening() {
 		this.getUdpListener().stopListening();
@@ -74,7 +73,7 @@ public class MainServer extends Thread implements UDPUnpacker {
 		}
 
 		// Get value server IP  (this device)
-		byte[] buffer = Info.NETWORK.getBytes();
+		byte[] buffer = (Info.HDR_SERVER+Info.HDR_SPLIT+Info.NETWORK).getBytes();
 		DatagramPacket packet = null;
 		
 		// Prepare the broadcast
@@ -95,16 +94,9 @@ public class MainServer extends Thread implements UDPUnpacker {
 		
 		// Close the socket NOTE: Same socket used by udpListener
 		// this.getUdpSocket().close();
-
-
-//		this.getTcpStream().start();
+		
 		// Prepare to listen to replies
-		this.listen();
-
-
-		// Start TCP Connection
-		// this.startTCPConnection();
-		 
+		this.listen(Info.HDR_SERVER);
 	}
 	
 	public InetAddress getAddress() {
@@ -184,23 +176,23 @@ public class MainServer extends Thread implements UDPUnpacker {
 	public void unpack(String message) {
 		try {
 			String ip = message.substring(message.indexOf("/")+1);
-			System.out.println("Unpacked message: "+message+"\nTrimmed: "+ip);
-	
 			InetAddress address = InetAddress.getByName(ip);
-			System.out.println("this address is "+this.getAddress());
+			
 			if(this.getAddress().toString().substring(1).equals(ip)) {
-				System.out.println("Received own address");
+				//System.out.println("Received own address");
 			}
 			else {
-				this.stopListening();
 				this.getListClients().add(address);
-				System.out.println("Added client "+ip);
+				Print.message("Added client "+ip);
+				
+				if(this.getListClients().size() == Info.CLIENT_SIZE) {
+					Print.response("Stopped listening");
+					this.stopListening();
+				}
 			}
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
-		// Start TCP Connection
-		// this.startTCPConnection();
 	}
 
 	public void startTCPConnection() {

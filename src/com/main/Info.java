@@ -4,6 +4,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 public class Info {
+	
 	public static int PORT = 80;
 	public static int BROADCAST_PORT = 4445;
 
@@ -16,6 +17,18 @@ public class Info {
 	public static String NETWORK = GetSelfAddress();
 	public static int SERVER_TIMEOUT = 0;
 	public static int BUFFER_SIZE = 256;
+	
+	public static String MSG_CLIENT_RECEIVED = "msgClientReceived";
+	public static String MSG_SERVER_ARRAY = "msgServerArray";
+	
+
+	public static String HDR_SPLIT = "_";
+	public static String HDR_SERVER = "hdrServer";
+	public static String HDR_CLIENT = "hdrClient";
+	public static String HDR_SERVER_INDICES = "hdrIndices";
+	public static String HDR_CLIENT_END = "hdrClientEnd";
+	
+	public static int CLIENT_SIZE = 2;
 	
 	public static String GetSelfAddress() {
 		try {

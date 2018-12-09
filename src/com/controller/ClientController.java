@@ -3,6 +3,7 @@ package com.controller;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+import com.main.Info;
 import com.message.MainMessage;
 import com.network.MainClient;
 
@@ -17,31 +18,19 @@ public class ClientController {
 		}
 		if(this.getClient().getServerIP() == null) {
 			System.out.println("Server is null, listening");
-			this.getClient().listen();
+			this.getClient().listen(Info.HDR_CLIENT);
 		}
 		else {
 			System.out.println("Server exists, TCP connect");
 			this.getClient().setupTCPStream();
 		}
-		
-		// this.createClient();
-		// this.listen();
 	}
 	
 	// Create a new client
 	public void createClient() {
 		this.setClient(new MainClient());
 	}
-	
-	// Listen for any server broadcast to connect to
-	/*
-	public void listen() {
-		if(this.getClient() == null) {
-			this.createClient();
-		}
-		this.getClient().listen();
-	}
-	*/
+
 	public void startTCPConnection() {
 		this.getClient().setupTCPStream();
 	}

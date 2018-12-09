@@ -18,13 +18,16 @@ public class UDPListener extends Thread {
 	
     private byte[] buffer = new byte[Info.BUFFER_SIZE];
     
+    private String header = "";
+    
     public UDPListener(UDPUnpacker parent) {
     	this.setParent(parent);
     	this.setUdpSocket(parent.getUdpSocket());
     }
 
-	public void listen() {
+	public void listen(String newHeader) {
 		if(!this.isListening()) {
+			this.setHeader(newHeader);
 			System.out.println("LISTENING (UDPListener)");
 			this.setListening(true);
 			this.run();
@@ -73,10 +76,12 @@ public class UDPListener extends Thread {
 			}
 			// Decode packet message
 			String message = new String(packet.getData()).trim();
+			
 			System.out.println("Received "+message);
 			
 			// If message is not empty, add the client IP to the list of clients
-			if(message != ""){
+			if(message != "" &&
+				!message.split(Info.HDR_SPLIT)[0].equals(this.getHeader())){
 				System.out.println("Unpacking...");
 				// this.reply(packet);
 				this.getParent().unpack(message);
@@ -142,5 +147,13 @@ public class UDPListener extends Thread {
 
 	public void setSendAddress(InetAddress sendAddress) {
 		this.sendAddress = sendAddress;
+	}
+
+	public String getHeader() {
+		return header;
+	}
+
+	public void setHeader(String header) {
+		this.header = header;
 	}
 }

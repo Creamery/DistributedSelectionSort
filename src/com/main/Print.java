@@ -10,9 +10,6 @@ public class Print {
 	
 	private static String SYSTEM = "> ";
 
-	public static void message(String message) {
-		System.out.println(message);
-	}
 	
 	public static void system(String message) {
 		System.err.println(SYSTEM+message);
@@ -76,7 +73,9 @@ public class Print {
 	public static void response(String message) {
 		System.out.println("[☆＾ ▽  ＾☆]: "+message);
 	}
-	
+	public static void message(String message) {
+		System.out.println("[@' ▽  '@]: "+message);
+	}
 	public static void invalid(String message) {
 		Random random = new Random();
 
