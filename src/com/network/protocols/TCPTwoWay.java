@@ -117,7 +117,7 @@ public class TCPTwoWay extends Thread {
 					server = this.getServerSocket().accept();
 					this.getListClientSockets().add(server);
 					
-					//System.out.println("Just connected to " + server.getRemoteSocketAddress());
+					System.out.println("Just connected to " + server.getRemoteSocketAddress());
 
 					oos = new ObjectOutputStream(server.getOutputStream());
 					ois = new ObjectInputStream(server.getInputStream());
@@ -153,13 +153,13 @@ public class TCPTwoWay extends Thread {
 							message.setIndices(serverProcessor.getSortList(), indices.get(i).getStartIndex(), indices.get(i).getEndIndex());
 
 
-							// System.out.println("Sending indices: "+message.getStartIndex()+" "+message.getEndIndex());
+							System.out.println("Sending indices: "+message.getStartIndex()+" "+message.getEndIndex());
 							this.getListClientOutputStreams().get(i).flush();
 							this.getListClientOutputStreams().get(i).writeObject(message);
 							//oos.writeObject(message);
 						}
 						
-						// System.out.println("Waiting for Minimum Value...");
+						System.out.println("Waiting for Minimum Value...");
 						// WAIT for message (each CLIENT)
 						minIndex = -1;
 						minValue = -1;
@@ -215,7 +215,7 @@ public class TCPTwoWay extends Thread {
 			    try {
 				    // WAIT message
 					do {
-			    		// System.out.println("Waiting for array...");
+			    		System.out.println("Waiting for array...");
 						message = (MainMessage) ois.readObject();
 						if(message.getMessage().contains(Info.MSG_SERVER_ARRAY)) {
 				    		clientProcessor.setSortList(message.getSortList());
@@ -236,7 +236,7 @@ public class TCPTwoWay extends Thread {
 			    			message = null;
 							message = (MainMessage) ois.readObject();
 			    		}
-						while(message == null || !message.getHeader().equals(Info.HDR_SERVER_INDICES) || !message.getHeader().equals(Info.HDR_CLIENT_END));
+						while(message == null || !(message.getHeader().equals(Info.HDR_SERVER_INDICES) || message.getHeader().equals(Info.HDR_CLIENT_END)));
 						
 			    		// END
 						if(message.getHeader().equals(Info.HDR_CLIENT_END)) {
