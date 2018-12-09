@@ -68,6 +68,9 @@ public class ServerProcessor extends ProcessorConnector {
 			eIndex = sIndex + size;
 		}
 		
+		// Ensure last index is until end of list
+		indices.get(indices.size()-1).setEndIndex(getSortList().size());
+		
 		return indices;
 	}
 	
