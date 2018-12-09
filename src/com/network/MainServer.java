@@ -11,12 +11,16 @@ import java.util.ArrayList;
 
 import com.main.Info;
 import com.main.Print;
+import com.message.messageQueue.queueManager.QueueManager;
 import com.network.protocols.TCPTwoWay;
 import com.network.protocols.TCPTwoWayQueue;
 import com.network.protocols.UDPListener;
 import com.network.protocols.UDPUnpacker;
 
 public class MainServer extends Thread implements UDPUnpacker {
+	private QueueManager messageQ;
+	
+	
 	// private TCPTwoWay tcpStream;
 	private TCPTwoWayQueue tcpStream;
 	private UDPListener udpListener;
@@ -46,6 +50,7 @@ public class MainServer extends Thread implements UDPUnpacker {
 		}
 		
 		this.setUdpListener(new UDPListener(this));
+		this.messageQ = new QueueManager();
 	}
 	
 	
@@ -226,6 +231,16 @@ public class MainServer extends Thread implements UDPUnpacker {
 
 	public void setTCPPort(int tCPPort) {
 		TCPPort = tCPPort;
+	}
+
+
+	public QueueManager getMessageQ() {
+		return messageQ;
+	}
+
+
+	public void setMessageQ(QueueManager messageQ) {
+		this.messageQ = messageQ;
 	}
 
 	/*
