@@ -1,5 +1,7 @@
 package com.network;
 
+import com.main.Info;
+
 public class ClientProcessor extends ProcessorConnector {
 
 	@ Override
@@ -20,6 +22,9 @@ public class ClientProcessor extends ProcessorConnector {
 		this.startIndex = this.getStartIndex()+1;
 		this.endIndex = this.getEndIndex()+1;
 		
+		if(this.clientIndex == Info.CLIENT_SIZE) {
+			this.endIndex = this.getSortList().size();
+		}
 		if(this.getEndIndex() > this.getSortList().size()) {
 			this.endIndex = this.getSortList().size();
 		}
