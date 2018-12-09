@@ -153,6 +153,8 @@ public class TCPTwoWayQueue extends Thread {
 	public void processInstructionPacket(MainMessage instructionPacket) { // FOR CLIENT
 		this.setClientProcessing(true);
 		PacketType type = instructionPacket.getPacketHeader();
+
+		System.out.println("Packet type: "+type.toString());
 		
 		switch(type) {
 			case HDR_SORTLIST:
@@ -198,6 +200,8 @@ public class TCPTwoWayQueue extends Thread {
 		try {
 			this.setServerProcessing(true);
 			PacketType type = requestPacket.getPacketHeader();
+			
+			System.out.println("Packet type: "+type.toString());
 			
 			// Process the requestPacket
 			switch(type) {
