@@ -233,7 +233,6 @@ public class TCPTwoWay extends Thread {
 			    } catch (ClassNotFoundException e) {
 					e.printStackTrace();
 				}
-			    System.out.println("Sorting...");
 			    while (this.isSending()) {
 			    	try {
 			    		// WAIT for indices
