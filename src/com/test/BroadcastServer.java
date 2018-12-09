@@ -22,7 +22,7 @@ public class BroadcastServer {
         }
         byte[] buffer = message.getBytes();
 
-        DatagramPacket packet = new DatagramPacket(buffer,buffer.length,destination, Info.BROADCAST_PORT);
+        DatagramPacket packet = new DatagramPacket(buffer,256,destination, Info.BROADCAST_PORT);
         try {
             socket.send(packet);
             System.out.println("Sent message");
