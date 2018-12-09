@@ -214,7 +214,7 @@ public class TCPTwoWay extends Thread {
 				
 				ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
 			    ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
-			    MainMessage message = null;
+			    message = null;
 			    
 			    try {
 				    // WAIT message
