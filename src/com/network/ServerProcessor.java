@@ -16,7 +16,7 @@ public class ServerProcessor extends ProcessorConnector {
 	private int splitCount;
 	
 	public ServerProcessor(int split) {
-		this.setSortList(this.generateList());
+		setSortList(this.generateList());
 		this.setSplitCount(split);
 	}
 
@@ -29,13 +29,13 @@ public class ServerProcessor extends ProcessorConnector {
 	public void next() {
 		this.currentIndex += 1;
 		System.out.println("CurrIndex "+currentIndex);
-		if(this.currentIndex == this.getSortList().size()) { // TODO change to index size
+		if(this.currentIndex == getSortList().size()) { // TODO change to index size
 			this.setDone(true);
 		}
 	}
 	public void printList() {
-		for(int i = 0; i < this.getSortList().size(); i++) {
-			System.out.print(this.getSortList().get(i)+" ");
+		for(int i = 0; i < getSortList().size(); i++) {
+			System.out.print(getSortList().get(i)+" ");
 		}
 	}
 	@ Override
@@ -45,17 +45,21 @@ public class ServerProcessor extends ProcessorConnector {
 	}
 	
 	public void swap(int minIndex) {
-		int temp = this.getSortList().get(this.getCurrentIndex());
+		System.out.print("origList ");
+		this.printList();
+		
+		int temp = getSortList().get(this.getCurrentIndex());
 		this.getSortList().set(this.getCurrentIndex(), this.getSortList().get(minIndex));
 		this.getSortList().set(minIndex, temp);
 		
+		System.out.print("swapList ");
 		this.printList();
 	}
 	
 	// Compute indices for N clients
 	public ArrayList<ProcessorIndices> computeIndices() {
 		ArrayList<ProcessorIndices> indices = new ArrayList<ProcessorIndices>();
-		int size = (int)Math.floor(((double)this.getSortList().size()-(double)this.getCurrentIndex())/(double)this.getSplitCount());
+		int size = (int)Math.floor(((double)getSortList().size()-(double)this.getCurrentIndex())/(double)this.getSplitCount());
 		int index = this.getCurrentIndex();
 		
 		System.out.println("Size is "+size);

@@ -143,16 +143,18 @@ public class TCPTwoWay extends Thread {
 				ArrayList<Integer> list = this.getProcessor().getSortList();
 				for(int h = 0; h < list.size(); h++) {
 					try {
-						// SEND indices
-						message.reset();
+						
 						indices = serverProcessor.computeIndices();
+						System.out.print("server sending list "); serverProcessor.printList();
 						// For each CLIENT
 						for(int i = 0; i < indices.size(); i++) {
-							message = new MainMessage();
+							// SEND indices
+							message.reset();
+							
 							message.setHeader(Info.HDR_SERVER_INDICES);
 							message.setIndices(serverProcessor.getSortList(), indices.get(i).getStartIndex(), indices.get(i).getEndIndex());
 //							message.setSortList(serverProcessor.getSortList());
-							
+							message.printList();
 							System.out.println("Sending indices: "+message.getStartIndex()+" "+message.getEndIndex());
 							this.getListClientOutputStreams().get(i).flush();
 							this.getListClientOutputStreams().get(i).writeObject(message);
