@@ -9,6 +9,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 
 import com.main.Info;
+import com.main.Print;
 import com.message.MainMessage;
 import com.message.TCPMessage;
 import com.network.ClientProcessor;
@@ -16,6 +17,7 @@ import com.network.ProcessorConnector;
 import com.network.ProcessorIndices;
 import com.network.ServerProcessor;
 import com.reusables.CsvWriter;
+import com.reusables.Stopwatch;
 
 public class TCPTwoWay extends Thread {
 	private boolean isServer;
@@ -98,10 +100,9 @@ public class TCPTwoWay extends Thread {
 
 	// Run Listener
 	public void run() {
-		//System.out.println("TCP listener run");
-		
 		if(isServer()) {
-			System.out.println("As Server");
+
+			Print.message("Starting as SERVER");
 			ServerProcessor serverProcessor = (ServerProcessor) this.getProcessor();
 			ArrayList<ProcessorIndices> indices = null;
 			
@@ -117,7 +118,7 @@ public class TCPTwoWay extends Thread {
 					server = this.getServerSocket().accept();
 					this.getListClientSockets().add(server);
 					
-					System.out.println("Just connected to " + server.getRemoteSocketAddress());
+					Print.response("Just connected to " + server.getRemoteSocketAddress());
 
 					oos = new ObjectOutputStream(server.getOutputStream());
 					ois = new ObjectInputStream(server.getInputStream());
@@ -139,10 +140,11 @@ public class TCPTwoWay extends Thread {
 				
 				
 				// START PROCESSING
+				Print.response("Processing, please wait!");
+				Stopwatch.start();
 				ArrayList<Integer> list = this.getProcessor().getSortList();
 				for(int h = 0; h < list.size(); h++) {
 					try {
-						
 						indices = serverProcessor.computeIndices();
 						// For each CLIENT
 						for(int i = 0; i < indices.size(); i++) {
@@ -153,13 +155,13 @@ public class TCPTwoWay extends Thread {
 							message.setIndices(serverProcessor.getSortList(), indices.get(i).getStartIndex(), indices.get(i).getEndIndex());
 
 
-							System.out.println("Sending indices: "+message.getStartIndex()+" "+message.getEndIndex());
+							// System.out.println("Sending indices: "+message.getStartIndex()+" "+message.getEndIndex());
 							this.getListClientOutputStreams().get(i).flush();
 							this.getListClientOutputStreams().get(i).writeObject(message);
 							//oos.writeObject(message);
 						}
 						
-						System.out.println("Waiting for Minimum Value...");
+						// System.out.println("Waiting for Minimum Value...");
 						// WAIT for message (each CLIENT)
 						minIndex = -1;
 						minValue = -1;
@@ -195,6 +197,11 @@ public class TCPTwoWay extends Thread {
 				message.setHeader(Info.HDR_CLIENT_END);
 				this.sendToClients(message);
 				
+				try {
+					Stopwatch.endAndPrint();
+				} catch (Exception e){
+					e.printStackTrace();
+				}
 				CsvWriter.write(serverProcessor.getSortList());
 				System.out.println("CSV Printed");
 			} catch (IOException e) {
@@ -202,7 +209,7 @@ public class TCPTwoWay extends Thread {
 			}
 		}
 		else {
-			System.out.println("As Client");
+			Print.message("Starting as CLIENT");
 			try {
 				ClientProcessor clientProcessor = (ClientProcessor) this.getProcessor();
 				
