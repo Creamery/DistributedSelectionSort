@@ -4,7 +4,17 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 public class Info {
-	
+
+	public class FileNames{
+		public static final String generated_name_prefix = "unsorted_generated_";
+		public static final int _100 = 100;
+		public static final int _10000 = 10000;
+		public static final int _100000 = 100000;
+		public static final int _200000 = 200000;
+		public static final String preset_filename = generated_name_prefix+_100+".csv";
+
+	}
+	public static int UDP_PACKET_SIZE = 256;
 	public static int PORT = 80;
 	public static int BROADCAST_PORT = 4445;
 

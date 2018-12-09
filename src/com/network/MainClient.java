@@ -15,7 +15,7 @@ import com.network.protocols.UDPUnpacker;
 
 public class MainClient extends Thread implements UDPUnpacker {
 	// private TCPTwoWay tcpStream;
-	private TCPTwoWayQueue tcpStream;
+//	private TCPTwoWayQueue tcpStream;
 	private UDPListener udpListener;
 	private ClientProcessor processor;
 	
@@ -32,13 +32,13 @@ public class MainClient extends Thread implements UDPUnpacker {
 		this.setUDPPort(Info.BROADCAST_PORT);
 		this.setTCPPort(Info.PORT);
 		
-		try {
-			this.setProcessor(new ClientProcessor());
+//		try {
+//			this.setProcessor(new ClientProcessor());
 //			this.setTcpStream(new TCPTwoWay("Client", this.getTCPPort(), this.getProcessor()));
-			this.setTcpStream(new TCPTwoWayQueue("Client", this.getTCPPort(), this.getProcessor()));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+//			this.setTcpStream(new TCPTwoWayQueue("Client", this.getTCPPort(), this.getProcessor()));
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
 		
 		this.setUdpListener(new UDPListener(this));
 	}
@@ -111,11 +111,11 @@ public class MainClient extends Thread implements UDPUnpacker {
 	// Set the server and client addresses of the TCP connection
 	public void setupTCPStream() {
 		System.out.println("TCP Setup");
-		this.getTcpStream().setServerIP(this.getServerIP());
-		this.getTcpStream().setClientIP(this.getAddress());
-		
-		this.getTcpStream().initializeClientSocket(this.getServerIP());
-		this.getTcpStream().startAsClient();
+//		this.getTcpStream().setServerIP(this.getServerIP());
+//		this.getTcpStream().setClientIP(this.getAddress());
+//
+//		this.getTcpStream().initializeClientSocket(this.getServerIP());
+//		this.getTcpStream().startAsClient();
 	}
 	
 	// Start sorting
@@ -220,13 +220,14 @@ public class MainClient extends Thread implements UDPUnpacker {
 	public void setProcessor(ClientProcessor processor) {
 		this.processor = processor;
 	}
-	public TCPTwoWayQueue getTcpStream() {
-		return tcpStream;
-	}
 
-	public void setTcpStream(TCPTwoWayQueue tcpStream) {
-		this.tcpStream = tcpStream;
-	}
+//	public TCPTwoWayQueue getTcpStream() {
+//		return tcpStream;
+//	}
+//
+//	public void setTcpStream(TCPTwoWayQueue tcpStream) {
+//		this.tcpStream = tcpStream;
+//	}
 //	public TCPTwoWay getTcpStream() {
 //		return tcpStream;
 //	}

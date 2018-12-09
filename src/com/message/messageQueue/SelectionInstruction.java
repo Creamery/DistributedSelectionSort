@@ -19,4 +19,8 @@ public class SelectionInstruction implements Serializable {
         return this.endIndex;
     }
 
+    public String toString(){
+        return "INSTR:"+startIndex+"-"+endIndex;
+    }
+
 }

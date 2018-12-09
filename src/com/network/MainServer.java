@@ -2,12 +2,9 @@ package com.network;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketException;
-import java.net.UnknownHostException;
+import java.net.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import com.SelectionSort.SelectionSort_UDP;
 import com.main.Info;
@@ -17,15 +14,17 @@ import com.network.protocols.TCPTwoWay;
 import com.network.protocols.TCPTwoWayQueue;
 import com.network.protocols.UDPListener;
 import com.network.protocols.UDPUnpacker;
+import com.reusables.CsvParser;
+import sun.nio.cs.ext.TIS_620;
 
 public class MainServer extends Thread implements UDPUnpacker {
+
 	private QueueManager messageQ;
-	
-	
+
 	// private TCPTwoWay tcpStream;
 	private TCPTwoWayQueue tcpStream;
 	private UDPListener udpListener;
-	private ServerProcessor processor;
+//	private ServerProcessor processor;
 	
 	private InetAddress address;
 	
@@ -38,6 +37,7 @@ public class MainServer extends Thread implements UDPUnpacker {
 	private int TCPPort;
 
 	// MessageQueue implementation of Selection Sort
+    private ArrayList<Integer> toSort;
     // UDP::
     private SelectionSort_UDP sSort_UDP;
 	
@@ -46,34 +46,40 @@ public class MainServer extends Thread implements UDPUnpacker {
 		this.setTCPPort(Info.PORT);
 		
 		try {
-			this.setProcessor(new ServerProcessor(Info.CLIENT_SIZE));
+//			this.setProcessor(new ServerProcessor(Info.CLIENT_SIZE));
 			this.setAddress(InetAddress.getByName(Info.NETWORK.split("/")[1]));
 //			this.setTcpStream(new TCPTwoWay("Server", this.getTCPPort(), this.getProcessor()));
-			this.setTcpStream(new TCPTwoWayQueue("Server", this.getTCPPort(), this.getProcessor()));
+//			this.setTcpStream(new TCPTwoWayQueue("Server", this.getTCPPort(), this.getProcessor()));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
+		// Load ArrayList
+        toSort = CsvParser.read(Info.FileNames.preset_filename);
+
 		this.setUdpListener(new UDPListener(this));
 		this.messageQ = new QueueManager();
 	}
 	
 	
-	// Initialize processor then run it
-	public void process() {
-		if(this.getProcessor() == null) {
-			this.setProcessor(new ServerProcessor(Info.CLIENT_SIZE));
-		}
-		this.getProcessor().process();
-	}
-	
+//	// Initialize processor then run it
+//	public void process() {
+//		if(this.getProcessor() == null) {
+//			this.setProcessor(new ServerProcessor(Info.CLIENT_SIZE));
+//		}
+//		this.getProcessor().process();
+//	}
+//
+
 	public void listen(String newHeader) {
 		this.getUdpListener().listen(newHeader);
 	}
 	public void stopListening() {
+        Print.response("Stopped listening");
 		this.getUdpListener().stopListening();
+		udpSocket.close();
 	}
-	
+
 	// Announce the server IP so that listening clients can connect
 	public void broadcast() {
 		this.stopListening();
@@ -95,6 +101,7 @@ public class MainServer extends Thread implements UDPUnpacker {
 		} catch (UnknownHostException e1) {
 			e1.printStackTrace();
 		}
+
 		try {
 			System.out.println("Sending packet");
 			// Send IP
@@ -136,13 +143,13 @@ public class MainServer extends Thread implements UDPUnpacker {
 		this.udpSocket = udpSocket;
 	}
 
-	public ServerProcessor getProcessor() {
-		return processor;
-	}
-
-	public void setProcessor(ServerProcessor processor) {
-		this.processor = processor;
-	}
+//	public ServerProcessor getProcessor() {
+//		return processor;
+//	}
+//
+//	public void setProcessor(ServerProcessor processor) {
+//		this.processor = processor;
+//	}
 
 	public void run() {
 		
@@ -215,14 +222,46 @@ public class MainServer extends Thread implements UDPUnpacker {
 	}
 
 	public void startTCPConnection() {
-		// TCP Start
+		// TCP -- Synchronize Array
 		 this.getTcpStream().startAsServer();
 	}
 
+	public void synchronizeArrayWithClients(){
+	    // UDP -- Tell clients to send a TCP connection request
+		for (int i=0; i<this.getListClients().size();i++){
+			byte[] buf = new byte[Info.UDP_PACKET_SIZE];
+//			DatagramPacket pck = new DatagramPacket()
+		}
+        // TCP -- Synchronize Array
+        try {
+            ServerSocket sendArraySocket = new ServerSocket(Info.PORT);
+            ObjectOutputStream[] toClientStreams = new ObjectOutputStream[this.getListClients().size()];
+            // Create a TCP connection for each client
+            for (int i=0; i<this.getListClients().size();i++){
+                Socket streamSocket = sendArraySocket.accept();
+                Print.response("Just connected to " + streamSocket.getRemoteSocketAddress());
+                toClientStreams[i] = new ObjectOutputStream(streamSocket.getOutputStream());
+            }
+            // Send arrayList through the outputStreams
+            for(int i=0; i<toClientStreams.length;i++){
+                toClientStreams[i].writeObject(toSort);
+            }
+
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+    }
+
+    /// METHODS FOR UDP-BASED SORTING
+    public void startSort_UDP(){
+	    sSort_UDP = new SelectionSort_UDP(this.toSort,this.getListClients().size(),this);
+        sSort_UDP.runSorting();
+    }
+
+    /// END OF METHODS FOR UDP-BASED SORTING
 	public int getUDPPort() {
 		return UDPPort;
 	}
-
 
 	public void setUDPPort(int uDPPort) {
 		UDPPort = uDPPort;

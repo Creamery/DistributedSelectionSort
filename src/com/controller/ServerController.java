@@ -24,12 +24,15 @@ public class ServerController {
 	
 	public void connectToClients() {
 		// Starts a TCP connection to all clients in the list
-		this.getMainServer().startTCPConnection();
+//		this.getMainServer().startTCPConnection();
+		this.getMainServer().synchronizeArrayWithClients();
+		this.getMainServer().startSort_UDP();
 	}
+
 	
 	// Start processing
 	public void process() {
-		this.getMainServer().process();
+//		this.getMainServer().process();
 	}
 
 	public InetAddress getAddress() {

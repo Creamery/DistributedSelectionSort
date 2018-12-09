@@ -22,7 +22,7 @@ public class ClientController {
 		}
 		else {
 			System.out.println("Server exists, TCP connect");
-			this.getClient().setupTCPStream();
+//			this.getClient().setupTCPStream();
 		}
 	}
 	

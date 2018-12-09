@@ -3,6 +3,7 @@ package com.SelectionSort;
 import com.message.messageQueue.queueManager.QManagerListener;
 import com.message.messageQueue.queueManager.QueueManager;
 import com.message.messageQueue.SelectionInstruction;
+import com.network.MainServer;
 
 import java.util.ArrayList;
 
@@ -12,12 +13,14 @@ public class SelectionSort_UDP {
     private Thread clientListener;
     private ArrayList<Integer> toSort;
     private int splitCount;
+    private MainServer parent;
 
-    public SelectionSort_UDP(ArrayList<Integer> toSort, int numPartitions){
+    public SelectionSort_UDP(ArrayList<Integer> toSort, int numPartitions, MainServer parent){
         qManager = new QueueManager();
         clientListener = new Thread(new QManagerListener(qManager));
         this.toSort = toSort;
         this.splitCount = numPartitions;
+        this.parent = parent;
     }
 
     public void runSorting(){
