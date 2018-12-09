@@ -25,21 +25,22 @@ public class BroadcastClient extends Thread {
 
     public void run(){
         running = true;
-        String input = "a";
+        String input;
         Scanner sc = new Scanner(System.in);
         while(running) {
-            input = "";
-            input = sc.nextLine();
-            if (input.equals("a")) {
+//            System.out.printf("write 'a' to continue...\n");
+//            input = sc.nextLine();
+            if (true) {
                 byte[] buf = new byte[256];
 
                 DatagramPacket packet = new DatagramPacket(buf, buf.length);
                 try {
+                    System.out.println("waiting for packet");
                     socket.receive(packet);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-
+                System.out.println("waiting for packet");
                 String message = new String(packet.getData()).trim();
                 if (message != "") {
                     System.out.println("Client #" + clientNo + " received the message '" + message + "' from broadcast.");
