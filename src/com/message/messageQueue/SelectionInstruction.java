@@ -11,11 +11,11 @@ public class SelectionInstruction implements Serializable {
         this.endIndex = endIndex;
     }
 
-    public int GetStartIndex(){
+    public int getStartIndex(){
         return this.startIndex;
     }
 
-    public int GetEndIndex(){
+    public int getEndIndex(){
         return this.endIndex;
     }
 

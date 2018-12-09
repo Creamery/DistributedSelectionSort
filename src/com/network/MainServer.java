@@ -9,6 +9,7 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 
+import com.SelectionSort.SelectionSort_UDP;
 import com.main.Info;
 import com.main.Print;
 import com.message.messageQueue.queueManager.QueueManager;
@@ -35,6 +36,10 @@ public class MainServer extends Thread implements UDPUnpacker {
 	private ArrayList<InetAddress> listClients;
 	private int UDPPort;
 	private int TCPPort;
+
+	// MessageQueue implementation of Selection Sort
+    // UDP::
+    private SelectionSort_UDP sSort_UDP;
 	
 	public MainServer() throws IOException {
 		this.setUDPPort(Info.BROADCAST_PORT);

@@ -12,8 +12,11 @@ public class QueueManager {
     private Queue<SelectionInstruction> instructionQ;
     private ArrayList<InProcessInfo> inProcessList;
     private boolean isFinished;
+    private Object monitor;
+
 
     public QueueManager(){
+        monitor = new Object();
         this.instructionQ = new LinkedList<>();
         this.inProcessList = new ArrayList<>();
     }
@@ -24,18 +27,32 @@ public class QueueManager {
      * @param consumerIP the IP address of the instruction to be delivered to.
      * @return true if delivery is successful, false if otherwise.
      */
-    public synchronized boolean deliverInstruction(String consumerIP){
-        if(instructionQ.isEmpty()) {
-            // TODO: Send the client a message that tells them to `wait` for a `READY` message
-            return false;
+    public boolean deliverInstruction(String consumerIP){
+        synchronized (monitor) {
+            if (instructionQ.isEmpty()) {
+                // TODO: Send the client a message that tells them to `wait` for a `READY` message
+                return false;
+            } else {
+                SelectionInstruction toDeliver = instructionQ.poll();
+                // TODO: Send `toDeliver` to consumerIP
+
+                inProcessList.add(new InProcessInfo(toDeliver, consumerIP, this));
+
+                return true;
+            }
         }
-        else {
-            SelectionInstruction toDeliver = instructionQ.poll();
-            // TODO: Send `toDeliver` to consumerIP
+    }
 
-            inProcessList.add(new InProcessInfo(toDeliver, consumerIP, this));
+    public SelectionInstruction obtainInstructionLocal(String consumerIP){
+        synchronized (monitor){
+            if(instructionQ.isEmpty())
+                return null;
+            else{
+                SelectionInstruction local = instructionQ.poll();
 
-            return true;
+                inProcessList.add(new InProcessInfo(local, consumerIP, this));
+                return local;
+            }
         }
     }
 
