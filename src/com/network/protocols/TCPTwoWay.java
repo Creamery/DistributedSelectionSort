@@ -139,21 +139,32 @@ public class TCPTwoWay extends Thread {
 				
 				
 				
+				// PRE PROCESSING
+				indices = serverProcessor.computeIndices();
+				boolean isInitial = true;
 				// START PROCESSING
 				Print.response("Processing, please wait!");
 				Stopwatch.start();
+				
 				ArrayList<Integer> list = this.getProcessor().getSortList();
 				for(int h = 0; h < list.size(); h++) {
 					try {
-						indices = serverProcessor.computeIndices();
+						System.out.println("INDEX: "+h);
+						// indices = serverProcessor.computeIndices();
 						// For each CLIENT
 						for(int i = 0; i < indices.size(); i++) {
 							// SEND indices
 							// message.reset();
 							message = new MainMessage();
 							message.setHeader(Info.HDR_SERVER_INDICES);
-							message.setIndices(serverProcessor.getSortList(), indices.get(i).getStartIndex(), indices.get(i).getEndIndex());
-
+							if(isInitial) {
+								message.setIndices(serverProcessor.getSortList(), indices.get(i).getStartIndex(), indices.get(i).getEndIndex());
+								isInitial = false;
+							}
+							else {
+								message.updateList(serverProcessor.getSortList());	
+							}
+							
 
 							// System.out.println("Sending indices: "+message.getStartIndex()+" "+message.getEndIndex());
 							this.getListClientOutputStreams().get(i).flush();
@@ -218,13 +229,14 @@ public class TCPTwoWay extends Thread {
 				ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
 			    ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
 			    message = null;
-			    
+			    boolean isInitial = true;
 			    try {
 				    // WAIT message
 					do {
 						message = (MainMessage) ois.readObject();
 						if(message.getMessage().contains(Info.MSG_SERVER_ARRAY)) {
 				    		clientProcessor.setSortList(message.getSortList());
+				    		clientProcessor.setClientIndex(message.getClientIndex());
 				    		// System.out.println("Client: Received ARRAY "+clientProcessor.getSortList().size());
 
 						}
@@ -251,7 +263,13 @@ public class TCPTwoWay extends Thread {
 						// PROCESS
 						else {
 							clientProcessor.resetMinimum();
-							clientProcessor.setIndices(message);
+							if(isInitial) {
+								clientProcessor.setIndices(message);
+								isInitial = false;
+							}
+							else {
+								clientProcessor.updateIndices();
+							}
 							clientProcessor.setSortList(message.getSortList());
 							
 							// System.out.println("Received indices "+clientProcessor.getStartIndex()+" "+clientProcessor.getEndIndex());
@@ -287,6 +305,7 @@ public class TCPTwoWay extends Thread {
 	public void sendToClients(MainMessage message) {
 		for(int i = 0; i < getListClientOutputStreams().size(); i++) {
 			try {
+				message.setClientIndex(i+1);
 				this.getListClientOutputStreams().get(i).writeObject(message);
 			} catch (IOException e) {
 				e.printStackTrace();

@@ -16,6 +16,18 @@ public class ClientProcessor extends ProcessorConnector {
 	}
 
 	
+	public void updateIndices() {
+		this.startIndex = this.getStartIndex()+1;
+		this.endIndex = this.getEndIndex()+1;
+		
+		if(this.getEndIndex() > this.getSortList().size()) {
+			this.endIndex = this.getSortList().size();
+		}
+		if(this.startIndex > this.endIndex) {
+			this.startIndex = this.endIndex;
+		}
+	}
+	
 	public void run() {
 		this.setMinimumIndex(this.getStartIndex());
 		this.setMinimumValue(this.getSortList().get(this.getMinimumIndex()));

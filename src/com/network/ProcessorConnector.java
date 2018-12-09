@@ -12,7 +12,7 @@ public abstract class ProcessorConnector extends Thread{
 	
 	protected volatile int minimumValue = -1;
 	protected volatile int minimumIndex = -1;
-	
+	protected volatile int clientIndex = 0;
 
 	public abstract void process();
 
@@ -25,7 +25,7 @@ public abstract class ProcessorConnector extends Thread{
 		this.startIndex = message.getStartIndex();
 		this.endIndex = message.getEndIndex();
 	}
-	
+
 	public void setSortList(ArrayList<Integer> list) {
 		this.sortList = new ArrayList<Integer>();
 		for(int i = 0; i < list.size(); i++) {
@@ -73,5 +73,13 @@ public abstract class ProcessorConnector extends Thread{
 
 	public void setMinimumIndex(int minimumIndex) {
 		this.minimumIndex = minimumIndex;
+	}
+
+	public int getClientIndex() {
+		return clientIndex;
+	}
+
+	public void setClientIndex(int clientIndex) {
+		this.clientIndex = clientIndex;
 	}
 }

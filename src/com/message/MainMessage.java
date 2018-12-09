@@ -13,6 +13,8 @@ public class MainMessage implements Serializable {
 	
 	private volatile int minIndex;
 	private volatile int minValue;
+
+	private volatile int clientIndex;
 	
 	// Call this if you want to reuse the MainMessage
 	public void reset() {
@@ -26,6 +28,12 @@ public class MainMessage implements Serializable {
 	public void setMinimumValues(int index, int value) {
 		this.setMinIndex(index);
 		this.setMinValue(value);
+	}
+	
+	public void updateList(ArrayList<Integer> list) {
+		this.setSortList(list);
+		this.setStartIndex(this.getStartIndex()+1);
+		this.setEndIndex(this.getEndIndex()+1);
 	}
 	
 	public void setIndices(ArrayList<Integer> list, int start, int end) {
@@ -46,6 +54,9 @@ public class MainMessage implements Serializable {
 	}
 
 	public void setEndIndex(int endIndex) {
+		if(endIndex > this.getSortList().size()) {
+			endIndex = this.getSortList().size();
+		}
 		this.endIndex = endIndex;
 	}
 
@@ -91,6 +102,14 @@ public class MainMessage implements Serializable {
 
 	public void setHeader(String header) {
 		this.header = header;
+	}
+
+	public int getClientIndex() {
+		return clientIndex;
+	}
+
+	public void setClientIndex(int clientIndex) {
+		this.clientIndex = clientIndex;
 	}
 	
 }
