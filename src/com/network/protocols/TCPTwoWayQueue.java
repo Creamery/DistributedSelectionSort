@@ -45,6 +45,7 @@ public class TCPTwoWayQueue extends Thread {
 	private ArrayList<ObjectOutputStream> listClientOutputStreams;
 	private ArrayList<ObjectInputStream> listClientInputStreams;
 	private volatile boolean serverProcessing;
+	private volatile boolean isReady;
 	
 	public boolean isServerProcessing() {
 		return serverProcessing;
@@ -95,6 +96,7 @@ public class TCPTwoWayQueue extends Thread {
 		this.setListClientSockets(new ArrayList<Socket>());
 		this.setListClientOutputStreams(new ArrayList<ObjectOutputStream>());
 		this.setListClientInputStreams(new ArrayList<ObjectInputStream>());
+		this.setReady(false);
 	}
 
 
@@ -110,6 +112,12 @@ public class TCPTwoWayQueue extends Thread {
 		MainMessage request = new MainMessage();
 		request.setPacketHeader(PacketType.HDR_REQUEST);
 		return request;
+	}
+	
+	public MainMessage readyPacket() {
+		MainMessage ready = new MainMessage();
+		ready.setPacketHeader(PacketType.HDR_READY);
+		return ready;
 	}
 	
 	public MainMessage resultPacket(int index, int value) {
@@ -157,6 +165,7 @@ public class TCPTwoWayQueue extends Thread {
 		System.out.println("Packet type: "+type.toString());
 		
 		switch(type) {
+			case HDR_READY: this.setReady(true); break;	
 			case HDR_SORTLIST:
 				this.clientProcessor.setSortList(
 						instructionPacket.getSortList());
@@ -185,9 +194,7 @@ public class TCPTwoWayQueue extends Thread {
 						instructionPacket.getSwapIndex2());
 				break;
 				
-			case HDR_END:
-				this.setSending(false); // Breaks the client function loop
-				break;
+			case HDR_END: this.setSending(false); break; // Breaks client loop
 				
 			default:
 				break;
@@ -211,8 +218,6 @@ public class TCPTwoWayQueue extends Thread {
 
 					// Then send back an instruction packet
 					// TODO: Sample only, remove
-//					this.getListClientOutputStreams().get(client).writeObject(
-//							sortlistPacket(serverProcessor.getSortList()));
 					this.getListClientOutputStreams().get(client).writeObject(
 							processPacket(0, 0));
 					break;
@@ -268,6 +273,9 @@ public class TCPTwoWayQueue extends Thread {
 				sendToClients(sortlistPacket(serverProcessor.getSortList()));
 				
 				
+				// NOTIFY ready to all clients
+				sendToClients(readyPacket());
+				
 				// LISTEN to packet requests
 				this.setReceiving(true);
 				while(this.isReceiving()) {
@@ -304,18 +312,29 @@ public class TCPTwoWayQueue extends Thread {
 				fromServer = new ObjectInputStream(clientStreamSocket.getInputStream());
 			    toServer = new ObjectOutputStream(clientStreamSocket.getOutputStream());
 
-			    // WAIT for sort list
+			   
 			    try {
+			    	 // WAIT for sort list
+			    	System.out.println("Waiting for SORTLIST");
 					this.packetClient = (MainMessage) fromServer.readObject();
 					this.processInstructionPacket(this.packetClient);
 
+
+			    
+				    // WAIT for ready signal
+					System.out.println("Waiting for READY");
+					while(!isReady()) {
+					    this.packetClient = (MainMessage) fromServer.readObject();
+						this.processInstructionPacket(this.packetClient);
+					}
+				
 			    } catch (ClassNotFoundException e) {
 					e.printStackTrace();
 				}
 			    
-			    
-			    
+				
 			    // BEGIN LOOP
+		    	System.out.println("Beginning CLIENT LOOP");
 			    while (this.isSending()) {
 			    	try {
 			    		
@@ -613,6 +632,16 @@ public class TCPTwoWayQueue extends Thread {
 
 	public void setFromServer(ObjectInputStream fromServer) {
 		this.fromServer = fromServer;
+	}
+
+
+	public boolean isReady() {
+		return isReady;
+	}
+
+
+	public void setReady(boolean isReady) {
+		this.isReady = isReady;
 	}
 	
 }
