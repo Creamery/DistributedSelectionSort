@@ -27,8 +27,8 @@ public abstract class ProcessorConnector extends Thread{
 	}
 	
 	public void setSortList(ArrayList<Integer> list) {
-		System.out.println("New sort list[0] "+list.get(0));
-		this.sortList = list;
+		System.out.println("New sort list["+list.size()+"] "+list.get(list.size()-1));
+		this.sortList = new ArrayList<Integer>(list);
 	}
 	public ArrayList<Integer> getSortList() {
 		return sortList;
