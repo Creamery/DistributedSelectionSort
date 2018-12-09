@@ -1,5 +1,6 @@
 package com.network;
 
+import java.util.ArrayList;
 
 public class ClientProcessor extends ProcessorConnector {
 
@@ -7,6 +8,13 @@ public class ClientProcessor extends ProcessorConnector {
 	public void process() {
 		this.setRunning(true);
 		
+		this.run();
+	}
+	public void process(ArrayList<Integer> list, int start, int end) {
+		this.setRunning(true);
+		this.setSortList(list);
+		this.setStartIndex(start);
+		this.setEndIndex(end);
 		this.run();
 	}
 	

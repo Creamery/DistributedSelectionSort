@@ -244,11 +244,11 @@ public class TCPTwoWay extends Thread {
 						
 						// PROCESS
 						else {
-							this.getProcessor().setSortList(message.getSortList());
-							this.getProcessor().resetMinimum();
-							this.getProcessor().setIndices(message);
-							System.out.println("Received indices "+this.getProcessor().getStartIndex()+" "+this.getProcessor().getEndIndex());
-							this.getProcessor().process();
+							clientProcessor.setSortList(message.getSortList());
+							clientProcessor.resetMinimum();
+							clientProcessor.setIndices(message);
+							System.out.println("Received indices "+clientProcessor.getStartIndex()+" "+clientProcessor.getEndIndex());
+							clientProcessor.process(message.getSortList(), message.getStartIndex(), message.getEndIndex());
 							// Block while is processing
 							while(this.getProcessor().isRunning()) {};
 							
