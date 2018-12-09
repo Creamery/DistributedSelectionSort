@@ -15,6 +15,7 @@ import com.network.protocols.TCPTwoWayQueue;
 import com.network.protocols.UDPListener;
 import com.network.protocols.UDPUnpacker;
 import com.reusables.CsvParser;
+import com.reusables.General;
 import sun.nio.cs.ext.TIS_620;
 
 public class MainServer extends Thread implements UDPUnpacker {
@@ -228,10 +229,21 @@ public class MainServer extends Thread implements UDPUnpacker {
 
 	public void synchronizeArrayWithClients(){
 	    // UDP -- Tell clients to send a TCP connection request
+		try {
+			DatagramSocket udpSocket = new DatagramSocket(Info.PORT);
+		} catch (SocketException e){ e.printStackTrace(); }
+
 		for (int i=0; i<this.getListClients().size();i++){
-			byte[] buf = new byte[Info.UDP_PACKET_SIZE];
-//			DatagramPacket pck = new DatagramPacket()
+			byte[] buf = General.padMessage(new String("SYNC").getBytes());
+
+			DatagramPacket pck = new DatagramPacket(buf,Info.UDP_PACKET_SIZE,
+					this.getListClients().get(i),Info.PORT);
+
+			try{
+				udpSocket.send(pck);
+			} catch (IOException e){ e.printStackTrace(); }
 		}
+		udpSocket.close();
         // TCP -- Synchronize Array
         try {
             ServerSocket sendArraySocket = new ServerSocket(Info.PORT);

@@ -1,5 +1,7 @@
 package com.reusables;
 
+import com.main.Info;
+
 import java.lang.management.OperatingSystemMXBean;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -13,7 +15,20 @@ public class General {
 	
 	private static final boolean isPrinting = true;
 	private static final boolean isPrintingError = true;
-	
+
+
+
+	/**
+	 * This is done to keep the packet size uniform. Make sure to use .trim() when parsing the message
+	 * @param originalMsg
+	 * @return
+	 */
+	public static byte[] padMessage(byte[] originalMsg){
+		byte[] paddedMsg = new byte[originalMsg.length + (Info.UDP_PACKET_SIZE - originalMsg.length)];
+		System.arraycopy(originalMsg,0,paddedMsg,0,originalMsg.length);
+		return paddedMsg;
+	}
+
 	public static void printUsage(OperatingSystemMXBean osBean) {
 
 		printCpuLoad(osBean);

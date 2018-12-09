@@ -21,8 +21,13 @@ public class BroadcastServer {
             e.printStackTrace();
         }
         byte[] buffer = message.getBytes();
-
-        DatagramPacket packet = new DatagramPacket(buffer,256,destination, Info.BROADCAST_PORT);
+        byte[] paddedBuffer = new byte[buffer.length + (256 - buffer.length)];
+        System.arraycopy(buffer,0,paddedBuffer,0,buffer.length);
+        System.out.println(buffer.length);
+        System.out.println(paddedBuffer.length);
+        String s = new String(paddedBuffer);
+        System.out.println(s.trim());
+        DatagramPacket packet = new DatagramPacket(paddedBuffer, paddedBuffer.length ,destination, Info.BROADCAST_PORT);
         try {
             socket.send(packet);
             System.out.println("Sent message");
