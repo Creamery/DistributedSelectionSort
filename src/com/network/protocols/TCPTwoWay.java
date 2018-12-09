@@ -194,7 +194,7 @@ public class TCPTwoWay extends Thread {
 						
 						// SWAP
 						serverProcessor.swap(minIndex);
-						message.setSwapIndex1(minValue);
+						message.setSwapIndex1(minIndex);
 						message.setSwapIndex2(serverProcessor.getCurrentIndex());
 						sendToClients(message);
 						serverProcessor.next(); // Move current index
