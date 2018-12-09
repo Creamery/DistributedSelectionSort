@@ -31,6 +31,9 @@ public class SelectionSort_UDP {
             //TODO: Send 'READY' message to clients
 
 
+
+            // TODO: tell clients to resynchronize list by sending SwapInstruction
+            // TODO: then tell them to wait until the 'READY' message has been sent by the server
             // Wait until the new instructions has been reinitialized
             try {
                 clientListener.wait();
