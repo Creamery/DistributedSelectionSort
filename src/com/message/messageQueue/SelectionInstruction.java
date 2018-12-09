@@ -1,4 +1,4 @@
-package com.message.MessageQueue;
+package com.message.messageQueue;
 
 import java.io.Serializable;
 
@@ -6,7 +6,7 @@ public class SelectionInstruction implements Serializable {
     private int startIndex;
     private int endIndex;
 
-    public SelectionInstruction(int startIndex, int endIndex, QueueManager manager){
+    public SelectionInstruction(int startIndex, int endIndex){
         this.startIndex = startIndex;
         this.endIndex = endIndex;
     }

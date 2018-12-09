@@ -1,7 +1,7 @@
-package com.message.MessageQueue.Timeout;
+package com.message.messageQueue.Timeout;
 
-import com.message.MessageQueue.InProcessInfo;
-import com.message.MessageQueue.QueueManager;
+import com.message.messageQueue.InProcessInfo;
+import com.message.messageQueue.queueManager.QueueManager;
 
 import java.util.TimerTask;
 

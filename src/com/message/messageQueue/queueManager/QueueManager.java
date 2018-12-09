@@ -1,4 +1,7 @@
-package com.message.MessageQueue;
+package com.message.messageQueue.queueManager;
+
+import com.message.messageQueue.InProcessInfo;
+import com.message.messageQueue.SelectionInstruction;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -8,6 +11,7 @@ public class QueueManager {
 
     private Queue<SelectionInstruction> instructionQ;
     private ArrayList<InProcessInfo> inProcessList;
+    private boolean isFinished;
 
     public QueueManager(){
         this.instructionQ = new LinkedList<>();
@@ -15,13 +19,16 @@ public class QueueManager {
     }
 
     /**
-     *
+     * Delivers the instruction to the requester client.
+     * If the message queue is empty, a message that tells the client to wait is sent instead.
      * @param consumerIP the IP address of the instruction to be delivered to.
      * @return true if delivery is successful, false if otherwise.
      */
     public synchronized boolean deliverInstruction(String consumerIP){
-        if(instructionQ.isEmpty())
+        if(instructionQ.isEmpty()) {
+            // TODO: Send the client a message that tells them to `wait` for a `READY` message
             return false;
+        }
         else {
             SelectionInstruction toDeliver = instructionQ.poll();
             // TODO: Send `toDeliver` to consumerIP
@@ -40,5 +47,17 @@ public class QueueManager {
     private void removeInProcessInfo(InProcessInfo toRemove){
         toRemove.clearConsumer();
         inProcessList.remove(toRemove);
+
+        isFinished = inProcessList.isEmpty() && instructionQ.isEmpty();
+    }
+
+    public void addInstructions(SelectionInstruction[] instructions){
+        for(SelectionInstruction si : instructions)
+            this.instructionQ.add(si);
+        isFinished = false;
+    }
+
+    public boolean isFinished(){
+        return this.isFinished;
     }
 }

@@ -1,7 +1,8 @@
-package com.message.MessageQueue;
+package com.message.messageQueue;
 
 import com.main.Info;
-import com.message.MessageQueue.Timeout.TimeoutTask;
+import com.message.messageQueue.Timeout.TimeoutTask;
+import com.message.messageQueue.queueManager.QueueManager;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
