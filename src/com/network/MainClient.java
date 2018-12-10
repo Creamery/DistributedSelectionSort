@@ -114,6 +114,7 @@ public class MainClient extends Thread implements UDPUnpacker {
         // this.setupTCPStream();
 		System.out.println("UDP reply send");
 		this.send();
+//		this.udpSocket.close();
 	}
 	
 	// Set the server and client addresses of the TCP connection
@@ -132,24 +133,28 @@ public class MainClient extends Thread implements UDPUnpacker {
 	 * This method is called when the client is 'ready' for sorting.
 	 */
 	public void setupUDPStream(){
+		stopListening();
 		System.out.println("UDP Setup");
 		// UDP -- wait server to send a TCP connection request
 		try {
-			DatagramSocket udpSocket = new DatagramSocket(Info.PORT + 1);
+			udpSocket = new DatagramSocket(4000);
 			byte[] buf = new byte[Info.UDP_PACKET_SIZE];
+			System.out.println("buf len: "+buf.length);
+//			getUdpListener().setBuffer(buf);
 			DatagramPacket pck = new DatagramPacket(buf,buf.length);
 			try {
-				System.out.println("Waiting for SYNC prompt...");
+				System.out.println("Waiting for SYNC prompt, listening at:"+udpSocket.getPort()+"...");
 				udpSocket.receive(pck);
+//				listen("SYNC");
 				System.out.println("Received something.");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			String msg = new String(pck.getData()).trim();
+			String msg = "SYNC";
 			if(msg.equals("SYNC")){
 				// SEND A TCP Connection Request
 				try {
-					Socket inSocket = new Socket(this.getServerIP(), this.getUDPPort());
+					Socket inSocket = new Socket(this.getServerIP(), Info.PORT);
 					ObjectInputStream inStream = new ObjectInputStream(inSocket.getInputStream());
 
 					try{
@@ -266,7 +271,9 @@ public class MainClient extends Thread implements UDPUnpacker {
 
 	public void stopListening() {
 		this.getUdpListener().stopListening();
+		this.udpListener = null;
 	}
+
 	public void setUdpSocket(DatagramSocket udpSocket) {
 		this.udpSocket = udpSocket;
 	}
@@ -303,6 +310,8 @@ public class MainClient extends Thread implements UDPUnpacker {
 //	}
 
 	public UDPListener getUdpListener() {
+		if(udpListener == null)
+			udpListener = new UDPListener(this);
 		return udpListener;
 	}
 
