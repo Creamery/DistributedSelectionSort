@@ -18,6 +18,6 @@ public class TimeoutTask extends TimerTask {
 
     @Override
     public void run() {
-        this.mngr.timeout(parent);
+        mngr.timeout(parent);
     }
 }

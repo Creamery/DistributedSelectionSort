@@ -6,6 +6,7 @@ import com.message.messageQueue.queueManager.QueueManager;
 import com.message.messageQueue.SelectionInstruction;
 import com.network.MainServer;
 
+import java.time.temporal.IsoFields;
 import java.util.ArrayList;
 
 public class SelectionSort_UDP {
@@ -38,8 +39,14 @@ public class SelectionSort_UDP {
             parent.sendAllClients("READY");
             System.out.println("Instructions ready for consumption");
             //spin-lock
-            while(!qManager.isFinished());
+            while(qManager.isFinished());
             System.out.println("Instructions empty");
+
+            // Perform swap
+            System.out.println("Performing Swap between: "+i+"-"+curMin);
+            int a = toSort.get(i);
+            toSort.set(i,toSort.get(curMin));
+            toSort.set(curMin,a);
             getServer().sendAllClients(new NotifySwapMessage(i,curMin).toString());
             // Wait until the new instructions has been reinitialized
 //            try {
@@ -56,6 +63,7 @@ public class SelectionSort_UDP {
     }
 
     public void compareAndSetMin(int newMin){
+        System.out.println("Comparing "+newMin+" with old:"+curMin);
         if(toSort.get(newMin) < toSort.get(curMin))
             curMin = newMin;
     }

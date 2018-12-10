@@ -18,8 +18,8 @@ public class InProcessInfo {
 
     public InProcessInfo(SelectionInstruction instruction, String consumerIP, QueueManager manager){
         this.instruction = instruction;
-        this.setConsumer(consumerIP);
         this.manager = manager;
+        this.setConsumer(consumerIP);
     }
 
     public void setConsumer(String consumerIP) {
