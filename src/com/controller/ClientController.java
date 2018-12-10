@@ -19,6 +19,7 @@ public class ClientController {
 		if(this.getClient().getServerIP() == null) {
 			System.out.println("Server is null, listening");
 			this.getClient().listen(Info.HDR_CLIENT);
+			this.getClient().setupUDPStream();
 		}
 		else {
 			System.out.println("Server exists, TCP connect");
