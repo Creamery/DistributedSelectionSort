@@ -1,6 +1,8 @@
 package com.main;
 
+import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 
 public class Info {
@@ -56,9 +58,10 @@ public class Info {
 	public static int CLIENT_SIZE = 1;
 	
 	public static String GetSelfAddress() {
-		try {
-			return InetAddress.getLocalHost().toString();
-		} catch (UnknownHostException e) {
+		try(final DatagramSocket socket = new DatagramSocket()){
+			socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
+			return socket.getLocalAddress().getHostAddress().toString();
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return "";

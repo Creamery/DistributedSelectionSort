@@ -138,6 +138,7 @@ public class MainClient extends Thread implements UDPUnpacker {
 		// UDP -- wait server to send a TCP connection request
 		try {
 			udpSocket = new DatagramSocket(4000);
+			udpSocket.connect(this.getServerIP(),4000);
 			byte[] buf = new byte[Info.UDP_PACKET_SIZE];
 			System.out.println("buf len: "+buf.length);
 //			getUdpListener().setBuffer(buf);
