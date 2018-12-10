@@ -86,8 +86,14 @@ public class QueueManager {
     }
 
     private synchronized void removeInProcessInfo(InetAddress toRemove){
-        boolean success = inProcessList.removeIf(obj -> obj.getConsumerIP().equals(toRemove));
-        if(success)
+
+        InProcessInfo removed = inProcessList.stream()
+            .filter(obj -> obj.getConsumerIP().equals(toRemove))
+            .findFirst()
+            .get();
+        removed.clearConsumer();
+        inProcessList.remove(removed);
+        if(removed != null)
             this.parent.decrementLeft();
     }
 
@@ -95,9 +101,13 @@ public class QueueManager {
         int a = toRemove.getStartIndex();
         int b = toRemove.getEndIndex();
 
-        boolean success = inProcessList.removeIf(obj -> obj.getInstruction().getStartIndex() == a
-                && obj.getInstruction().getEndIndex() == b);
-        if(success)
+        InProcessInfo removed = inProcessList.stream()
+                .filter(obj -> obj.getInstruction().getStartIndex() == a && obj.getInstruction().getEndIndex() == b)
+                .findFirst()
+                .get();
+        removed.clearConsumer();
+        inProcessList.remove(removed);
+        if(removed != null)
             this.parent.decrementLeft();
     }
 //
