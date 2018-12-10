@@ -32,14 +32,14 @@ public class SelectionSort_UDP {
         clientRequestListener.start();
         for(int i=0; i<size; i++){
             curMin = i;
-
+            System.out.println("Reloading instructions");
             qManager.addInstructions(getInstructions(i));
 //            clientRequestListener.notify();
             parent.sendAllClients("READY");
-
+            System.out.println("Instructions ready for consumption");
             //spin-lock
             while(!qManager.isFinished());
-
+            System.out.println("Instructions empty");
             getServer().sendAllClients(new NotifySwapMessage(i,curMin).toString());
             // Wait until the new instructions has been reinitialized
 //            try {
@@ -51,6 +51,7 @@ public class SelectionSort_UDP {
 //        clientRequestListener.notify();
         getServer().sendAllClients("STOP");
         qRunnable.stop();
+        System.out.println("Sorting completed");
         return toSort;
     }
 
