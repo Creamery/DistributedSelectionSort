@@ -65,10 +65,10 @@ public class QueueManager {
         }
     }
 
-    public void receiveSolution(int foundMin, SelectionInstruction origin){
-        parent.compareAndSetMin(foundMin);
-        removeInProcessInfo(origin);
-    }
+//    public void receiveSolution(int foundMin, SelectionInstruction origin){
+//        parent.compareAndSetMin(foundMin);
+//        removeInProcessInfo(origin);
+//    }
 
     public void receiveSolution(int foundMin, InetAddress sender){
         parent.compareAndSetMin(foundMin);
@@ -77,38 +77,34 @@ public class QueueManager {
 
 
     public void timeout(InProcessInfo timedOut){
-        removeInProcessInfo(timedOut);
+        removeInProcessInfo(timedOut.getConsumerIP());
         instructionQ.add(timedOut.getInstruction());
     }
 
-    private void removeInProcessInfo(InetAddress toRemove){
-        synchronized (monitor) {
-            inProcessList.removeIf(obj -> obj.getConsumerIP().equals(toRemove));
-
-            isFinished = inProcessList.isEmpty() && instructionQ.isEmpty();
-        }
-    }
-
-    private void removeInProcessInfo(SelectionInstruction toRemove){
-        int a = toRemove.getStartIndex();
-        int b = toRemove.getEndIndex();
-        synchronized (monitor) {
-            inProcessList.removeIf(obj -> obj.getInstruction().getStartIndex() == a
-                    && obj.getInstruction().getEndIndex() == b);
-
-            isFinished = inProcessList.isEmpty() && instructionQ.isEmpty();
-        }
-    }
-
-    private void removeInProcessInfo(InProcessInfo toRemove){
-        toRemove.clearConsumer();
-        int a = toRemove.getInstruction().getStartIndex();
-        int b = toRemove.getInstruction().getEndIndex();
-        inProcessList.removeIf(obj -> obj.getInstruction().getStartIndex() == a
-                && obj.getInstruction().getEndIndex() == b);
+    private synchronized void removeInProcessInfo(InetAddress toRemove){
+        inProcessList.removeIf(obj -> obj.getConsumerIP().equals(toRemove));
 
         isFinished = inProcessList.isEmpty() && instructionQ.isEmpty();
     }
+
+//    private synchronized void removeInProcessInfo(SelectionInstruction toRemove){
+//        int a = toRemove.getStartIndex();
+//        int b = toRemove.getEndIndex();
+//        inProcessList.removeIf(obj -> obj.getInstruction().getStartIndex() == a
+//                && obj.getInstruction().getEndIndex() == b);
+//
+//        isFinished = inProcessList.isEmpty() && instructionQ.isEmpty();
+//    }
+//
+//    private synchronized void removeInProcessInfo(InProcessInfo toRemove){
+//        toRemove.clearConsumer();
+//        int a = toRemove.getInstruction().getStartIndex();
+//        int b = toRemove.getInstruction().getEndIndex();
+//        inProcessList.removeIf(obj -> obj.getInstruction().getStartIndex() == a
+//                && obj.getInstruction().getEndIndex() == b);
+//
+//        isFinished = inProcessList.isEmpty() && instructionQ.isEmpty();
+//    }
 
     public void addInstructions(SelectionInstruction[] instructions){
         for(SelectionInstruction si : instructions)

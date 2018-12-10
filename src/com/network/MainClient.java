@@ -157,7 +157,6 @@ public class MainClient extends Thread implements UDPUnpacker {
 				System.out.println("Waiting for SYNC prompt, listening at:"+this.prepUDPSocket.getPort()+"...");
 				this.prepUDPSocket.receive(pck);
 //				listen("SYNC");
-				System.out.println("Received something.");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -188,49 +187,79 @@ public class MainClient extends Thread implements UDPUnpacker {
 	private void runConsumerSelectionLoop(){
 
 		boolean isRunning = true;
+		boolean outOfOrderReady = false;
 		while(isRunning){
 			// Wait for Server's ready message
-			byte[] buf = new byte[Info.UDP_PACKET_SIZE];
-			DatagramPacket pck = new DatagramPacket(buf,buf.length);
-			try{
-				mainUDPSocket.receive(pck);
-			} catch (IOException e){ e.printStackTrace(); }
-			String received = new String(pck.getData()).trim();
-			if(received.equals("READY")){
-				System.out.println("received ready");
-				// Start requesting for an instruction
-				String msg = "";
-				while(!msg.equals("EMPTY")){
-					System.out.println("Sending request...");
-					sendServer("REQ");
-					System.out.println("request sent.");
-					msg = waitFromServer();
-					System.out.println("Obtained message: "+msg);
-					if(msg.contains("INSTR:")){
-						// Process Instruction
-						SelectionInstruction instr = SelectionInstruction.parseString(msg);
-						System.out.println("Obtained Instruction: "+instr.toString());
-						int localMin = SelectionClient_UDP.runSelection(toSort,instr);
-						// Send Local Min
-						System.out.println("found local minimum");
-						this.sendServer("LMIN:"+localMin);
-						System.out.println("sent local minimum");
-//						this.sendServer("LMIN:"+localMin+"-"+instr.getStartIndex()+"-"+instr.getEndIndex());
+			String msg;
+			if(outOfOrderReady)
+				msg = "READY";
+			else
+				msg = waitFromServer();
+			if(msg.equals("READY")){
+				outOfOrderReady = false;
+				this.sendServer("REQ");
+				msg = this.waitFromServer();
+				if(msg.contains("INSTR:")){
+					while(msg.contains("INSTR:")){
+						if(msg.contains("INSTR:")){
+							// Process Instruction
+							SelectionInstruction si = SelectionInstruction.parseString(msg);
+							System.out.println("Obtained Instruction: "+si.toString());
+							int lm = SelectionClient_UDP.runSelection(toSort,si);
+
+							// Send Local Min
+							System.out.println("found local minimum");
+							this.sendServer("LMIN:"+lm);
+							System.out.println("sent local minimum");
+
+							msg = this.waitFromServer();
+						}
 					}
 				}
-				System.out.println("list empty");
-				String swapInstr = waitFromServer();
-				if(msg.contains("SWAP:")){
-					// Perform swap to resync list
-					NotifySwapMessage nsm = NotifySwapMessage.parseString(swapInstr);
-					int a = toSort.get(nsm.getIndexA());
-					toSort.set(nsm.getIndexA(),toSort.get(nsm.getIndexB()));
-					toSort.set(nsm.getIndexB(),a);
-				}
-				else
-					new Exception("Invalid protocol sequence!").printStackTrace();
 
-			}else if(received.equals("STOP")){
+				if(msg.contains("READY")) {
+					outOfOrderReady = true;
+					msg = waitFromServer();
+				}
+
+				if(msg.contains("EMPTY")){
+
+					msg = waitFromServer();
+
+					if(msg.contains("READY")) {
+						outOfOrderReady = true;
+						msg = waitFromServer();
+					}
+
+					if(msg.contains("SWAP")){
+						// Perform swap to resync list
+						NotifySwapMessage nsm = NotifySwapMessage.parseString(msg);
+						System.out.println("Swapping "+nsm.getIndexA()+" with "+nsm.getIndexB());
+						int a = toSort.get(nsm.getIndexA());
+						toSort.set(nsm.getIndexA(),toSort.get(nsm.getIndexB()));
+						toSort.set(nsm.getIndexB(),a);
+					}
+				}else if(msg.contains("SWAP")){
+					// Perform swap to resync list
+					NotifySwapMessage nsm = NotifySwapMessage.parseString(msg);
+					System.out.println("Swapping "+nsm.getIndexA()+" with "+nsm.getIndexB());
+					//Perform swap later
+					msg = waitFromServer();
+
+					if(msg.contains("READY")) {
+						outOfOrderReady = true;
+						msg = waitFromServer();
+					}
+
+					if(msg.contains("EMPTY")){
+						System.out.println("received EMPTY");
+						//Perform swap now
+						int a = toSort.get(nsm.getIndexA());
+						toSort.set(nsm.getIndexA(),toSort.get(nsm.getIndexB()));
+						toSort.set(nsm.getIndexB(),a);
+					}
+				}
+			}else if(msg.equals("STOP")){
 				isRunning = false;
 				System.out.println("Sort Complete");
 			}
@@ -243,6 +272,7 @@ public class MainClient extends Thread implements UDPUnpacker {
 				this.getServerIP(),Info.REQUEST_PORT);
 		try {
 			requestSocket.send(pck);
+			System.out.println("SENT "+message);
 		} catch (IOException e){ e.printStackTrace(); }
 	}
 
@@ -250,9 +280,16 @@ public class MainClient extends Thread implements UDPUnpacker {
 		byte[] buf = new byte[Info.UDP_PACKET_SIZE];
 		DatagramPacket pck = new DatagramPacket(buf,buf.length);
 		try{
+			mainUDPSocket.setSoTimeout((int)Info.TIMEOUT_DELAY);
 			mainUDPSocket.receive(pck);
+		}
+		catch (SocketException e1){
+			System.out.println("Timeout occurred");
+			return "EMPTY";
 		} catch (IOException e){ e.printStackTrace(); }
-		return new String(pck.getData()).trim();
+		String s = new String(pck.getData()).trim();
+		System.out.println("Received: "+s);
+		return s;
 	}
 	/// End of UDP-related methods
 
