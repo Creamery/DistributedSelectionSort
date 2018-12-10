@@ -14,7 +14,7 @@ public class Info {
 		public static final String preset_filename = generated_name_prefix+_100+".csv";
 
 	}
-	public static int UDP_PACKET_SIZE = 256;
+	public static int UDP_PACKET_SIZE = 64;
 	public static int PORT = 80;
 	/**
 	 * Used by the clients when sending a request to the server.
