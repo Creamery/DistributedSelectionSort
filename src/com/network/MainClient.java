@@ -212,8 +212,9 @@ public class MainClient extends Thread implements UDPUnpacker {
 						System.out.println("Obtained Instruction: "+instr.toString());
 						int localMin = SelectionClient_UDP.runSelection(toSort,instr);
 						// Send Local Min
-						this.sendServer("LMIN:"+localMin);
 						System.out.println("found local minimum");
+						this.sendServer("LMIN:"+localMin);
+						System.out.println("sent local minimum");
 //						this.sendServer("LMIN:"+localMin+"-"+instr.getStartIndex()+"-"+instr.getEndIndex());
 					}
 				}

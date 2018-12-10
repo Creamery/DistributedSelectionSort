@@ -34,7 +34,7 @@ public class QManagerListener implements Runnable {
                 System.out.println("obtained request from "+recentPck.getAddress());
                 mngr.deliverInstruction(recentPck.getAddress());
                 System.out.println("instructions sent to "+recentPck.getAddress());
-            }else if(request.contains("LMIN")){
+            }else if(request.contains("LMIN:")){
                 // Process the received local minimum
 //                mngr.receiveSolution(extractFoundMin(request),extractOrigin(request));
                 System.out.println("solution obtained from "+recentPck.getAddress());
@@ -62,8 +62,7 @@ public class QManagerListener implements Runnable {
 
     private int extractFoundMin(String msg){
         String a = msg.substring(5);
-        String[] t = a.split("-");
-        return Integer.parseInt(t[0]);
+        return Integer.parseInt(a);
     }
 
     private SelectionInstruction extractOrigin(String msg){
