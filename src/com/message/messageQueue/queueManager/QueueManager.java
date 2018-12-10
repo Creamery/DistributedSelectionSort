@@ -34,7 +34,7 @@ public class QueueManager {
      * @param consumerIP the IP address of the instruction to be delivered to.
      * @return true if delivery is successful, false if otherwise.
      */
-    public boolean deliverInstruction(InetAddress consumerIP){
+    public synchronized boolean deliverInstruction(InetAddress consumerIP){
         if (instructionQ.isEmpty()) {
             parent.getServer().sendToClient(consumerIP,"EMPTY");
             return false;
@@ -48,7 +48,7 @@ public class QueueManager {
         }
     }
 
-    public SelectionInstruction obtainInstructionLocal(String consumerIP){
+    public synchronized SelectionInstruction obtainInstructionLocal(String consumerIP){
         if(instructionQ.isEmpty())
             return null;
         else{
@@ -75,7 +75,7 @@ public class QueueManager {
         instructionQ.add(timedOut.getInstruction());
     }
 
-    private void removeInProcessInfo(InetAddress toRemove){
+    private synchronized void removeInProcessInfo(InetAddress toRemove){
         inProcessList.removeIf(obj -> obj.getConsumerIP().equals(toRemove));
 
         isFinished = inProcessList.isEmpty() && instructionQ.isEmpty();
