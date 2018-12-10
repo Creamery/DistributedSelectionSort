@@ -53,8 +53,6 @@ public class SelectionSort_UDP {
 //            clientRequestListener.notify();
             shouldContinue = false;
             parent.sendAllClients("READY");
-            if(Info.ENABLE_SERVER_RUNNABLE)
-                serverClientRunnable.unBlockReady();
             System.out.println("Instructions ready for consumption");
 
             //spin-lock

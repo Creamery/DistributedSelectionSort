@@ -12,12 +12,18 @@ public class SelectionServerRunnable implements Runnable {
 
     private QueueManager qManager;
     private ArrayList<Integer> toSelect;
+    private InetAddress own;
     private volatile boolean isRunning;
     private volatile boolean blockReady;
 
     public SelectionServerRunnable(QueueManager qManager, ArrayList<Integer> toSelect){
         this.qManager = qManager;
         this.toSelect = toSelect;
+        try {
+            this.own = InetAddress.getByName(Info.NETWORK);
+
+            System.out.println("own ip: "+own);
+        } catch (UnknownHostException e){ e.printStackTrace(); }
     }
 
     @Override
@@ -35,9 +41,7 @@ public class SelectionServerRunnable implements Runnable {
             else{
                 int localMin = findMin(si);
                 System.out.println("Server client runnable: found minimum...");
-                try {
-                    qManager.receiveSolution(localMin, InetAddress.getByName(Info.NETWORK));
-                } catch (UnknownHostException e){ e.printStackTrace(); }
+                qManager.receiveSolution(localMin, own);
             }
         }
     }
@@ -47,9 +51,11 @@ public class SelectionServerRunnable implements Runnable {
     }
 
     public void swap(int a, int b){
+        System.out.println("Server client runnable: swapping "+a+"-"+b);
         int x = toSelect.get(a);
         toSelect.set(a,toSelect.get(b));
         toSelect.set(b,x);
+        unBlockReady();
     }
 
     public void unBlockReady(){
