@@ -51,7 +51,9 @@ public class SelectionSort_UDP {
                     SelectionInstruction si = qManager.obtainInstructionLocal(Info.NETWORK);
                     if(si == null){
                         System.out.println("wait for shouldContinue");
-                        while(!shouldContinue);
+                        while(!shouldContinue){
+                            try{ wait(50); } catch(Exception e){e.printStackTrace();}
+                        }
                     }else{
                         int localMin = findMin(si);
                         System.out.println("found minimum");
