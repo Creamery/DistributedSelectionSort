@@ -16,19 +16,20 @@ public class SelectionSort_UDP {
     private QManagerListener qRunnable;
     private volatile ArrayList<Integer> toSort;
     private volatile int curMin;
+    public volatile boolean shouldContinue;
     private int splitCount;
     private MainServer parent;
 
-    public SelectionSort_UDP(ArrayList<Integer> toSort, int numPartitions, MainServer parent){
+    public SelectionSort_UDP(ArrayList<Integer> toSort, MainServer parent){
         this.parent = parent;
         qManager = new QueueManager(this);
         qRunnable = new QManagerListener(qManager);
         clientRequestListener = new Thread(qRunnable);
         this.toSort = toSort;
-        this.splitCount = numPartitions;
     }
 
-    public ArrayList<Integer> runSorting(){
+    public ArrayList<Integer> runSorting(int numPartitions){
+        this.splitCount = numPartitions;
         int size = toSort.size();
         clientRequestListener.start();
         for(int i=0; i<size; i++){
@@ -36,11 +37,14 @@ public class SelectionSort_UDP {
             System.out.println("Reloading instructions");
             qManager.addInstructions(getInstructions(i));
 //            clientRequestListener.notify();
+            shouldContinue = false;
             parent.sendAllClients("READY");
             System.out.println("Instructions ready for consumption");
+
             //spin-lock
-            while(qManager.isFinished());
-            System.out.println("Instructions empty");
+            while(!shouldContinue);
+
+            System.out.println("QManager Finished");
 
             // Perform swap
             System.out.println("Performing Swap between: "+i+"-"+curMin);
@@ -48,12 +52,7 @@ public class SelectionSort_UDP {
             toSort.set(i,toSort.get(curMin));
             toSort.set(curMin,a);
             getServer().sendAllClients(new NotifySwapMessage(i,curMin).toString());
-            // Wait until the new instructions has been reinitialized
-//            try {
-//                clientRequestListener.wait();
-//            } catch (InterruptedException e){
-//                e.printStackTrace();
-//            }
+
         }
 //        clientRequestListener.notify();
         getServer().sendAllClients("STOP");
@@ -86,10 +85,11 @@ public class SelectionSort_UDP {
             if(!isExact && t == splitCount -1)
                 nextIndex +=1;
 
+            System.out.println("instruction range: "+curIndex+"-"+nextIndex);
             siList[t] = new SelectionInstruction(curIndex, nextIndex);
             curIndex = nextIndex;
         }
-
+        System.out.println("Total of "+siList.length+" instructions were generated");
         return siList;
     }
 
