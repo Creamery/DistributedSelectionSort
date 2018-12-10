@@ -305,6 +305,7 @@ public class MainServer extends Thread implements UDPUnpacker {
 	}
 
 	public void sendToClient(InetAddress dest, String message){
+		System.out.println("SEND: "+dest+"::"+message);
 		byte[] buf = General.padMessage(message.getBytes());
 		DatagramPacket pck = new DatagramPacket(buf, Info.UDP_PACKET_SIZE,
 				dest, Info.PORT);

@@ -14,17 +14,18 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class QueueManager {
 
     private Queue<SelectionInstruction> instructionQ;
     private ArrayList<InProcessInfo> inProcessList;
     private SelectionSort_UDP parent;
-    private volatile boolean isFinished;
+    private volatile int instructionCount;
 
     public QueueManager(SelectionSort_UDP parent){
         this.parent = parent;
-        this.instructionQ = new LinkedList<>();
+        this.instructionQ = new ConcurrentLinkedQueue<>();
         this.inProcessList = new ArrayList<>();
     }
 
@@ -35,13 +36,14 @@ public class QueueManager {
      * @return true if delivery is successful, false if otherwise.
      */
     public synchronized boolean deliverInstruction(InetAddress consumerIP){
-        if (instructionQ.isEmpty()) {
+        if (instructionCount < 1) {
             parent.getServer().sendToClient(consumerIP,"EMPTY");
             return false;
         } else {
             SelectionInstruction toDeliver = instructionQ.poll();
+            instructionCount--;
+            System.out.println("Instructions left: "+instructionCount);
             parent.getServer().sendToClient(consumerIP,toDeliver.toString());
-
             inProcessList.add(new InProcessInfo(toDeliver, consumerIP.toString(), this));
 
             return true;
@@ -49,11 +51,13 @@ public class QueueManager {
     }
 
     public synchronized SelectionInstruction obtainInstructionLocal(){
-        if(instructionQ.isEmpty())
+        if(instructionCount < 1)
             return null;
         else{
             SelectionInstruction local = instructionQ.poll();
-
+            instructionCount--;
+            System.out.println(Thread.currentThread().getName()+" - LOCAL||Instructions left: "+instructionCount);
+            System.out.println("Server-Side:: Obtained:"+ local.toString());
             inProcessList.add(new InProcessInfo(local, Info.NETWORK, this));
             return local;
         }
@@ -75,26 +79,26 @@ public class QueueManager {
     }
 
     public synchronized void timeout(InProcessInfo timedOut){
-        this.parent.incrementLeft();
         removeInProcessInfo(timedOut.getConsumerIP());
         instructionQ.add(timedOut.getInstruction());
+        instructionCount++;
+        parent.incrementLeft();
     }
 
     private synchronized void removeInProcessInfo(InetAddress toRemove){
-        inProcessList.removeIf(obj -> obj.getConsumerIP().equals(toRemove));
-
-        isFinished = inProcessList.isEmpty() && instructionQ.isEmpty();
-        this.parent.decrementLeft();
+        boolean success = inProcessList.removeIf(obj -> obj.getConsumerIP().equals(toRemove));
+        if(success)
+            this.parent.decrementLeft();
     }
 
     private synchronized void removeInProcessInfo(SelectionInstruction toRemove){
         int a = toRemove.getStartIndex();
         int b = toRemove.getEndIndex();
-        inProcessList.removeIf(obj -> obj.getInstruction().getStartIndex() == a
-                && obj.getInstruction().getEndIndex() == b);
 
-        isFinished = inProcessList.isEmpty() && instructionQ.isEmpty();
-        this.parent.decrementLeft();
+        boolean success = inProcessList.removeIf(obj -> obj.getInstruction().getStartIndex() == a
+                && obj.getInstruction().getEndIndex() == b);
+        if(success)
+            this.parent.decrementLeft();
     }
 //
 //    private void removeInProcessInfo(InProcessInfo toRemove){
@@ -130,14 +134,15 @@ public class QueueManager {
 //    }
 
     public synchronized void addInstructions(SelectionInstruction[] instructions){
-        for(SelectionInstruction si : instructions)
+        for(SelectionInstruction si : instructions) {
             this.instructionQ.add(si);
-        isFinished = false;
+        }
+        parent.setLeft(instructions.length);
+        instructionCount = instructions.length;
     }
 
-    public synchronized boolean isFinished(){
-        System.out.println(inProcessList.size() +" - "+instructionQ.size());
-        this.isFinished = inProcessList.isEmpty() && instructionQ.isEmpty();
-        return this.isFinished;
+    public synchronized void clearQueue(){
+        this.instructionQ.clear();
     }
+
 }

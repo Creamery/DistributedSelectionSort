@@ -30,17 +30,13 @@ public class QManagerListener implements Runnable {
         while(isListening){
             System.out.println("Waiting for request.");
             String request = receiveRequest();
-            System.out.println("Received: "+request);
+            System.out.println("Received::"+recentPck.getAddress()+"::"+request);
             if(request.contains("REQ")){
-                System.out.println("obtained request from "+recentPck.getAddress());
                 mngr.deliverInstruction(recentPck.getAddress());
-                System.out.println("instructions sent to "+recentPck.getAddress());
             }else if(request.contains("LMIN:")){
                 // Process the received local minimum
 //                mngr.receiveSolution(extractFoundMin(request),extractOrigin(request));
-                System.out.println("solution obtained from "+recentPck.getAddress());
                 mngr.receiveSolution(extractFoundMin(request),recentPck.getAddress());
-                System.out.println("instructions sent to "+recentPck.getAddress());
                 // resend an instruction if there is still one
                 mngr.deliverInstruction(recentPck.getAddress());
             }

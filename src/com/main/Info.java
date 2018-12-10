@@ -16,7 +16,7 @@ public class Info {
 		public static final String preset_filename = generated_name_prefix+_100+".csv";
 
 	}
-	public static boolean ENABLE_SERVER_RUNNABLE = false;
+	public static boolean ENABLE_SERVER_RUNNABLE = true;
 
 	public static int UDP_PACKET_SIZE = 64;
 	public static int PORT = 5000;

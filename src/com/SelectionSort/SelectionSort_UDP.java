@@ -11,6 +11,7 @@ import jdk.nashorn.internal.ir.CatchNode;
 
 import java.time.temporal.IsoFields;
 import java.util.ArrayList;
+import java.util.concurrent.locks.Lock;
 
 public class SelectionSort_UDP {
 
@@ -19,7 +20,6 @@ public class SelectionSort_UDP {
     private QManagerListener qRunnable;
     private volatile ArrayList<Integer> toSort;
     private volatile int curMin;
-    private volatile boolean shouldContinue;
     private volatile int leftCount;
     private int splitCount;
     private MainServer parent;
@@ -28,7 +28,7 @@ public class SelectionSort_UDP {
         this.parent = parent;
         qManager = new QueueManager(this);
         qRunnable = new QManagerListener(qManager);
-        clientRequestListener = new Thread(qRunnable);
+        clientRequestListener = new Thread(qRunnable,"QListener");
         this.toSort = toSort;
     }
 
@@ -41,27 +41,32 @@ public class SelectionSort_UDP {
         for(int i=0; i<size; i++){
             curMin = i;
             System.out.println("Reloading instructions");
+            qManager.clearQueue();
             SelectionInstruction[] sis = getInstructions((i));
             qManager.addInstructions(sis);
-            this.leftCount = sis.length;
 //            clientRequestListener.notify();
             parent.sendAllClients("READY");
             System.out.println("Instructions ready for consumption");
 
             //spin-lock
+            boolean hasPrintEmpty = false;
             while(getLeft() > 0){
                 if(Info.ENABLE_SERVER_RUNNABLE){
                     SelectionInstruction si = qManager.obtainInstructionLocal();
                     if(si == null){
-                        System.out.println("wait for shouldContinue");
-                        while(getLeft() > 0){
-                            // Do nothing
-                        }
+                        if(!hasPrintEmpty)
+                            System.out.println("Server-Side:: Wait until solutions complete");
+                        hasPrintEmpty = true;
                     }else{
                         int localMin = findMin(si);
-                        System.out.println("found minimum");
+                        System.out.println("Server-Side:: Found minimum");
                         qManager.receiveLocalSolution(localMin,si);
                     }
+                }
+                try {
+                    Thread.sleep(200);
+                }catch(InterruptedException e){
+                    e.printStackTrace();
                 }
             }
 
@@ -86,7 +91,7 @@ public class SelectionSort_UDP {
     }
 
     public void compareAndSetMin(int newMin){
-        System.out.println("Comparing "+newMin+" with old:"+curMin);
+//        System.out.println("Comparing "+newMin+" with old:"+curMin);
         if(toSort.get(newMin) < toSort.get(curMin))
             curMin = newMin;
     }
@@ -121,7 +126,7 @@ public class SelectionSort_UDP {
         for(int t = 0; t < splitCount; t++){
             nextIndex += sizePerPartition;
             if(!isExact && t == splitCount -1)
-                nextIndex +=1;
+                nextIndex = toSort.size();
 
             System.out.println("instruction range: "+curIndex+"-"+nextIndex);
             siList[t] = new SelectionInstruction(curIndex, nextIndex);
@@ -137,11 +142,18 @@ public class SelectionSort_UDP {
 
     public synchronized void incrementLeft(){
         this.leftCount++;
-        System.out.println("items left: "+this.leftCount);
+//        System.out.println("items left: "+this.leftCount);
+    }
+
+    public synchronized void setLeft(int l){
+        this.leftCount = l;
+//        System.out.println("items left: "+this.leftCount);
     }
 
     public synchronized void decrementLeft(){
         this.leftCount--;
+        if(this.leftCount < 0)
+            this.leftCount = 0;
         System.out.println("items left: "+this.leftCount);
     }
 
