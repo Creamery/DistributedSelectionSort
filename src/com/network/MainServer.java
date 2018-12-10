@@ -213,7 +213,6 @@ public class MainServer extends Thread implements UDPUnpacker {
 				Print.message("Added client "+ip);
 				
 				if(this.getListClients().size() == Info.CLIENT_SIZE) {
-					Print.response("Stopped listening");
 					this.stopListening();
 				}
 			}
