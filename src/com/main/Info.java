@@ -10,6 +10,7 @@ public class Info {
 	public class FileNames{
 		public static final String generated_name_prefix = "unsorted_generated_";
 		public static final int _100 = 100;
+		public static final int _1000 = 1000;
 		public static final int _10000 = 10000;
 		public static final int _100000 = 100000;
 		public static final int _200000 = 200000;
