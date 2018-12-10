@@ -23,4 +23,15 @@ public class SelectionInstruction implements Serializable {
         return "INSTR:"+startIndex+"-"+endIndex;
     }
 
+    public static SelectionInstruction parseString(String s){
+        if(s.contains("INSTR:")){
+            s = s.substring(6);
+            String[] tokens = s.split("-");
+            return new SelectionInstruction(Integer.parseInt(tokens[0]),
+                    Integer.parseInt(tokens[1]));
+        }else{
+            return null;
+        }
+    }
+
 }

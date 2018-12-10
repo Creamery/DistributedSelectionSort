@@ -41,6 +41,7 @@ public class MainServer extends Thread implements UDPUnpacker {
     private ArrayList<Integer> toSort;
     // UDP::
     private SelectionSort_UDP sSort_UDP;
+    private DatagramSocket mainUDPSocket;
 	
 	public MainServer() throws IOException {
 		this.setUDPPort(Info.BROADCAST_PORT);
@@ -59,7 +60,7 @@ public class MainServer extends Thread implements UDPUnpacker {
         toSort = CsvParser.read(Info.FileNames.preset_filename);
 
 		this.setUdpListener(new UDPListener(this));
-		this.messageQ = new QueueManager();
+//		this.messageQ = new QueueManager();
 	}
 	
 	
@@ -78,7 +79,6 @@ public class MainServer extends Thread implements UDPUnpacker {
 	public void stopListening() {
         Print.response("Stopped listening");
 		this.getUdpListener().stopListening();
-		udpSocket.close();
 	}
 
 	// Announce the server IP so that listening clients can connect
@@ -231,19 +231,22 @@ public class MainServer extends Thread implements UDPUnpacker {
 	    // UDP -- Tell clients to send a TCP connection request
 		try {
 			DatagramSocket udpSocket = new DatagramSocket(Info.PORT);
+
+			for (int i=0; i<this.getListClients().size();i++) {
+				byte[] buf = General.padMessage(new String("SYNC").getBytes());
+
+				DatagramPacket pck = new DatagramPacket(buf, Info.UDP_PACKET_SIZE,
+						this.getListClients().get(i), Info.PORT);
+
+				try {
+					udpSocket.send(pck);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			udpSocket.close();
 		} catch (SocketException e){ e.printStackTrace(); }
 
-		for (int i=0; i<this.getListClients().size();i++){
-			byte[] buf = General.padMessage(new String("SYNC").getBytes());
-
-			DatagramPacket pck = new DatagramPacket(buf,Info.UDP_PACKET_SIZE,
-					this.getListClients().get(i),Info.PORT);
-
-			try{
-				udpSocket.send(pck);
-			} catch (IOException e){ e.printStackTrace(); }
-		}
-		udpSocket.close();
         // TCP -- Synchronize Array
         try {
             ServerSocket sendArraySocket = new ServerSocket(Info.PORT);
@@ -266,11 +269,36 @@ public class MainServer extends Thread implements UDPUnpacker {
 
     /// METHODS FOR UDP-BASED SORTING
     public void startSort_UDP(){
+		try {
+			this.mainUDPSocket = new DatagramSocket(Info.PORT);
+		} catch (SocketException e){ e.printStackTrace(); }
+
 	    sSort_UDP = new SelectionSort_UDP(this.toSort,this.getListClients().size(),this);
         sSort_UDP.runSorting();
     }
 
+
+    public void sendAllClients(String message){
+		for(int i=0; i<this.getListClients().size(); i++){
+			sendToClient(this.listClients.get(i),message);
+		}
+	}
+
+	public void sendToClient(InetAddress dest, String message){
+		byte[] buf = General.padMessage(message.getBytes());
+		DatagramPacket pck = new DatagramPacket(buf, Info.UDP_PACKET_SIZE,
+				dest, Info.PORT);
+		try {
+			this.mainUDPSocket.send(pck);
+		} catch (IOException e){ e.printStackTrace(); }
+	}
+
+	public DatagramSocket getUDPSocket(){
+		return this.mainUDPSocket;
+	}
+
     /// END OF METHODS FOR UDP-BASED SORTING
+
 	public int getUDPPort() {
 		return UDPPort;
 	}

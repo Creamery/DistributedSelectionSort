@@ -1,5 +1,6 @@
 package com.SelectionSort;
 
+import com.message.NotifySwapMessage;
 import com.message.messageQueue.queueManager.QManagerListener;
 import com.message.messageQueue.queueManager.QueueManager;
 import com.message.messageQueue.SelectionInstruction;
@@ -10,40 +11,51 @@ import java.util.ArrayList;
 public class SelectionSort_UDP {
 
     private QueueManager qManager;
-    private Thread clientListener;
-    private ArrayList<Integer> toSort;
+    private Thread clientRequestListener;
+    private QManagerListener qRunnable;
+    private volatile ArrayList<Integer> toSort;
+    private volatile int curMin;
     private int splitCount;
     private MainServer parent;
 
     public SelectionSort_UDP(ArrayList<Integer> toSort, int numPartitions, MainServer parent){
-        qManager = new QueueManager();
-        clientListener = new Thread(new QManagerListener(qManager));
+        this.parent = parent;
+        qManager = new QueueManager(this);
+        qRunnable = new QManagerListener(qManager);
+        clientRequestListener = new Thread(qRunnable);
         this.toSort = toSort;
         this.splitCount = numPartitions;
-        this.parent = parent;
     }
 
     public void runSorting(){
         int size = toSort.size();
-        clientListener.start();
+        clientRequestListener.start();
         for(int i=0; i<size; i++){
-            int min_index = i;
+            curMin = i;
 
             qManager.addInstructions(getInstructions(i));
-            clientListener.notify();
-            //TODO: Send 'READY' message to clients
+//            clientRequestListener.notify();
+            parent.sendAllClients("READY");
 
+            //spin-lock
+            while(!qManager.isFinished());
 
-
-            // TODO: tell clients to resynchronize list by sending SwapInstruction
-            // TODO: then tell them to wait until the 'READY' message has been sent by the server
+            getServer().sendAllClients(new NotifySwapMessage(i,curMin).toString());
             // Wait until the new instructions has been reinitialized
-            try {
-                clientListener.wait();
-            } catch (InterruptedException e){
-                e.printStackTrace();
-            }
+//            try {
+//                clientRequestListener.wait();
+//            } catch (InterruptedException e){
+//                e.printStackTrace();
+//            }
         }
+//        clientRequestListener.notify();
+        getServer().sendAllClients("STOP");
+        qRunnable.stop();
+    }
+
+    public void compareAndSetMin(int newMin){
+        if(toSort.get(newMin) < toSort.get(curMin))
+            curMin = newMin;
     }
 
     /**
@@ -69,5 +81,9 @@ public class SelectionSort_UDP {
         }
 
         return siList;
+    }
+
+    public MainServer getServer(){
+        return this.parent;
     }
 }

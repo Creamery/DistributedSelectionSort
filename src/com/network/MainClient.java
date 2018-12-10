@@ -1,17 +1,19 @@
 package com.network;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketException;
-import java.net.UnknownHostException;
+import java.io.ObjectInputStream;
+import java.net.*;
+import java.util.ArrayList;
 
+import com.SelectionSort.SelectionClient_UDP;
 import com.main.Info;
 import com.message.MainMessage;
+import com.message.NotifySwapMessage;
+import com.message.messageQueue.SelectionInstruction;
 import com.network.protocols.TCPTwoWayQueue;
 import com.network.protocols.UDPListener;
 import com.network.protocols.UDPUnpacker;
+import com.reusables.General;
 
 public class MainClient extends Thread implements UDPUnpacker {
 	// private TCPTwoWay tcpStream;
@@ -26,6 +28,11 @@ public class MainClient extends Thread implements UDPUnpacker {
 
 	private int UDPPort;
 	private int TCPPort;
+
+	//UDP Properties
+	private ArrayList<Integer> toSort;
+	private DatagramSocket mainUDPSocket;
+	private DatagramSocket requestSocket;
 
 	private volatile MainMessage mainMessage;
 	public MainClient() {
@@ -118,6 +125,8 @@ public class MainClient extends Thread implements UDPUnpacker {
 //		this.getTcpStream().startAsClient();
 	}
 
+	/// UDP-related methods
+
 	/**
 	 * This method is called when the client is 'ready' for sorting.
 	 */
@@ -126,24 +135,101 @@ public class MainClient extends Thread implements UDPUnpacker {
 		// UDP -- wait server to send a TCP connection request
 		try {
 			DatagramSocket udpSocket = new DatagramSocket(Info.PORT);
+			byte[] buf = new byte[Info.UDP_PACKET_SIZE];
+			DatagramPacket pck = new DatagramPacket(buf,buf.length);
+			try {
+				udpSocket.receive(pck);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			String msg = new String(pck.getData()).trim();
+			if(msg.equals("SYNC")){
+				// SEND A TCP Connection Request
+				try {
+					Socket inSocket = new Socket(this.getServerIP(), Info.PORT);
+					ObjectInputStream inStream = new ObjectInputStream(inSocket.getInputStream());
+
+					try{
+						System.out.println("Waiting for SORTLIST");
+						this.toSort = (ArrayList<Integer>) inStream.readObject();
+
+						inStream.close();
+						inSocket.close();
+					} catch(ClassNotFoundException e){ e. printStackTrace(); }
+				} catch (IOException e){ e.printStackTrace(); }
+			}
+			udpSocket.close();
 		} catch (SocketException e){ e.printStackTrace(); }
-		byte[] buf = new byte[Info.UDP_PACKET_SIZE];
-		DatagramPacket pck = new DatagramPacket(buf,buf.length);
-		try {
-			udpSocket.receive(pck);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		String msg = new String(pck.getData()).trim();
-		if(msg.equals("SYNC")){
-			// SEND A TCP Connection Request
-		}
-
-
-
-		//TODO: start UDP client-side selection.
+		// proceed to client-side selection
+		this.runConsumerSelectionLoop();
 	}
 
+	private void runConsumerSelectionLoop(){
+		try{
+			mainUDPSocket = new DatagramSocket(Info.PORT);
+			requestSocket = new DatagramSocket(Info.REQUEST_PORT);
+		} catch (SocketException e){ e.printStackTrace(); }
+
+		boolean isRunning = true;
+		while(isRunning){
+			// Wait for Server's ready message
+			byte[] buf = new byte[Info.UDP_PACKET_SIZE];
+			DatagramPacket pck = new DatagramPacket(buf,buf.length);
+			try{
+				mainUDPSocket.receive(pck);
+			} catch (IOException e){ e.printStackTrace(); }
+			String received = new String(pck.getData()).trim();
+			if(received.equals("READY")){
+				// Start requesting for an instruction
+				String msg = "";
+				while(!msg.equals("EMPTY")){
+					sendServer("REQ");
+					msg = waitFromServer();
+					if(msg.contains("INTSR:")){
+						// Process Instruction
+						SelectionInstruction instr = SelectionInstruction.parseString(msg);
+						int localMin = SelectionClient_UDP.runSelection(toSort,instr);
+						// Send Local Min
+						this.sendServer("LMIN:"+localMin);
+//						this.sendServer("LMIN:"+localMin+"-"+instr.getStartIndex()+"-"+instr.getEndIndex());
+					}
+				}
+				String swapInstr = waitFromServer();
+				if(msg.contains("SWAP:")){
+					// Perform swap to resync list
+					NotifySwapMessage nsm = NotifySwapMessage.parseString(swapInstr);
+					int a = toSort.get(nsm.getIndexA());
+					toSort.set(nsm.getIndexA(),toSort.get(nsm.getIndexB()));
+					toSort.set(nsm.getIndexB(),a);
+				}
+				else
+					new Exception("Invalid protocol sequence!").printStackTrace();
+
+			}else if(received.equals("STOP")){
+				isRunning = false;
+				System.out.println("Sort Complete");
+			}
+		}
+	}
+
+	public void sendServer(String message){
+		byte[] byt = General.padMessage(message.getBytes());
+		DatagramPacket pck = new DatagramPacket(byt,byt.length,
+				this.getServerIP(),Info.PORT);
+		try {
+			requestSocket.send(pck);
+		} catch (IOException e){ e.printStackTrace(); }
+	}
+
+	public String waitFromServer(){
+		byte[] buf = new byte[Info.UDP_PACKET_SIZE];
+		DatagramPacket pck = new DatagramPacket(buf,buf.length);
+		try{
+			requestSocket.receive(pck);
+		} catch (IOException e){ e.printStackTrace(); }
+		return new String(pck.getData()).trim();
+	}
+	/// End of UDP-related methods
 
 	public void setMainMessage(String message) {
 		this.mainMessage = new MainMessage();

@@ -6,15 +6,7 @@ import java.util.ArrayList;
 
 public class SelectionClient_UDP {
 
-    private ArrayList<Integer> toSelect;
-    private SelectionInstruction instruction;
-
-    public SelectionClient_UDP(ArrayList<Integer> toSelect, SelectionInstruction instruction){
-        this.toSelect = toSelect;
-        this.instruction = instruction;
-    }
-
-    public void runSelection(){
+    public static int runSelection(ArrayList<Integer> toSelect, SelectionInstruction instruction){
         int startIndex = instruction.getStartIndex();
         int endIndex = instruction.getEndIndex();
 
@@ -25,8 +17,6 @@ public class SelectionClient_UDP {
             }
         }
 
-        // TODO: notify server of found LocalMin
-
-
+        return localMin;
     }
 }
