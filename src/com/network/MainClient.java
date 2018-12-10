@@ -208,13 +208,13 @@ public class MainClient extends Thread implements UDPUnpacker {
 						if(msg.contains("INSTR:")){
 							// Process Instruction
 							SelectionInstruction si = SelectionInstruction.parseString(msg);
-							System.out.println("Obtained Instruction: "+si.toString());
+//							System.out.println("Obtained Instruction: "+si.toString());
 							int lm = SelectionClient_UDP.runSelection(toSort,si);
 
 							// Send Local Min
-							System.out.println("found local minimum");
+//							System.out.println("found local minimum");
 							this.sendServer("LMIN:"+lm);
-							System.out.println("sent local minimum");
+//							System.out.println("sent local minimum");
 
 							msg = this.waitFromServer();
 						}
@@ -256,7 +256,7 @@ public class MainClient extends Thread implements UDPUnpacker {
 					}
 
 					if(msg.contains("EMPTY")){
-						System.out.println("received EMPTY");
+//						System.out.println("received EMPTY");
 						//Perform swap now
 						int a = toSort.get(nsm.getIndexA());
 						toSort.set(nsm.getIndexA(),toSort.get(nsm.getIndexB()));
@@ -265,11 +265,11 @@ public class MainClient extends Thread implements UDPUnpacker {
 				}
 			}else if(msg.equals("STOP")){
 				isRunning = false;
+				General.trackStats_stop("client");
 				System.out.println("Sort Complete");
 			}
 			Stopwatch.stop_aggregate();
 		}
-		General.trackStats_stop("client");
 		Stopwatch.getAggregateAndPrint();
 	}
 

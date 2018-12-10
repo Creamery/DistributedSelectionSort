@@ -28,7 +28,7 @@ public class QManagerListener implements Runnable {
     public void run() {
         isListening = true;
         while(isListening){
-            System.out.println("Waiting for request.");
+//            System.out.println("Waiting for request.");
             String request = receiveRequest();
             System.out.println("Received::"+recentPck.getAddress()+"::"+request);
             if(request.contains("REQ")){

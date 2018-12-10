@@ -4,15 +4,8 @@ import com.SelectionSort.SelectionSort_UDP;
 import com.main.Info;
 import com.message.messageQueue.InProcessInfo;
 import com.message.messageQueue.SelectionInstruction;
-import com.network.MainServer;
-import com.reusables.General;
-
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -42,7 +35,7 @@ public class QueueManager {
         } else {
             SelectionInstruction toDeliver = instructionQ.poll();
             instructionCount--;
-            System.out.println("Instructions left: "+instructionCount);
+//            System.out.println("Instructions left: "+instructionCount);
             parent.getServer().sendToClient(consumerIP,toDeliver.toString());
             inProcessList.add(new InProcessInfo(toDeliver, consumerIP.toString(), this));
 
@@ -56,8 +49,8 @@ public class QueueManager {
         else{
             SelectionInstruction local = instructionQ.poll();
             instructionCount--;
-            System.out.println(Thread.currentThread().getName()+" - LOCAL||Instructions left: "+instructionCount);
-            System.out.println("Server-Side:: Obtained:"+ local.toString());
+//            System.out.println(Thread.currentThread().getName()+" - LOCAL||Instructions left: "+instructionCount);
+//            System.out.println("Server-Side:: Obtained:"+ local.toString());
             inProcessList.add(new InProcessInfo(local, Info.NETWORK, this));
             return local;
         }

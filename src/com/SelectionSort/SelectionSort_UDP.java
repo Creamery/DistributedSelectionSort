@@ -41,26 +41,26 @@ public class SelectionSort_UDP {
 
         for(int i=0; i<size; i++){
             curMin = i;
-            System.out.println("Reloading instructions");
+//            System.out.println("Reloading instructions");
             qManager.clearQueue();
             SelectionInstruction[] sis = getInstructions((i));
             qManager.addInstructions(sis);
 //            clientRequestListener.notify();
             parent.sendAllClients("READY");
-            System.out.println("Instructions ready for consumption");
+//            System.out.println("Instructions ready for consumption");
 
             //spin-lock
-            boolean hasPrintEmpty = false;
+//            boolean hasPrintEmpty = false;
             while(getLeft() > 0){
                 if(Info.ENABLE_SERVER_RUNNABLE){
                     SelectionInstruction si = qManager.obtainInstructionLocal();
                     if(si == null){
-                        if(!hasPrintEmpty)
-                            System.out.println("Server-Side:: Wait until solutions complete");
-                        hasPrintEmpty = true;
+//                        if(!hasPrintEmpty)
+//                            System.out.println("Server-Side:: Wait until solutions complete");
+//                        hasPrintEmpty = true;
                     }else{
                         int localMin = findMin(si);
-                        System.out.println("Server-Side:: Found minimum");
+//                        System.out.println("Server-Side:: Found minimum");
                         qManager.receiveLocalSolution(localMin,si);
                     }
                 }
@@ -71,7 +71,7 @@ public class SelectionSort_UDP {
                 }
             }
 
-            System.out.println("QManager Finished");
+//            System.out.println("QManager Finished");
 
             // Perform swap
             System.out.println("Performing Swap between: "+i+"-"+curMin);
@@ -82,11 +82,11 @@ public class SelectionSort_UDP {
 
         }
 //        clientRequestListener.notify();
+        General.trackStats_stop("Sorting");
         getServer().sendAllClients("STOP");
         System.out.println("Stopping clients");
         qRunnable.stop();
         System.out.println("Sorting completed");
-        General.trackStats_stop("Sorting");
 
         return toSort;
     }
@@ -129,11 +129,11 @@ public class SelectionSort_UDP {
             if(!isExact && t == splitCount -1)
                 nextIndex = toSort.size();
 
-            System.out.println("instruction range: "+curIndex+"-"+nextIndex);
+//            System.out.println("instruction range: "+curIndex+"-"+nextIndex);
             siList[t] = new SelectionInstruction(curIndex, nextIndex);
             curIndex = nextIndex;
         }
-        System.out.println("Total of "+siList.length+" instructions were generated");
+//        System.out.println("Total of "+siList.length+" instructions were generated");
         return siList;
     }
 
@@ -155,7 +155,7 @@ public class SelectionSort_UDP {
         this.leftCount--;
         if(this.leftCount < 0)
             this.leftCount = 0;
-        System.out.println("items left: "+this.leftCount);
+//        System.out.println("items left: "+this.leftCount);
     }
 
     public synchronized int getLeft(){
