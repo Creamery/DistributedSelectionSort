@@ -47,7 +47,7 @@ public class InProcessInfo {
 
     public InetAddress getConsumerIP(){
         try {
-            return InetAddress.getByName(this.consumerIP);
+            return InetAddress.getByName(this.consumerIP.substring(1));
         }catch (UnknownHostException e){
             e.printStackTrace();;
         }

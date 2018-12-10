@@ -86,6 +86,8 @@ public class QueueManager {
             inProcessList.removeIf(obj -> obj.getConsumerIP().equals(toRemove));
 
             isFinished = inProcessList.isEmpty() && instructionQ.isEmpty();
+            if(isFinished)
+                parent.shouldContinue = true;
         }
     }
 
@@ -97,6 +99,8 @@ public class QueueManager {
                     && obj.getInstruction().getEndIndex() == b);
 
             isFinished = inProcessList.isEmpty() && instructionQ.isEmpty();
+            if(isFinished)
+                parent.shouldContinue = true;
         }
     }
 
@@ -108,6 +112,9 @@ public class QueueManager {
                 && obj.getInstruction().getEndIndex() == b);
 
         isFinished = inProcessList.isEmpty() && instructionQ.isEmpty();
+        if(isFinished)
+            parent.shouldContinue = true;
+
     }
 
     public void addInstructions(SelectionInstruction[] instructions){
