@@ -238,7 +238,7 @@ public class MainClient extends Thread implements UDPUnpacker {
 	public void sendServer(String message){
 		byte[] byt = General.padMessage(message.getBytes());
 		DatagramPacket pck = new DatagramPacket(byt,byt.length,
-				this.getServerIP(),Info.PORT);
+				this.getServerIP(),Info.REQUEST_PORT);
 		try {
 			requestSocket.send(pck);
 		} catch (IOException e){ e.printStackTrace(); }
@@ -248,7 +248,7 @@ public class MainClient extends Thread implements UDPUnpacker {
 		byte[] buf = new byte[Info.UDP_PACKET_SIZE];
 		DatagramPacket pck = new DatagramPacket(buf,buf.length);
 		try{
-			requestSocket.receive(pck);
+			mainUDPSocket.receive(pck);
 		} catch (IOException e){ e.printStackTrace(); }
 		return new String(pck.getData()).trim();
 	}
