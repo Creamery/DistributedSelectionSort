@@ -65,7 +65,7 @@ public class SelectionSort_UDP {
                     }
                 }
                 try {
-                    Thread.sleep(200);
+                    Thread.sleep(10);
                 }catch(InterruptedException e){
                     e.printStackTrace();
                 }
@@ -83,6 +83,7 @@ public class SelectionSort_UDP {
         }
 //        clientRequestListener.notify();
         General.trackStats_stop("Sorting");
+        System.out.println("# of timeouts: "+qManager.getTimeoutCount());
         getServer().sendAllClients("STOP");
         System.out.println("Stopping clients");
         qRunnable.stop();

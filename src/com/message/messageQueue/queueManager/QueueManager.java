@@ -15,11 +15,13 @@ public class QueueManager {
     private ArrayList<InProcessInfo> inProcessList;
     private SelectionSort_UDP parent;
     private volatile int instructionCount;
+    private volatile int nTimeout;
 
     public QueueManager(SelectionSort_UDP parent){
         this.parent = parent;
         this.instructionQ = new ConcurrentLinkedQueue<>();
         this.inProcessList = new ArrayList<>();
+        nTimeout =0;
     }
 
     /**
@@ -72,6 +74,8 @@ public class QueueManager {
     }
 
     public synchronized void timeout(InProcessInfo timedOut){
+        System.out.println("Timeout occurred");
+        nTimeout++;
         removeInProcessInfo(timedOut.getConsumerIP());
         instructionQ.add(timedOut.getInstruction());
         instructionCount++;
@@ -146,6 +150,10 @@ public class QueueManager {
 
     public synchronized void clearQueue(){
         this.instructionQ.clear();
+    }
+
+    public int getTimeoutCount(){
+        return this.nTimeout;
     }
 
 }

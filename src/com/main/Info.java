@@ -13,7 +13,7 @@ public class Info {
 		public static final int _10000 = 10000;
 		public static final int _100000 = 100000;
 		public static final int _200000 = 200000;
-		public static final String preset_filename = generated_name_prefix+_100+".csv";
+		public static final String preset_filename = generated_name_prefix+_10000+".csv";
 
 	}
 	public static boolean ENABLE_SERVER_RUNNABLE = true;

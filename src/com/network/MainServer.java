@@ -296,7 +296,7 @@ public class MainServer extends Thread implements UDPUnpacker {
 		} catch (SocketException e){ e.printStackTrace(); }
 
 	    sSort_UDP = new SelectionSort_UDP(this.toSort,this);
-        ArrayList<Integer> sorted = sSort_UDP.runSorting(5);
+        ArrayList<Integer> sorted = sSort_UDP.runSorting(2);
 		System.out.println("List sorted!");
 		System.out.println("Saving sorted list to file...");
 		CsvWriter.write(sorted,"neil-test");
@@ -311,7 +311,7 @@ public class MainServer extends Thread implements UDPUnpacker {
 	}
 
 	public void sendToClient(InetAddress dest, String message){
-		System.out.println("SEND: "+dest+"::"+message);
+//		System.out.println("SEND: "+dest+"::"+message);
 		byte[] buf = General.padMessage(message.getBytes());
 		DatagramPacket pck = new DatagramPacket(buf, Info.UDP_PACKET_SIZE,
 				dest, Info.PORT);
@@ -322,32 +322,6 @@ public class MainServer extends Thread implements UDPUnpacker {
 
 	public DatagramSocket getUDPSocket(){
 		return this.mainUDPSocket;
-	}
-
-	public void sendServer(String message){
-		byte[] byt = General.padMessage(message.getBytes());
-		DatagramPacket pck = new DatagramPacket(byt,byt.length,
-				this.getAddress(),Info.REQUEST_PORT);
-		try {
-			mainUDPSocket.send(pck);
-			System.out.println("SENT "+message);
-		} catch (IOException e){ e.printStackTrace(); }
-	}
-
-	public String waitFromServer(){
-		byte[] buf = new byte[Info.UDP_PACKET_SIZE];
-		DatagramPacket pck = new DatagramPacket(buf,buf.length);
-		try{
-			mainUDPSocket.setSoTimeout((int)Info.TIMEOUT_DELAY);
-			mainUDPSocket.receive(pck);
-		}
-		catch (SocketException e1){
-			System.out.println("Timeout occurred");
-			return "EMPTY";
-		} catch (IOException e){ e.printStackTrace(); }
-		String s = new String(pck.getData()).trim();
-		System.out.println("Received: "+s);
-		return s;
 	}
     /// END OF METHODS FOR UDP-BASED SORTING
 
