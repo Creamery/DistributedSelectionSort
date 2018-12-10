@@ -79,8 +79,10 @@ public class QueueManager {
         inProcessList.removeIf(obj -> obj.getConsumerIP().equals(toRemove));
 
         isFinished = inProcessList.isEmpty() && instructionQ.isEmpty();
-        if(isFinished)
+        if(isFinished) {
             parent.shouldContinue = true;
+            System.out.println("Should continue set to true.");
+        }
     }
 
 //    private void removeInProcessInfo(SelectionInstruction toRemove){
