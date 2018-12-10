@@ -1,15 +1,20 @@
 package com.SelectionSort;
 
+import com.main.Info;
 import com.message.NotifySwapMessage;
 import com.message.messageQueue.queueManager.QManagerListener;
 import com.message.messageQueue.queueManager.QueueManager;
 import com.message.messageQueue.SelectionInstruction;
 import com.network.MainServer;
+import com.reusables.Stopwatch;
 
 import java.time.temporal.IsoFields;
 import java.util.ArrayList;
 
 public class SelectionSort_UDP {
+
+    private Thread serverClientThread;
+    private SelectionServerRunnable serverClientRunnable;
 
     private QueueManager qManager;
     private Thread clientRequestListener;
@@ -26,12 +31,21 @@ public class SelectionSort_UDP {
         qRunnable = new QManagerListener(qManager);
         clientRequestListener = new Thread(qRunnable);
         this.toSort = toSort;
+        if(Info.ENABLE_SERVER_RUNNABLE){
+            serverClientRunnable = new SelectionServerRunnable(qManager,toSort);
+            serverClientThread = new Thread(serverClientRunnable);
+        }
     }
 
     public ArrayList<Integer> runSorting(int numPartitions){
+        Stopwatch.start("runSorting");
         this.splitCount = numPartitions;
         int size = toSort.size();
         clientRequestListener.start();
+
+        if(Info.ENABLE_SERVER_RUNNABLE)
+            serverClientThread.start();
+
         for(int i=0; i<size; i++){
             curMin = i;
             System.out.println("Reloading instructions");
@@ -39,6 +53,8 @@ public class SelectionSort_UDP {
 //            clientRequestListener.notify();
             shouldContinue = false;
             parent.sendAllClients("READY");
+            if(Info.ENABLE_SERVER_RUNNABLE)
+                serverClientRunnable.unBlockReady();
             System.out.println("Instructions ready for consumption");
 
             //spin-lock
@@ -52,12 +68,17 @@ public class SelectionSort_UDP {
             toSort.set(i,toSort.get(curMin));
             toSort.set(curMin,a);
             getServer().sendAllClients(new NotifySwapMessage(i,curMin).toString());
+            if(Info.ENABLE_SERVER_RUNNABLE)
+                serverClientRunnable.swap(i,curMin);
 
         }
 //        clientRequestListener.notify();
         getServer().sendAllClients("STOP");
+        serverClientRunnable.setRunning(false);
         qRunnable.stop();
         System.out.println("Sorting completed");
+
+        Stopwatch.endAndPrint("runSorting");
         return toSort;
     }
 

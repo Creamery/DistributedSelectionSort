@@ -17,6 +17,7 @@ import com.network.protocols.UDPUnpacker;
 import com.reusables.CsvParser;
 import com.reusables.CsvWriter;
 import com.reusables.General;
+import com.reusables.Stopwatch;
 import sun.nio.cs.ext.TIS_620;
 
 public class MainServer extends Thread implements UDPUnpacker {
@@ -237,6 +238,7 @@ public class MainServer extends Thread implements UDPUnpacker {
 	public void synchronizeArrayWithClients(){
 		System.out.println("Synchronizing toSort list with clients...");
 	    // UDP -- Tell clients to send a TCP connection request
+		Stopwatch.start("syncArray-time");
 		try {
 			DatagramSocket udpSocket = new DatagramSocket(Info.PORT);
 
@@ -276,7 +278,7 @@ public class MainServer extends Thread implements UDPUnpacker {
         } catch (IOException e){
             e.printStackTrace();
         }
-
+		Stopwatch.endAndPrint("syncArray-time");
 		System.out.println("Synchronization complete!");
     }
 
@@ -288,7 +290,7 @@ public class MainServer extends Thread implements UDPUnpacker {
 		} catch (SocketException e){ e.printStackTrace(); }
 
 	    sSort_UDP = new SelectionSort_UDP(this.toSort,this);
-        ArrayList<Integer> sorted = sSort_UDP.runSorting(listClients.size());
+        ArrayList<Integer> sorted = sSort_UDP.runSorting(3);
 		System.out.println("List sorted!");
 		System.out.println("Saving sorted list to file...");
 		CsvWriter.write(sorted,"neil-test");
