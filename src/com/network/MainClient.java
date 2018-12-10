@@ -149,7 +149,7 @@ public class MainClient extends Thread implements UDPUnpacker {
 			if(msg.equals("SYNC")){
 				// SEND A TCP Connection Request
 				try {
-					Socket inSocket = new Socket(this.getServerIP(), Info.PORT);
+					Socket inSocket = new Socket(this.getServerIP(), this.getUDPPort());
 					ObjectInputStream inStream = new ObjectInputStream(inSocket.getInputStream());
 
 					try{
