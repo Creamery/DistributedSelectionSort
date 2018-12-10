@@ -33,7 +33,8 @@ public class Info {
 	public static String ETHER_NET = "169.254.233.8";
 	
 	public static String NETWORK = GetSelfAddress();
-	public static int SERVER_TIMEOUT = 0;
+	public static int SERVER_TIMEOUT = 10000;
+	public static long TIMEOUT_DELAY = 10000;
 	public static int BUFFER_SIZE = 256;
 	
 	public static String MSG_CLIENT_RECEIVED = "msgClientReceived";
@@ -77,5 +78,4 @@ public class Info {
 		BUFFER_SIZE = bUFFER_SIZE;
 	}
 
-	public static long TIMEOUT_DELAY = 10000;
 }
