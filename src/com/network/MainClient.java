@@ -83,7 +83,8 @@ public class MainClient extends Thread implements UDPUnpacker {
 	// Send IP as a reply
 	public void send() {
 		System.out.println("Sending IP...");
-		byte[] buffer = (Info.HDR_CLIENT+Info.HDR_SPLIT+Info.NETWORK).getBytes();
+		byte[] buffer = (Info.HDR_CLIENT+Info.HDR_SPLIT+Info.NETWORK+"#").getBytes();
+		System.out.println("IP: "+Info.NETWORK);
 		DatagramPacket packet = null;
 		
 		// Prepare to send

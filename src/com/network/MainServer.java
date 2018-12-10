@@ -202,7 +202,7 @@ public class MainServer extends Thread implements UDPUnpacker {
 	@Override
 	public void unpack(String message) {
 		try {
-			String ip = message.substring(message.indexOf("/")+1);
+			String ip = message.substring(message.indexOf("/")+1, message.indexOf("#"));
 			InetAddress address = InetAddress.getByName(ip);
 			
 			if(this.getAddress().toString().substring(1).equals(ip)) {
