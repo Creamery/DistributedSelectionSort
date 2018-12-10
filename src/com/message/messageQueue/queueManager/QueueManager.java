@@ -135,8 +135,6 @@ public class QueueManager {
     }
 
     public boolean isFinished(){
-        synchronized (monitor) {
-            return this.isFinished;
-        }
+        return this.isFinished;
     }
 }
