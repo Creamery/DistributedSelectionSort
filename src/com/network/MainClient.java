@@ -279,7 +279,7 @@ public class MainClient extends Thread implements UDPUnpacker {
 				this.getServerIP(),Info.REQUEST_PORT);
 		try {
 			requestSocket.send(pck);
-			System.out.println(Instant.now()+" || SENT "+message);
+//			System.out.println(Instant.now()+" || SENT "+message);
 		} catch (IOException e){ e.printStackTrace(); }
 	}
 
@@ -295,7 +295,7 @@ public class MainClient extends Thread implements UDPUnpacker {
 			return "EMPTY";
 		} catch (IOException e){ e.printStackTrace(); }
 		String s = new String(pck.getData()).trim();
-		System.out.println(Instant.now()+" || Received: "+s);
+//		System.out.println(Instant.now()+" || Received: "+s);
 		return s;
 	}
 	/// End of UDP-related methods
