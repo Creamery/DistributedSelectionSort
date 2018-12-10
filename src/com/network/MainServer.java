@@ -50,7 +50,8 @@ public class MainServer extends Thread implements UDPUnpacker {
 		
 		try {
 //			this.setProcessor(new ServerProcessor(Info.CLIENT_SIZE));
-			this.setAddress(InetAddress.getByName(Info.NETWORK.split("/")[1]));
+			System.out.println("IP:"+Info.NETWORK);
+			this.setAddress(InetAddress.getByName(Info.NETWORK.trim()));
 //			this.setTcpStream(new TCPTwoWay("Server", this.getTCPPort(), this.getProcessor()));
 //			this.setTcpStream(new TCPTwoWayQueue("Server", this.getTCPPort(), this.getProcessor()));
 		} catch (IOException e) {
@@ -203,7 +204,7 @@ public class MainServer extends Thread implements UDPUnpacker {
 	@Override
 	public void unpack(String message) {
 		try {
-			String ip = message.substring(message.indexOf("/")+1, message.indexOf("#"));
+			String ip = message.substring(message.indexOf("_")+1, message.indexOf("#"));
 			InetAddress address = InetAddress.getByName(ip);
 			
 			if(this.getAddress().toString().substring(1).equals(ip)) {
