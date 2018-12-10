@@ -30,6 +30,7 @@ public class SelectionServerRunnable implements Runnable {
                 System.out.println("Server client runnable: blocking until ready...");
                 // wait until block ready is set false
                 while(blockReady && isRunning);
+                System.out.println("Server client runnable: unblocked");
             }
             else{
                 int localMin = findMin(si);
