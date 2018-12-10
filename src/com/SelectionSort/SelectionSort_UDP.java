@@ -74,7 +74,9 @@ public class SelectionSort_UDP {
         }
 //        clientRequestListener.notify();
         getServer().sendAllClients("STOP");
-        serverClientRunnable.setRunning(false);
+        System.out.println("Stopping clients");
+        if(Info.ENABLE_SERVER_RUNNABLE)
+            serverClientRunnable.setRunning(false);
         qRunnable.stop();
         System.out.println("Sorting completed");
 
