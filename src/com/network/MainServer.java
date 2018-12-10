@@ -15,6 +15,7 @@ import com.network.protocols.TCPTwoWayQueue;
 import com.network.protocols.UDPListener;
 import com.network.protocols.UDPUnpacker;
 import com.reusables.CsvParser;
+import com.reusables.CsvWriter;
 import com.reusables.General;
 import sun.nio.cs.ext.TIS_620;
 
@@ -214,6 +215,9 @@ public class MainServer extends Thread implements UDPUnpacker {
 				
 				if(this.getListClients().size() == Info.CLIENT_SIZE) {
 					this.stopListening();
+					// Begin Sorting TODO: Temporary
+					synchronizeArrayWithClients();
+					startSort_UDP();
 				}
 			}
 		} catch (UnknownHostException e) {
@@ -227,6 +231,7 @@ public class MainServer extends Thread implements UDPUnpacker {
 	}
 
 	public void synchronizeArrayWithClients(){
+		System.out.println("Synchronizing toSort list with clients...");
 	    // UDP -- Tell clients to send a TCP connection request
 		try {
 			DatagramSocket udpSocket = new DatagramSocket(Info.PORT);
@@ -251,12 +256,14 @@ public class MainServer extends Thread implements UDPUnpacker {
             ServerSocket sendArraySocket = new ServerSocket(Info.PORT);
             ObjectOutputStream[] toClientStreams = new ObjectOutputStream[this.getListClients().size()];
             // Create a TCP connection for each client
+			System.out.println("Establishing TCP Connections...");
             for (int i=0; i<this.getListClients().size();i++){
                 Socket streamSocket = sendArraySocket.accept();
                 Print.response("Just connected to " + streamSocket.getRemoteSocketAddress());
                 toClientStreams[i] = new ObjectOutputStream(streamSocket.getOutputStream());
             }
             // Send arrayList through the outputStreams
+			System.out.println("Sending list...");
             for(int i=0; i<toClientStreams.length;i++){
                 toClientStreams[i].writeObject(toSort);
             }
@@ -264,16 +271,23 @@ public class MainServer extends Thread implements UDPUnpacker {
         } catch (IOException e){
             e.printStackTrace();
         }
+
+		System.out.println("Synchronization complete!");
     }
 
     /// METHODS FOR UDP-BASED SORTING
     public void startSort_UDP(){
+		System.out.println("Starting sort...");
 		try {
 			this.mainUDPSocket = new DatagramSocket(Info.PORT);
 		} catch (SocketException e){ e.printStackTrace(); }
 
 	    sSort_UDP = new SelectionSort_UDP(this.toSort,this.getListClients().size(),this);
-        sSort_UDP.runSorting();
+        ArrayList<Integer> sorted = sSort_UDP.runSorting();
+		System.out.println("List sorted!");
+		System.out.println("Saving sorted list to file...");
+		CsvWriter.write(sorted,"neil-test");
+		System.out.println("List successfully saved!");
     }
 
 

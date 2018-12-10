@@ -27,7 +27,7 @@ public class SelectionSort_UDP {
         this.splitCount = numPartitions;
     }
 
-    public void runSorting(){
+    public ArrayList<Integer> runSorting(){
         int size = toSort.size();
         clientRequestListener.start();
         for(int i=0; i<size; i++){
@@ -51,6 +51,7 @@ public class SelectionSort_UDP {
 //        clientRequestListener.notify();
         getServer().sendAllClients("STOP");
         qRunnable.stop();
+        return toSort;
     }
 
     public void compareAndSetMin(int newMin){
