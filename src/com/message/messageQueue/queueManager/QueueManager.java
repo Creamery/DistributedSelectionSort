@@ -75,6 +75,7 @@ public class QueueManager {
     }
 
     public synchronized void timeout(InProcessInfo timedOut){
+        this.parent.incrementLeft();
         removeInProcessInfo(timedOut.getConsumerIP());
         instructionQ.add(timedOut.getInstruction());
     }
@@ -83,10 +84,7 @@ public class QueueManager {
         inProcessList.removeIf(obj -> obj.getConsumerIP().equals(toRemove));
 
         isFinished = inProcessList.isEmpty() && instructionQ.isEmpty();
-        if(isFinished) {
-            parent.setDone(true);
-            System.out.println("Should continue set to true.");
-        }
+        this.parent.decrementLeft();
     }
 
     private synchronized void removeInProcessInfo(SelectionInstruction toRemove){
@@ -96,8 +94,7 @@ public class QueueManager {
                 && obj.getInstruction().getEndIndex() == b);
 
         isFinished = inProcessList.isEmpty() && instructionQ.isEmpty();
-        if(isFinished)
-            parent.setDone(true);
+        this.parent.decrementLeft();
     }
 //
 //    private void removeInProcessInfo(InProcessInfo toRemove){

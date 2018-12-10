@@ -20,6 +20,7 @@ public class SelectionSort_UDP {
     private volatile ArrayList<Integer> toSort;
     private volatile int curMin;
     private volatile boolean shouldContinue;
+    private volatile int leftCount;
     private int splitCount;
     private MainServer parent;
 
@@ -40,34 +41,26 @@ public class SelectionSort_UDP {
         for(int i=0; i<size; i++){
             curMin = i;
             System.out.println("Reloading instructions");
-            qManager.addInstructions(getInstructions(i));
+            SelectionInstruction[] sis = getInstructions((i));
+            qManager.addInstructions(sis);
+            this.leftCount = sis.length;
 //            clientRequestListener.notify();
-            setDone(false);
             parent.sendAllClients("READY");
             System.out.println("Instructions ready for consumption");
 
             //spin-lock
-            while(!shouldContinue){
+            while(getLeft() > 0){
                 if(Info.ENABLE_SERVER_RUNNABLE){
                     SelectionInstruction si = qManager.obtainInstructionLocal();
                     if(si == null){
                         System.out.println("wait for shouldContinue");
-                        while(!shouldContinue){
-                            System.out.println(qManager.isFinished());
-                            if(qManager.isFinished()) {
-                                shouldContinue = true;
-                                break;
-                            }
-//                            try{
-//                                Thread.sleep(50);
-//                            } catch (InterruptedException e){e.printStackTrace();}
+                        while(getLeft() > 0){
+                            // Do nothing
                         }
                     }else{
                         int localMin = findMin(si);
                         System.out.println("found minimum");
                         qManager.receiveLocalSolution(localMin,si);
-                        if(qManager.isFinished())
-                            setDone(true);
                     }
                 }
             }
@@ -142,7 +135,17 @@ public class SelectionSort_UDP {
         return this.parent;
     }
 
-    public synchronized void setDone(boolean val){
-        this.shouldContinue = val;
+    public synchronized void incrementLeft(){
+        this.leftCount++;
+        System.out.println("items left: "+this.leftCount);
+    }
+
+    public synchronized void decrementLeft(){
+        this.leftCount--;
+        System.out.println("items left: "+this.leftCount);
+    }
+
+    public synchronized int getLeft(){
+        return this.leftCount;
     }
 }
