@@ -135,12 +135,13 @@ public class MainClient extends Thread implements UDPUnpacker {
 		System.out.println("UDP Setup");
 		// UDP -- wait server to send a TCP connection request
 		try {
-			DatagramSocket udpSocket = new DatagramSocket(Info.PORT);
+			DatagramSocket udpSocket = new DatagramSocket(Info.PORT + 1);
 			byte[] buf = new byte[Info.UDP_PACKET_SIZE];
 			DatagramPacket pck = new DatagramPacket(buf,buf.length);
 			try {
 				System.out.println("Waiting for SYNC prompt...");
 				udpSocket.receive(pck);
+				System.out.println("Received something.");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

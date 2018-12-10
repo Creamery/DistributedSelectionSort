@@ -243,10 +243,11 @@ public class MainServer extends Thread implements UDPUnpacker {
 				byte[] buf = General.padMessage(new String("SYNC").getBytes());
 
 				DatagramPacket pck = new DatagramPacket(buf, Info.UDP_PACKET_SIZE,
-						this.getListClients().get(i), Info.PORT);
-
+						this.getListClients().get(i), Info.PORT + 1);
+				System.out.println("Sending 'SYNC' to "+this.getListClients().get(i));
 				try {
 					udpSocket.send(pck);
+					System.out.println("Message successfully sent.");
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
