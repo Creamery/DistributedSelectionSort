@@ -30,7 +30,7 @@ public class SelectionServerRunnable implements Runnable {
     public void run() {
         isRunning = true;
         while(isRunning){
-            SelectionInstruction si = qManager.obtainInstructionLocal(Info.NETWORK);
+            SelectionInstruction si = qManager.obtainInstructionLocal();
             if(si == null){
                 blockReady = true;
                 System.out.println("Server client runnable: blocking until ready...");
