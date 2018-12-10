@@ -17,11 +17,11 @@ public class Info {
 
 	}
 	public static int UDP_PACKET_SIZE = 64;
-	public static int PORT = 80;
+	public static int PORT = 5000;
 	/**
 	 * Used by the clients when sending a request to the server.
 	 */
-	public static int REQUEST_PORT = 90;
+	public static int REQUEST_PORT = 5001;
 	public static int BROADCAST_PORT = 4445;
 
 	public static String BROADCAST_IP = "255.255.255.255";

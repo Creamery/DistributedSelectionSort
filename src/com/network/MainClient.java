@@ -201,6 +201,7 @@ public class MainClient extends Thread implements UDPUnpacker {
 				// Start requesting for an instruction
 				String msg = "";
 				while(!msg.equals("EMPTY")){
+					System.out.println("Sending request...");
 					sendServer("REQ");
 					msg = waitFromServer();
 					if(msg.contains("INTSR:")){
