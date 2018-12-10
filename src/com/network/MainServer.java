@@ -290,7 +290,7 @@ public class MainServer extends Thread implements UDPUnpacker {
 		} catch (SocketException e){ e.printStackTrace(); }
 
 	    sSort_UDP = new SelectionSort_UDP(this.toSort,this);
-        ArrayList<Integer> sorted = sSort_UDP.runSorting(3);
+        ArrayList<Integer> sorted = sSort_UDP.runSorting(5);
 		System.out.println("List sorted!");
 		System.out.println("Saving sorted list to file...");
 		CsvWriter.write(sorted,"neil-test");

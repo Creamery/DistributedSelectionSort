@@ -7,6 +7,7 @@ import com.message.messageQueue.queueManager.QueueManager;
 import com.message.messageQueue.SelectionInstruction;
 import com.network.MainServer;
 import com.reusables.Stopwatch;
+import jdk.nashorn.internal.ir.CatchNode;
 
 import java.time.temporal.IsoFields;
 import java.util.ArrayList;
@@ -18,7 +19,7 @@ public class SelectionSort_UDP {
     private QManagerListener qRunnable;
     private volatile ArrayList<Integer> toSort;
     private volatile int curMin;
-    public volatile boolean shouldContinue;
+    private volatile boolean shouldContinue;
     private int splitCount;
     private MainServer parent;
 
@@ -41,23 +42,32 @@ public class SelectionSort_UDP {
             System.out.println("Reloading instructions");
             qManager.addInstructions(getInstructions(i));
 //            clientRequestListener.notify();
-            shouldContinue = false;
+            setDone(false);
             parent.sendAllClients("READY");
             System.out.println("Instructions ready for consumption");
 
             //spin-lock
             while(!shouldContinue){
                 if(Info.ENABLE_SERVER_RUNNABLE){
-                    SelectionInstruction si = qManager.obtainInstructionLocal(Info.NETWORK);
+                    SelectionInstruction si = qManager.obtainInstructionLocal();
                     if(si == null){
                         System.out.println("wait for shouldContinue");
                         while(!shouldContinue){
-                            try{ wait(50); } catch(Exception e){e.printStackTrace();}
+                            System.out.println(qManager.isFinished());
+                            if(qManager.isFinished()) {
+                                shouldContinue = true;
+                                break;
+                            }
+//                            try{
+//                                Thread.sleep(50);
+//                            } catch (InterruptedException e){e.printStackTrace();}
                         }
                     }else{
                         int localMin = findMin(si);
                         System.out.println("found minimum");
-                        qManager.receiveSolution(localMin,getServer().getAddress());
+                        qManager.receiveLocalSolution(localMin,si);
+                        if(qManager.isFinished())
+                            setDone(true);
                     }
                 }
             }
@@ -130,5 +140,9 @@ public class SelectionSort_UDP {
 
     public MainServer getServer(){
         return this.parent;
+    }
+
+    public synchronized void setDone(boolean val){
+        this.shouldContinue = val;
     }
 }
