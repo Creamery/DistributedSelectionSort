@@ -21,11 +21,9 @@ public class QueueManager {
     private ArrayList<InProcessInfo> inProcessList;
     private SelectionSort_UDP parent;
     private volatile boolean isFinished;
-    private Object monitor;
 
     public QueueManager(SelectionSort_UDP parent){
         this.parent = parent;
-        monitor = new Object();
         this.instructionQ = new LinkedList<>();
         this.inProcessList = new ArrayList<>();
     }
@@ -78,13 +76,11 @@ public class QueueManager {
     }
 
     private void removeInProcessInfo(InetAddress toRemove){
-        synchronized (monitor) {
-            inProcessList.removeIf(obj -> obj.getConsumerIP().equals(toRemove));
+        inProcessList.removeIf(obj -> obj.getConsumerIP().equals(toRemove));
 
-            isFinished = inProcessList.isEmpty() && instructionQ.isEmpty();
-            if(isFinished)
-                parent.shouldContinue = true;
-        }
+        isFinished = inProcessList.isEmpty() && instructionQ.isEmpty();
+        if(isFinished)
+            parent.shouldContinue = true;
     }
 
 //    private void removeInProcessInfo(SelectionInstruction toRemove){
