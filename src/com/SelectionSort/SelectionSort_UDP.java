@@ -13,9 +13,6 @@ import java.util.ArrayList;
 
 public class SelectionSort_UDP {
 
-    private Thread serverClientThread;
-    private SelectionServerRunnable serverClientRunnable;
-
     private QueueManager qManager;
     private Thread clientRequestListener;
     private QManagerListener qRunnable;
@@ -31,10 +28,6 @@ public class SelectionSort_UDP {
         qRunnable = new QManagerListener(qManager);
         clientRequestListener = new Thread(qRunnable);
         this.toSort = toSort;
-        if(Info.ENABLE_SERVER_RUNNABLE){
-            serverClientRunnable = new SelectionServerRunnable(qManager,toSort);
-            serverClientThread = new Thread(serverClientRunnable);
-        }
     }
 
     public ArrayList<Integer> runSorting(int numPartitions){
@@ -42,9 +35,6 @@ public class SelectionSort_UDP {
         this.splitCount = numPartitions;
         int size = toSort.size();
         clientRequestListener.start();
-
-        if(Info.ENABLE_SERVER_RUNNABLE)
-            serverClientThread.start();
 
         for(int i=0; i<size; i++){
             curMin = i;
@@ -56,7 +46,18 @@ public class SelectionSort_UDP {
             System.out.println("Instructions ready for consumption");
 
             //spin-lock
-            while(!shouldContinue);
+            while(!shouldContinue){
+                if(Info.ENABLE_SERVER_RUNNABLE){
+                    SelectionInstruction si = qManager.obtainInstructionLocal(Info.NETWORK);
+                    if(si == null){
+                        System.out.println("Received null SI");
+                    }else{
+                        int localMin = findMin(si);
+                        System.out.println("found minimum");
+                        qManager.receiveSolution(localMin,getServer().getAddress());
+                    }
+                }
+            }
 
             System.out.println("QManager Finished");
 
@@ -66,15 +67,11 @@ public class SelectionSort_UDP {
             toSort.set(i,toSort.get(curMin));
             toSort.set(curMin,a);
             getServer().sendAllClients(new NotifySwapMessage(i,curMin).toString());
-            if(Info.ENABLE_SERVER_RUNNABLE)
-                serverClientRunnable.swap(i,curMin);
 
         }
 //        clientRequestListener.notify();
         getServer().sendAllClients("STOP");
         System.out.println("Stopping clients");
-        if(Info.ENABLE_SERVER_RUNNABLE)
-            serverClientRunnable.setRunning(false);
         qRunnable.stop();
         System.out.println("Sorting completed");
 
@@ -86,6 +83,20 @@ public class SelectionSort_UDP {
         System.out.println("Comparing "+newMin+" with old:"+curMin);
         if(toSort.get(newMin) < toSort.get(curMin))
             curMin = newMin;
+    }
+
+    private int findMin(SelectionInstruction si){
+        int a = si.getStartIndex();
+        int b = si.getEndIndex();
+
+        int localMin = a;
+        for(int i = a+ 1; i < b; i++) {
+            if(toSort.get(i) < toSort.get(localMin)) {
+                localMin = i;
+            }
+        }
+
+        return localMin;
     }
 
     /**
