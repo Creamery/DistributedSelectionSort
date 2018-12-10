@@ -139,6 +139,7 @@ public class MainClient extends Thread implements UDPUnpacker {
 			byte[] buf = new byte[Info.UDP_PACKET_SIZE];
 			DatagramPacket pck = new DatagramPacket(buf,buf.length);
 			try {
+				System.out.println("Waiting for SYNC prompt...");
 				udpSocket.receive(pck);
 			} catch (IOException e) {
 				e.printStackTrace();

@@ -216,8 +216,11 @@ public class MainServer extends Thread implements UDPUnpacker {
 				if(this.getListClients().size() == Info.CLIENT_SIZE) {
 					this.stopListening();
 					// Begin Sorting TODO: Temporary
-					synchronizeArrayWithClients();
-					startSort_UDP();
+					try {
+						Thread.sleep(1000);
+						synchronizeArrayWithClients();
+						startSort_UDP();
+					} catch(Exception e){ e.printStackTrace(); }
 				}
 			}
 		} catch (UnknownHostException e) {
