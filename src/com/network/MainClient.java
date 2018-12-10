@@ -33,12 +33,16 @@ public class MainClient extends Thread implements UDPUnpacker {
 	private ArrayList<Integer> toSort;
 	private DatagramSocket mainUDPSocket;
 	private DatagramSocket requestSocket;
+	private DatagramSocket prepUDPSocket;
+	private Socket inSocket;
 
 	private volatile MainMessage mainMessage;
 	public MainClient() {
 		this.setUDPPort(Info.BROADCAST_PORT);
 		this.setTCPPort(Info.PORT);
-		
+		try {
+			this.prepUDPSocket = new DatagramSocket(4000);
+		} catch(Exception e) {e.printStackTrace();}
 //		try {
 //			this.setProcessor(new ClientProcessor());
 //			this.setTcpStream(new TCPTwoWay("Client", this.getTCPPort(), this.getProcessor()));
@@ -46,7 +50,12 @@ public class MainClient extends Thread implements UDPUnpacker {
 //		} catch (IOException e) {
 //			e.printStackTrace();
 //		}
-		
+
+		try{
+			mainUDPSocket = new DatagramSocket(Info.PORT);
+			requestSocket = new DatagramSocket(Info.REQUEST_PORT);
+		} catch (SocketException e){ e.printStackTrace(); }
+
 		this.setUdpListener(new UDPListener(this));
 	}
 	
@@ -103,11 +112,12 @@ public class MainClient extends Thread implements UDPUnpacker {
 	@Override
 	public void unpack(String message) {
 		this.stopListening();
-		String ip = message.substring(message.indexOf("/")+1);
+		String ip = message.substring(message.indexOf("_")+1);
 		System.out.println("Unpacked message: "+message+"\nTrimmed: "+ip);
 		try {
 			this.setServerIP(InetAddress.getByName(ip));
-		} catch (UnknownHostException e) {
+
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		System.out.println("TODO TCP setup");
@@ -137,15 +147,15 @@ public class MainClient extends Thread implements UDPUnpacker {
 		System.out.println("UDP Setup");
 		// UDP -- wait server to send a TCP connection request
 		try {
-			udpSocket = new DatagramSocket(4000);
-			udpSocket.connect(this.getServerIP(),4000);
+//			this.prepUDPSocket = new DatagramSocket(4000);
+//			this.prepUDPSocket.connect(this.getServerIP(),4000);
 			byte[] buf = new byte[Info.UDP_PACKET_SIZE];
 			System.out.println("buf len: "+buf.length);
 //			getUdpListener().setBuffer(buf);
 			DatagramPacket pck = new DatagramPacket(buf,buf.length);
-			try {
-				System.out.println("Waiting for SYNC prompt, listening at:"+udpSocket.getPort()+"...");
-				udpSocket.receive(pck);
+//			try {
+				System.out.println("Waiting for SYNC prompt, listening at:"+this.prepUDPSocket.getPort()+"...");
+				this.prepUDPSocket.receive(pck);
 //				listen("SYNC");
 				System.out.println("Received something.");
 			} catch (IOException e) {
@@ -155,29 +165,27 @@ public class MainClient extends Thread implements UDPUnpacker {
 			if(msg.equals("SYNC")){
 				// SEND A TCP Connection Request
 				try {
-					Socket inSocket = new Socket(this.getServerIP(), Info.PORT);
+//					Thread.sleep(2000);
+					this.inSocket = new Socket(this.getServerIP(), Info.PORT);
 					ObjectInputStream inStream = new ObjectInputStream(inSocket.getInputStream());
 
 					try{
 						System.out.println("Waiting for SORTLIST");
-						this.toSort = (ArrayList<Integer>) inStream.readObject();
-
+						ArrayList<Integer> a = (ArrayList<Integer>) inStream.readObject();
+						toSort = a;
+						System.out.println("SORTLIST obtained");
 						inStream.close();
 						inSocket.close();
 					} catch(ClassNotFoundException e){ e. printStackTrace(); }
-				} catch (IOException e){ e.printStackTrace(); }
+				} catch (Exception e){ e.printStackTrace(); }
 			}
-			udpSocket.close();
-		} catch (SocketException e){ e.printStackTrace(); }
+			this.prepUDPSocket.close();
+//		} catch (SocketException e){ e.printStackTrace(); }
 		// proceed to client-side selection
 		this.runConsumerSelectionLoop();
 	}
 
 	private void runConsumerSelectionLoop(){
-		try{
-			mainUDPSocket = new DatagramSocket(Info.PORT);
-			requestSocket = new DatagramSocket(Info.REQUEST_PORT);
-		} catch (SocketException e){ e.printStackTrace(); }
 
 		boolean isRunning = true;
 		while(isRunning){
@@ -189,6 +197,7 @@ public class MainClient extends Thread implements UDPUnpacker {
 			} catch (IOException e){ e.printStackTrace(); }
 			String received = new String(pck.getData()).trim();
 			if(received.equals("READY")){
+				System.out.println("received ready");
 				// Start requesting for an instruction
 				String msg = "";
 				while(!msg.equals("EMPTY")){
@@ -197,12 +206,15 @@ public class MainClient extends Thread implements UDPUnpacker {
 					if(msg.contains("INTSR:")){
 						// Process Instruction
 						SelectionInstruction instr = SelectionInstruction.parseString(msg);
+						System.out.println("Obtained Instruction: "+instr.toString());
 						int localMin = SelectionClient_UDP.runSelection(toSort,instr);
 						// Send Local Min
 						this.sendServer("LMIN:"+localMin);
+						System.out.println("found local minimum");
 //						this.sendServer("LMIN:"+localMin+"-"+instr.getStartIndex()+"-"+instr.getEndIndex());
 					}
 				}
+				System.out.println("list empty");
 				String swapInstr = waitFromServer();
 				if(msg.contains("SWAP:")){
 					// Perform swap to resync list
