@@ -6,6 +6,7 @@ import com.message.messageQueue.queueManager.QManagerListener;
 import com.message.messageQueue.queueManager.QueueManager;
 import com.message.messageQueue.SelectionInstruction;
 import com.network.MainServer;
+import com.reusables.General;
 import com.reusables.Stopwatch;
 import jdk.nashorn.internal.ir.CatchNode;
 
@@ -33,7 +34,7 @@ public class SelectionSort_UDP {
     }
 
     public ArrayList<Integer> runSorting(int numPartitions){
-        Stopwatch.start("runSorting");
+        General.trackStats_start("Sorting");
         this.splitCount = numPartitions;
         int size = toSort.size();
         clientRequestListener.start();
@@ -85,8 +86,8 @@ public class SelectionSort_UDP {
         System.out.println("Stopping clients");
         qRunnable.stop();
         System.out.println("Sorting completed");
+        General.trackStats_stop("Sorting");
 
-        Stopwatch.endAndPrint("runSorting");
         return toSort;
     }
 

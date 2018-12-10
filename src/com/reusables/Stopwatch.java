@@ -17,6 +17,43 @@ public abstract class Stopwatch {
 //    static Instant start;
     static Instant end;
 
+    static int AGGR_COUNT = 0;
+    static ArrayList<Instant[]> toAggregate;
+
+    public static void start_aggregate(){
+        Instant start = Instant.now();
+        if(toAggregate == null)
+            toAggregate = new ArrayList<>();
+        Instant[] e = new Instant[2];
+        e[0] = start;
+        toAggregate.add(e);
+    }
+
+    public static void stop_aggregate(){
+        Instant stop = Instant.now();
+        toAggregate.get(AGGR_COUNT)[1] = stop;
+        AGGR_COUNT++;
+    }
+
+    public static long getAggregate(){
+        long aggr = 0;
+        for(Instant[] e : toAggregate){
+            aggr += Duration.between(e[0],e[1]).toMillis();
+        }
+        aggr /= toAggregate.size();
+        return aggr;
+    }
+
+    public static long getAggregateAndPrint(){
+        long aggr = 0;
+        for(Instant[] e : toAggregate){
+            aggr += Duration.between(e[0],e[1]).toMillis();
+        }
+        aggr /= toAggregate.size();
+        System.out.println("STOPWATCH:: Average of "+aggr+"ms in a total of "+toAggregate.size()+" laps!");
+        return aggr;
+    }
+
     public static void start(){
         Instant start = Instant.now();
         if(startMap == null ){
@@ -66,7 +103,7 @@ public abstract class Stopwatch {
         String name = names.poll();
         Instant start = startMap.get(names.poll());
         long duration = Duration.between(start,end).toMillis();
-        System.out.println("Stopped watch for process '"+name+"' after "+duration+"ms.");
+        System.out.println("STOPWATCH:: Stopped watch for process '"+name+"' after "+duration+"ms.");
         return duration;
     }
 
@@ -78,7 +115,7 @@ public abstract class Stopwatch {
         Instant start = startMap.get(name);
         names.removeIf(a -> a.equals(name));
         long duration = Duration.between(start,end).toMillis();
-        System.out.println("Stopped watch for process '"+name+"' after "+duration+"ms.");
+        System.out.println("STOPWATCH:: Stopped watch for process '"+name+"' after "+duration+"ms.");
         return duration;
     }
 

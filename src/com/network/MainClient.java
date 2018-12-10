@@ -15,6 +15,7 @@ import com.network.protocols.TCPTwoWayQueue;
 import com.network.protocols.UDPListener;
 import com.network.protocols.UDPUnpacker;
 import com.reusables.General;
+import com.reusables.Stopwatch;
 
 public class MainClient extends Thread implements UDPUnpacker {
 	// private TCPTwoWay tcpStream;
@@ -189,8 +190,10 @@ public class MainClient extends Thread implements UDPUnpacker {
 
 		boolean isRunning = true;
 		boolean outOfOrderReady = false;
+		General.trackStats_start("client");
 		while(isRunning){
 			// Wait for Server's ready message
+			Stopwatch.start_aggregate();
 			String msg;
 			if(outOfOrderReady)
 				msg = "READY";
@@ -264,7 +267,10 @@ public class MainClient extends Thread implements UDPUnpacker {
 				isRunning = false;
 				System.out.println("Sort Complete");
 			}
+			Stopwatch.stop_aggregate();
 		}
+		General.trackStats_stop("client");
+		Stopwatch.getAggregateAndPrint();
 	}
 
 	public void sendServer(String message){

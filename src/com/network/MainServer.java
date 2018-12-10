@@ -2,6 +2,8 @@ package com.network;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.lang.management.ManagementFactory;
+import java.lang.management.OperatingSystemMXBean;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -238,7 +240,9 @@ public class MainServer extends Thread implements UDPUnpacker {
 	public void synchronizeArrayWithClients(){
 		System.out.println("Synchronizing toSort list with clients...");
 	    // UDP -- Tell clients to send a TCP connection request
-		Stopwatch.start("syncArray-time");
+
+		General.trackStats_start("syncArray");
+
 		try {
 			DatagramSocket udpSocket = new DatagramSocket(Info.PORT);
 
@@ -278,12 +282,14 @@ public class MainServer extends Thread implements UDPUnpacker {
         } catch (IOException e){
             e.printStackTrace();
         }
-		Stopwatch.endAndPrint("syncArray-time");
+
+        General.trackStats_stop("syncArray");
 		System.out.println("Synchronization complete!");
     }
 
     /// METHODS FOR UDP-BASED SORTING
     public void startSort_UDP(){
+		System.out.println("===========================");
 		System.out.println("Starting sort...");
 		try {
 			this.mainUDPSocket = new DatagramSocket(Info.PORT);

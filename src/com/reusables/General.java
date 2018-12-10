@@ -2,6 +2,7 @@ package com.reusables;
 
 import com.main.Info;
 
+import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -16,7 +17,33 @@ public class General {
 	private static final boolean isPrinting = true;
 	private static final boolean isPrintingError = true;
 
+	private static Runtime recentRT;
+	private static OperatingSystemMXBean recentOSBean;
+	private static long recentUsedMemBefore;
 
+	public static void trackStats_start(String stopwatchName){
+		// Stopwatch (1)
+		Stopwatch.start(stopwatchName);
+		// CPU Usage (1)
+		recentOSBean = ManagementFactory.getOperatingSystemMXBean();
+		// MEMORY Usage (1)
+		recentRT = Runtime.getRuntime();
+		System.gc();
+		recentUsedMemBefore = recentRT.totalMemory() - recentRT.freeMemory();
+		System.out.println("usedMemoryBefore: "+recentUsedMemBefore);
+
+	}
+
+	public static void trackStats_stop(String stopwatchName){
+		// Stopwatch (2)
+		Stopwatch.endAndPrint(stopwatchName);
+		// MEMORY Usage (2)
+		long usedMemoryAfter = recentRT.totalMemory() - recentRT.freeMemory();
+		System.out.println("usedMemoryAfter: "+usedMemoryAfter);
+		System.out.println("Memory increased:" + ((usedMemoryAfter-recentUsedMemBefore)));
+		// CPU Usage (2)
+		General.printUsage(recentOSBean);
+	}
 
 	/**
 	 * This is done to keep the packet size uniform. Make sure to use .trim() when parsing the message
