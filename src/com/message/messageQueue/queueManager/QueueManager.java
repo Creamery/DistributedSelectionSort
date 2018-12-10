@@ -37,31 +37,27 @@ public class QueueManager {
      * @return true if delivery is successful, false if otherwise.
      */
     public boolean deliverInstruction(InetAddress consumerIP){
-        synchronized (monitor) {
-            if (instructionQ.isEmpty()) {
-                parent.getServer().sendToClient(consumerIP,"EMPTY");
-                return false;
-            } else {
-                SelectionInstruction toDeliver = instructionQ.poll();
-                parent.getServer().sendToClient(consumerIP,toDeliver.toString());
+        if (instructionQ.isEmpty()) {
+            parent.getServer().sendToClient(consumerIP,"EMPTY");
+            return false;
+        } else {
+            SelectionInstruction toDeliver = instructionQ.poll();
+            parent.getServer().sendToClient(consumerIP,toDeliver.toString());
 
-                inProcessList.add(new InProcessInfo(toDeliver, consumerIP.toString(), this));
+            inProcessList.add(new InProcessInfo(toDeliver, consumerIP.toString(), this));
 
-                return true;
-            }
+            return true;
         }
     }
 
     public SelectionInstruction obtainInstructionLocal(String consumerIP){
-        synchronized (monitor){
-            if(instructionQ.isEmpty())
-                return null;
-            else{
-                SelectionInstruction local = instructionQ.poll();
+        if(instructionQ.isEmpty())
+            return null;
+        else{
+            SelectionInstruction local = instructionQ.poll();
 
-                inProcessList.add(new InProcessInfo(local, consumerIP, this));
-                return local;
-            }
+            inProcessList.add(new InProcessInfo(local, consumerIP, this));
+            return local;
         }
     }
 
