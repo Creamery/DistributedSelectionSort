@@ -205,7 +205,8 @@ public class MainClient extends Thread implements UDPUnpacker {
 					sendServer("REQ");
 					System.out.println("request sent.");
 					msg = waitFromServer();
-					if(msg.contains("INTSR:")){
+					System.out.println("Obtained message: "+msg);
+					if(msg.contains("INSTR:")){
 						// Process Instruction
 						SelectionInstruction instr = SelectionInstruction.parseString(msg);
 						System.out.println("Obtained Instruction: "+instr.toString());
